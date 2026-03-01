@@ -1,0 +1,53 @@
+/* src/app/components/VerseItem.css */
+
+.vi-root {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #fbfbff;
+    border: 1px solid #f0f0f8;
+}
+
+.vi-main {
+    flex: 1;
+}
+
+.vi-text {
+    font-size: 15px;
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+}
+
+.vi-author {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 4px;
+}
+
+.vi-scheduled {
+    font-size: 12px;
+    color: #777;
+}
+
+.vi-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.vi-share {
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #1da1f2;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.vi-share[disabled] {
+    background: #cfeafc;
+    cursor: not-allowed;
+}

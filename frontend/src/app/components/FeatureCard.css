@@ -1,0 +1,120 @@
+/* FeatureCard.css - Estilos dos cards de recursos */
+
+.feature-card {
+  background: linear-gradient(to bottom, #d4c5a9, #e8dcc4);
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border: 4px solid #8B6F47;
+}
+
+.feature-card-header {
+  background-color: #8B1A1A;
+  color: white;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.feature-card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  font-style: italic;
+  margin: 0;
+}
+
+.feature-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+}
+
+.feature-card-description {
+  text-align: center;
+  color: #1f2937;
+  font-weight: 600;
+  margin-top: 1rem;
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+.feature-card-footer {
+  padding: 1rem;
+  padding-top: 0;
+}
+
+.share-button {
+  width: 100%;
+  background-color: #8B1A1A;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+}
+
+.share-button:hover {
+  background-color: #6B1414;
+}
+
+.share-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* VersesImage component */
+.verses-image-container {
+  position: relative;
+  width: 100%;
+  height: 12rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.verses-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* ou cover se quiser preencher */
+}
+
+.verses-image-background {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.verses-image-icons {
+  text-align: center;
+  color: white;
+}
+
+.verses-icon-top {
+  font-size: 3.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.verses-icon-bottom {
+  font-size: 2.25rem;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .feature-card-title {
+    font-size: 1.5rem;
+  }
+}

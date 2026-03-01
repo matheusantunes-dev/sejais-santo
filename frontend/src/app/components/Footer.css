@@ -1,0 +1,167 @@
+/* 🔥 FOOTER 2026 STYLE */
+
+.footer {
+    background: linear-gradient(180deg, #111111, #0d0d0d);
+    color: #ffffff;
+    padding: 80px 20px 30px;
+    margin-top: 100px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Container principal */
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 50px;
+}
+
+/* ============================= */
+/* SEÇÕES */
+/* ============================= */
+
+.footer-section h3 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    margin-bottom: 18px;
+    position: relative;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+}
+
+/* Linha decorativa moderna */
+.footer-section h3::after {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 2px;
+    background: #007bff;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-title-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: color 0.3s ease;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.footer-title-button:hover {
+  color: #007bff;
+}
+
+/* Texto padrão */
+.footer-section p,
+.footer-section li {
+    font-size: 14px;
+    color: #b0b0b0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Links */
+.footer-section a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-section a:hover {
+    color: #ffffff;
+    padding-left: 6px;
+}
+
+/* Lista */
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================= */
+/* CARD DE DESENVOLVEDOR */
+/* ============================= */
+
+.developer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    display: flex;
+    flex-direction: column;
+}
+
+.developer-card:hover {
+    transform: translateY(-4px);
+    border-color: #007bff;
+}
+
+/* Nome do dev */
+.dev-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+/* Telefones */
+.dev-phones p {
+    margin: 5px 0;
+}
+
+/* ============================= */
+/* FOOTER BOTTOM */
+/* ============================= */
+
+.footer-bottom {
+    margin-top: 60px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: center;
+    font-size: 13px;
+    color: #777777;
+}
+
+/* ============================= */
+/* RESPONSIVO */
+/* ============================= */
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .developer-card {
+        padding: 15px;
+    }
+}
