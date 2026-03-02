@@ -6,23 +6,12 @@ import requests
 
 from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
-from dotenv import load_dotenv
-from jose import jwt
 
-load_dotenv()
+from jose import jwt
 
 from supabase_storage import SupabaseStorage
 
 storage = SupabaseStorage(table_name="verses")
-
-# =========================
-# CONFIGURAÇÃO
-# =========================
-
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
-
-if not SUPABASE_JWT_SECRET:
-    raise RuntimeError("Defina SUPABASE_JWT_SECRET no .env do backend")
 
 # =========================
 # FASTAPI APP
@@ -32,10 +21,7 @@ app = FastAPI(title="Sejais Santo Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
