@@ -5,41 +5,73 @@ import "./VerseItem.css";
 type Verse = {
   id: string;
   text: string;
-  author?: string | null;
+  note?: string | null;        // <- seu backend usa note
   scheduledAt?: string | null;
-  ownerEmail?: string | null;
 };
 
 export default function VerseItem({
   verse,
-  onShare,
   canShare,
 }: {
   verse: Verse;
-  onShare: () => void;
   canShare: boolean;
 }) {
-  // formata data amigável (se existir scheduledAt)
-  const scheduledLabel = verse.scheduledAt ? new Date(verse.scheduledAt).toLocaleString() : null;
+
+  const scheduledLabel = verse.scheduledAt
+    ? new Date(verse.scheduledAt).toLocaleString()
+    : null;
+
+  async function handleShare() {
+    if (!canShare) return;
+
+    const author = verse.note || "Autor desconhecido";
+
+    const content = `${author}\n\n${verse.text}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Versículo",
+          text: content,
+        });
+      } else {
+        await navigator.clipboard.writeText(content);
+        alert("Versículo copiado para a área de transferência.");
+      }
+    } catch (err) {
+      console.error("Erro ao compartilhar:", err);
+    }
+  }
 
   return (
     <div className="vi-root">
       <div className="vi-main">
-        <div className="vi-text">{verse.text}</div>
-        {verse.author && <div className="vi-author">{verse.author}</div>}
-        {scheduledLabel && <div className="vi-scheduled">Agendado para: {scheduledLabel}</div>}
+
+        {/* AUTOR EM CIMA */}
+        {verse.note && (
+          <div className="vi-author">
+            {verse.note}
+          </div>
+        )}
+
+        {/* VERSÍCULO EM BAIXO */}
+        <div className="vi-text">
+          {verse.text}
+        </div>
+
+        {scheduledLabel && (
+          <div className="vi-scheduled">
+            Agendado para: {scheduledLabel}
+          </div>
+        )}
       </div>
 
       <div className="vi-actions">
         <button
           className="vi-share"
-          onClick={() => {
-            // confirm modal simples
-            if (!confirm("Compartilhar este versículo? Ele será removido da sua lista.")) return;
-            onShare();
-          }}
+          onClick={handleShare}
           disabled={!canShare}
-          title={canShare ? "Compartilhar (remover da lista)" : "Faça login para compartilhar"}
+          title={canShare ? "Compartilhar versículo" : "Faça login para compartilhar"}
         >
           Compartilhar
         </button>
