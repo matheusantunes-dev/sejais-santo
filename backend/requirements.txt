@@ -5,3 +5,4 @@ supabase
 google-auth
 requests
 python-multipart
+python-jose[cryptography]
