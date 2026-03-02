@@ -5,18 +5,19 @@ import "./VerseItem.css";
 type Verse = {
   id: string;
   text: string;
-  note?: string | null;        // <- seu backend usa note
+  note?: string | null;
   scheduledAt?: string | null;
 };
 
 export default function VerseItem({
   verse,
+  onShare,
   canShare,
 }: {
   verse: Verse;
+  onShare: () => Promise<void> | void;
   canShare: boolean;
 }) {
-
   const scheduledLabel = verse.scheduledAt
     ? new Date(verse.scheduledAt).toLocaleString()
     : null;
@@ -25,7 +26,6 @@ export default function VerseItem({
     if (!canShare) return;
 
     const author = verse.note || "Autor desconhecido";
-
     const content = `${author}\n\n${verse.text}`;
 
     try {
@@ -38,6 +38,10 @@ export default function VerseItem({
         await navigator.clipboard.writeText(content);
         alert("Versículo copiado para a área de transferência.");
       }
+
+      // 🔥 Só remove depois de compartilhar
+      await onShare();
+
     } catch (err) {
       console.error("Erro ao compartilhar:", err);
     }
@@ -46,18 +50,11 @@ export default function VerseItem({
   return (
     <div className="vi-root">
       <div className="vi-main">
-
-        {/* AUTOR EM CIMA */}
         {verse.note && (
-          <div className="vi-author">
-            {verse.note}
-          </div>
+          <div className="vi-author">{verse.note}</div>
         )}
 
-        {/* VERSÍCULO EM BAIXO */}
-        <div className="vi-text">
-          {verse.text}
-        </div>
+        <div className="vi-text">{verse.text}</div>
 
         {scheduledLabel && (
           <div className="vi-scheduled">
@@ -71,7 +68,6 @@ export default function VerseItem({
           className="vi-share"
           onClick={handleShare}
           disabled={!canShare}
-          title={canShare ? "Compartilhar versículo" : "Faça login para compartilhar"}
         >
           Compartilhar
         </button>
