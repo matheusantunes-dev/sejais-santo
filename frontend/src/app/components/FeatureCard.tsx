@@ -1,6 +1,8 @@
-// src/app/components/FeatureCard.tsx
 import { Share2, Pencil, BookOpen } from "lucide-react";
 import { GospelCard } from "./GospelCard";
+import { GospelShareImage } from "./GospelShareImage";
+import { toPng } from "html-to-image";
+import { useRef } from "react";
 import "./FeatureCard.css";
 import recomendacao from "@/assets/recomendação.png";
 import organizacao from "@/assets/organizacao.png";
@@ -25,14 +27,44 @@ export function FeatureCard({
   const { session } = useAuth();
   const user = session?.user;
   const { gospel, loading, error } = useGospel();
+  const shareRef = useRef<HTMLDivElement>(null);
   const isOrganizer = type === "organize";
 
   const buttonLabel =
     type === "organize"
       ? "Editar"
       : type === "verses"
-        ? "Abrir a Bíblia"
-        : "Compartilhar";
+      ? "Abrir a Bíblia"
+      : "Compartilhar";
+
+  const handleShareGospel = async () => {
+    if (!gospel || !shareRef.current) return;
+
+    try {
+      const dataUrl = await toPng(shareRef.current, {
+        pixelRatio: 2,
+      });
+
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "evangelho-do-dia.png", {
+        type: "image/png",
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Evangelho do Dia",
+        });
+      } else {
+        await navigator.clipboard.writeText(
+          `${gospel.referencia}\n\n${gospel.texto}`
+        );
+        alert("Compartilhamento de imagem não suportado. Texto copiado!");
+      }
+    } catch (error) {
+      console.error("Erro ao gerar imagem:", error);
+    }
+  };
 
   const buttonAction = () => {
     if (isOrganizer) {
@@ -48,22 +80,6 @@ export function FeatureCard({
     }
   };
 
-  const handleShareGospel = async () => {
-    if (!gospel) return;
-
-    const content = `${gospel.referencia}\n\n${gospel.texto}`;
-
-    if (navigator.share) {
-      await navigator.share({
-        title: "Evangelho do Dia",
-        text: content,
-      });
-    } else {
-      await navigator.clipboard.writeText(content);
-      alert("Texto copiado!");
-    }
-  };
-
   return (
     <div className="feature-card">
       <div className="feature-card-header">
@@ -74,11 +90,13 @@ export function FeatureCard({
         {type === "gospel" && (
           <GospelCard gospel={gospel} loading={loading} error={error} />
         )}
+
         {type === "verses" && (
           <div className="verses-image-container">
             <img src={recomendacao} alt="Versículos" />
           </div>
         )}
+
         {type === "organize" && (
           <div className="verses-image-container">
             <img src={organizacao} alt="Organizar" />
@@ -93,6 +111,7 @@ export function FeatureCard({
       <div className="feature-card-footer">
         <button onClick={buttonAction} className="share-button">
           <span>{buttonLabel}</span>
+
           {isOrganizer ? (
             <Pencil className="share-icon" />
           ) : type === "verses" ? (
@@ -102,6 +121,16 @@ export function FeatureCard({
           )}
         </button>
       </div>
+
+      {gospel && (
+        <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+          <GospelShareImage
+            ref={shareRef}
+            referencia={gospel.referencia}
+            texto={gospel.texto}
+          />
+        </div>
+      )}
     </div>
   );
 }
