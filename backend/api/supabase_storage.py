@@ -2,7 +2,7 @@ from typing import List, Dict
 from datetime import datetime, timezone
 import uuid
 
-from supabase_client import get_supabase_client
+from api.supabase_client import get_supabase_client
 
 
 class SupabaseStorage:
