@@ -5,4 +5,4 @@ supabase
 google-auth
 requests
 python-multipart
-pip freeze > requirements.txt
+python-jose[cryptography]

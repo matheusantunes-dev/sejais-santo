@@ -13,7 +13,9 @@ export function useGospel() {
   useEffect(() => {
     async function fetchGospel() {
       try {
-        const response = await fetch("/api/gospel");
+        const API_URL = import.meta.env.VITE_API_URL;
+        
+        const response = await fetch(`${API_URL}/gospel`);
 
         if (!response.ok) {
           throw new Error("Erro ao buscar evangelho");
