@@ -1,164 +1,139 @@
 import React from "react";
 import VersiculoCard, { Versiculo } from "./VersiculoCard";
+import { useAuth } from "../context/AuthContext";
 
-/**
- * Usa VITE_API_URL do .env do frontend (melhor que hardcode).
- * Se não existir, cai pra localhost:8000 (dev).
- */
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const VersiculoList: React.FC = () => {
+  const { session } = useAuth();
+  const token = session?.access_token;
+
   const [versiculos, setVersiculos] = React.useState<Versiculo[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [newText, setNewText] = React.useState("");
   const [adding, setAdding] = React.useState(false);
 
-  // ========== Buscar versículos ==========
   const fetchVersiculos = React.useCallback(async () => {
+    if (!token) return;
+
     setLoading(true);
-    console.log("[VersiculoList] fetchVersiculos() ->", `${API_URL}/api/verses`);
     try {
-      const res = await fetch(`${API_URL}/api/verses`);
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("[VersiculoList] list error:", res.status, text);
-        throw new Error("Erro ao listar versículos");
-      }
+      const res = await fetch(`${API_URL}/verses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Erro ao listar versículos");
+
       const data = await res.json();
       setVersiculos(data || []);
-      console.log("[VersiculoList] loaded", (data || []).length, "versículos");
     } catch (err) {
-      console.error("[VersiculoList] fetchVersiculos catch:", err);
-      alert("Falha ao buscar versículos. Veja o console para detalhes.");
+      console.error(err);
+      alert("Falha ao buscar versículos.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   React.useEffect(() => {
     fetchVersiculos();
   }, [fetchVersiculos]);
 
-  // ========== Adicionar versículo ==========
   const handleAdd = async () => {
-    console.log("[VersiculoList] handleAdd called, text:", newText);
     if (!newText.trim()) {
       alert("Digite o versículo.");
       return;
     }
 
+    if (!token) return;
+
     setAdding(true);
 
     try {
-      const payload = {
-        text: newText.trim(),
-        note: null,
-        scheduledAt: null,
-      };
-
-      console.log("[VersiculoList] POST payload:", payload);
-
-      const res = await fetch(`${API_URL}/api/verses`, {
+      const res = await fetch(`${API_URL}/verses`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          text: newText.trim(),
+          note: null,
+          scheduledAt: null,
+        }),
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("[VersiculoList] POST failed:", res.status, txt);
-        throw new Error("Falha ao adicionar versículo");
-      }
+      if (!res.ok) throw new Error("Erro ao adicionar versículo");
 
-      // Se o backend retornar o novo objeto com id, insere sem refetch
-      const created = await res.json().catch(() => null);
-      if (created && created.id) {
-        setVersiculos((prev) => [created, ...prev]);
-      } else {
-        await fetchVersiculos();
-      }
-
+      const created = await res.json();
+      setVersiculos((prev) => [created, ...prev]);
       setNewText("");
     } catch (err) {
-      console.error("[VersiculoList] handleAdd error:", err);
-      alert("Erro ao adicionar versículo. Veja o console.");
+      console.error(err);
+      alert("Erro ao adicionar versículo.");
     } finally {
       setAdding(false);
     }
   };
 
-  // ========== Deletar ==========
   const handleDelete = async (id: string) => {
+    if (!token) return;
+
     const confirmed = window.confirm("Tem certeza que deseja excluir?");
     if (!confirmed) return;
 
     try {
-      console.log("[VersiculoList] deleting", id);
-      const res = await fetch(`${API_URL}/api/verses`, {
+      const res = await fetch(`${API_URL}/verses`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ id }),
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("[VersiculoList] DELETE failed:", res.status, txt);
-        throw new Error("Erro ao deletar");
-      }
+      if (!res.ok) throw new Error("Erro ao deletar");
 
       setVersiculos((prev) => prev.filter((v) => v.id !== id));
     } catch (err) {
-      console.error("[VersiculoList] handleDelete error:", err);
-      alert("Erro ao deletar versículo.");
+      console.error(err);
+      alert("Erro ao deletar.");
     }
   };
 
-  // ========== UI ==========
+  if (!session) {
+    return <p>Faça login para visualizar seus versículos.</p>;
+  }
+
   return (
     <div>
-      <div className="header">
-        <h1>Evangelho do Dia — Organização</h1>
-      </div>
+      <h1>Organização de Versículos</h1>
 
-      <div style={{ marginBottom: 16 }} className="form-inline">
+      <div style={{ marginBottom: 16 }}>
         <textarea
           rows={3}
-          style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 8,
-            border: "1px solid #e5e7eb",
-          }}
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           placeholder="Escreva seu versículo aqui..."
         />
-
-        {/* IMPORTANTE: type="button" para evitar comportamento de submit silencioso */}
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleAdd}
-          disabled={adding}
-        >
+        <button type="button" onClick={handleAdd} disabled={adding}>
           {adding ? "Adicionando..." : "Adicionar"}
         </button>
       </div>
 
       {loading && <div>Carregando...</div>}
 
-      <div style={{ display: "grid", gap: 12 }}>
-        {versiculos.map((v) => (
-          <VersiculoCard
-            key={v.id}
-            versiculo={v}
-            onDelete={handleDelete}
-            onShare={() => handleDelete(v.id)}
-            onUpdateSchedule={async (id: string, isoDate: string | null) => {}}
-            canShare={true}
-          />
-        ))}
-      </div>
+      {versiculos.map((v) => (
+        <VersiculoCard
+          key={v.id}
+          versiculo={v}
+          onDelete={handleDelete}
+          onShare={() => handleDelete(v.id)}
+          onUpdateSchedule={() => {}}
+          canShare={true}
+        />
+      ))}
     </div>
   );
 };
