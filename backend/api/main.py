@@ -5,7 +5,7 @@ from typing import Optional
 import requests
 from jose import jwt
 
-from supabase_storage import SupabaseStorage
+from api.supabase_storage import SupabaseStorage
 
 
 # =========================
