@@ -33,19 +33,24 @@ export function Footer() {
 
   return (
     <>
-      <footer className="footer">
+      <footer className="footer" role="contentinfo">
+        <div className="footer-glow footer-glow-left" aria-hidden="true" />
+        <div className="footer-glow footer-glow-right" aria-hidden="true" />
+
         <div className="footer-container">
-          <div className="footer-column">
+          <div className="footer-brand-column">
+            <p className="footer-kicker">Sejais Santo</p>
+            <h2 className="footer-brand-title">Uma plataforma para viver a fé no dia a dia.</h2>
+            <p className="footer-description">
+              Reflexões, liturgia e recursos católicos para acompanhar sua caminhada espiritual com simplicidade.
+            </p>
+
             <button
-              className="footer-title-button"
+              className="footer-about-button"
               onClick={() => setIsSobreOpen(true)}
             >
-              Sobre
+              Conheça o projeto
             </button>
-
-            <p className="footer-description">
-              Conheça mais sobre nossos serviços, valores e missão.
-            </p>
           </div>
 
           <div className="footer-column">
@@ -62,11 +67,11 @@ export function Footer() {
           </div>
 
           <div className="footer-column">
-            <h3 className="footer-title">Desenvolvido por</h3>
+            <h3 className="footer-title">Equipe de desenvolvimento</h3>
 
-            <div className="developers">
+            <div className="developers-grid">
               {developers.map((dev) => (
-                <div key={dev.name} className="developer-card">
+                <article key={dev.name} className="developer-card">
                   <strong className="dev-name">{dev.name}</strong>
 
                   <div className="dev-links">
@@ -96,14 +101,15 @@ export function Footer() {
                       </a>
                     ))}
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          © {currentYear} Sejais Santo. Todos os direitos reservados.
+          <span>© {currentYear} Sejais Santo.</span>
+          <span>Todos os direitos reservados.</span>
         </div>
       </footer>
 
