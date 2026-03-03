@@ -27,7 +27,7 @@ export const GospelShareImage = forwardRef<
     >
       <span
         style={{
-          fontSize: "24px",
+          fontSize: "48px",
           marginBottom: "60px",
           opacity: 0.7,
         }}
