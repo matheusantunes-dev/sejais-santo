@@ -34,7 +34,7 @@ const DEFAULT_PALETTE: LiturgicalPalette = {
 const palettes: Record<string, LiturgicalPalette> = {
   Advento: {
     ...DEFAULT_PALETTE,
-    appBg: "#e7def5",
+    appBg: "#7647bf",
     headerBg: "#6f42c1",
     heroStart: "rgba(79,38,131,0.95)",
     heroMid: "rgba(111,66,193,0.9)",
@@ -47,7 +47,7 @@ const palettes: Record<string, LiturgicalPalette> = {
   },
   Quaresma: {
     ...DEFAULT_PALETTE,
-    appBg: "#ddd4ec",
+    appBg: "#321263",
     headerBg: "#4b2e83",
     heroStart: "rgba(42,24,76,0.95)",
     heroMid: "rgba(75,46,131,0.9)",
