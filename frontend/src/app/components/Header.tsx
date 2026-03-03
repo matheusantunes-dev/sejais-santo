@@ -17,11 +17,7 @@ export function Header() {
   }, []);
 
   const user = session?.user;
-
-  console.log("SESSION COMPLETA:", session);
-  console.log("USER:", session?.user);
-  console.log("USER ID:", session?.user?.id);
-
+  
   return (
     <header className="header">
       <div className="header-container">

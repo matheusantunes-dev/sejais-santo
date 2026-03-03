@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import biblePaper from "@/assets/bible-paper.jpeg";
 
 interface GospelShareImageProps {
   referencia: string;
@@ -16,7 +17,7 @@ export const GospelShareImage = forwardRef<
         width: "900px",
         minHeight: "1600px",
         padding: "120px 100px",
-        backgroundImage: "url('../../bible-paper.jpeg')",
+        backgroundImage: `url(${biblePaper})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         fontFamily: "Georgia, serif",

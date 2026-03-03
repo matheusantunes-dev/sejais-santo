@@ -1,10 +1,3 @@
-PERFEITO. Agora a gente vai vestir esse projeto com roupa de conferência tech 😌🔥
-Sem mentiras. Sem prometer o que não existe. Só apresentação forte, profissional e estratégica.
-
-Você pode copiar exatamente o conteúdo abaixo para o seu `README.md`.
-
----
-
 <!-- HEADER -->
 
 <h1 align="center">🙏 Sejais Santo</h1>
