@@ -77,8 +77,8 @@ export default function App() {
                 onShare={() => handleShare("Evangelho do Dia")}
               />
               <FeatureCard
-                title="Versículos do Mês"
-                description="Sugestões de Leitura para o Mês"
+                title="Versículos do Dia"
+                description="Leitura para o Dia"
                 type="verses"
                 onShare={() => setShowVerseModal(true)}
               />
