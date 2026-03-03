@@ -2,11 +2,19 @@ import React, { useState } from "react";
 import "./Footer.css";
 import { SobreModal } from "./SobreModal";
 
+type Developer = {
+  name: string;
+  email: string;
+  linkedin: string;
+  instagram: string;
+  phones: string[];
+};
+
 export function Footer() {
   const currentYear = new Date().getFullYear();
   const [isSobreOpen, setIsSobreOpen] = useState(false);
 
-  const developers = [
+  const developers: Developer[] = [
     {
       name: "Matheus Antunes",
       email: "matheusantunesreis6@gmail.com",
@@ -26,74 +34,83 @@ export function Footer() {
   return (
     <>
       <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-section">
+        <div className="footer-container">
+          <div className="footer-column">
             <button
               className="footer-title-button"
               onClick={() => setIsSobreOpen(true)}
             >
               Sobre
             </button>
-            <p>Conheça mais sobre nossos serviços e valores.</p>
+
+            <p className="footer-description">
+              Conheça mais sobre nossos serviços, valores e missão.
+            </p>
           </div>
 
-          <div className="footer-section">
-            <h3>Contato</h3>
-            <p>Email: matheusantunesreis6@gmail.com</p>
-            <p>Email: Fredjoaquimsocial@gmail.com</p>
+          <div className="footer-column">
+            <h3 className="footer-title">Contato</h3>
+
+            <div className="footer-links">
+              <a href="mailto:matheusantunesreis6@gmail.com">
+                matheusantunesreis6@gmail.com
+              </a>
+              <a href="mailto:Fredjoaquimsocial@gmail.com">
+                Fredjoaquimsocial@gmail.com
+              </a>
+            </div>
           </div>
 
-          <div className="footer-section">
-            <h3>Desenvolvido por</h3>
+          <div className="footer-column">
+            <h3 className="footer-title">Desenvolvido por</h3>
 
-            {developers.map((dev) => (
-              <div key={dev.name} className="developer-card">
-                <p className="dev-name">{dev.name}</p>
+            <div className="developers">
+              {developers.map((dev) => (
+                <div key={dev.name} className="developer-card">
+                  <strong className="dev-name">{dev.name}</strong>
 
-                <p>
-                  Email: <a href={`mailto:${dev.email}`}>{dev.email}</a>
-                </p>
+                  <div className="dev-links">
+                    <a href={`mailto:${dev.email}`}>Email</a>
 
-                <p>
-                  <a
-                    href={dev.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    LinkedIn
-                  </a>
-                </p>
+                    <a
+                      href={dev.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      LinkedIn
+                    </a>
 
-                <p>
-                  <a
-                    href={dev.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Instagram
-                  </a>
-                </p>
+                    <a
+                      href={dev.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Instagram
+                    </a>
+                  </div>
 
-                <div className="dev-phones">
-                  {dev.phones.map((phone, index) => (
-                    <p key={index}>
-                      <a href={`tel:${phone}`}>{phone}</a>
-                    </p>
-                  ))}
+                  <div className="dev-phones">
+                    {dev.phones.map((phone, index) => (
+                      <a key={index} href={`tel:${phone}`}>
+                        {phone}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>
-            &copy; {currentYear} Sejais Santo - Todos os direitos reservados.
-          </p>
+          © {currentYear} Sejais Santo. Todos os direitos reservados.
         </div>
       </footer>
 
-      <SobreModal isOpen={isSobreOpen} onClose={() => setIsSobreOpen(false)} />
+      <SobreModal
+        isOpen={isSobreOpen}
+        onClose={() => setIsSobreOpen(false)}
+      />
     </>
   );
 }
