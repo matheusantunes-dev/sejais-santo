@@ -55,7 +55,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     bannerMid: "rgba(75,46,131,0.85)",
     accent: "#4b2e83",
     accentHover: "#2f1b59",
-    title: "#4b2e83",
+    title: "#fffff",
     border: "#5f4b87",
   },
   "Tempo Pascal": {
