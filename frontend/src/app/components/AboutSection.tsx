@@ -47,7 +47,11 @@ export function AboutSection() {
                 por unir fé e tecnologia, inspirando jovens com sua devoção e
                 simplicidade.
               </p>
-              <a href="https://site-externo.com" target="_blank" rel="noopener noreferrer" className="about-button-link">
+              <a href="https://www.vaticannews.va/pt/papa/news/2025-09/papa-leao-xiv-missa-canonizacao-biografia-acutis.html" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="about-button-link">
+                
                  <button className="about-button">
                               Saiba Mais
                           <ChevronRight className="about-button-icon" />
