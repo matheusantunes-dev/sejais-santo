@@ -63,9 +63,12 @@
 }
 
 .gospel-title {
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 1.6rem;
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+  letter-spacing: 0.5px;
 }
 
 .gospel-text {
