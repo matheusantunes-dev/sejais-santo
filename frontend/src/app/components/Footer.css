@@ -1,167 +1,164 @@
-/* 🔥 FOOTER 2026 STYLE */
-
 .footer {
-    background: linear-gradient(180deg, #111111, #0d0d0d);
-    color: #ffffff;
-    padding: 80px 20px 30px;
-    margin-top: 100px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    font-family: 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(180deg, #111 0%, #0b0b0b 100%);
+  color: #ffffff;
+  padding: 70px 20px 30px;
+  margin-top: 100px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: "Segoe UI", Roboto, sans-serif;
 }
 
-/* Container principal */
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 50px;
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 50px;
 }
 
-/* ============================= */
-/* SEÇÕES */
-/* ============================= */
+/* ===== TITLES ===== */
 
-.footer-section h3 {
-    font-size: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #ffffff;
-    margin-bottom: 18px;
-    position: relative;
-    flex-direction: column;
-    display: flex;
-    align-items: center;
+.footer-title {
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  color: #ffffff;
+  position: relative;
 }
 
-/* Linha decorativa moderna */
-.footer-section h3::after {
-    content: "";
-    display: block;
-    width: 30px;
-    height: 2px;
-    background: #007bff;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.footer-title::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: #007bff;
+  margin-top: 8px;
 }
 
 .footer-title-button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  font-size: 15px;
-  text-transform: uppercase;
+  all: unset;
+  font-size: 14px;
   letter-spacing: 1.5px;
-  color: #ffffff;
-
+  text-transform: uppercase;
   cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: color 0.3s ease;
+  color: #ffffff;
+  margin-bottom: 20px;
+  position: relative;
+}
 
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 8px;
+.footer-title-button::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: #007bff;
+  margin-top: 8px;
 }
 
 .footer-title-button:hover {
   color: #007bff;
 }
 
-/* Texto padrão */
-.footer-section p,
-.footer-section li {
-    font-size: 14px;
-    color: #b0b0b0;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+/* ===== TEXT ===== */
+
+.footer-description {
+  font-size: 14px;
+  color: #b0b0b0;
+  line-height: 1.6;
+  max-width: 280px;
 }
 
-/* Links */
-.footer-section a {
-    color: #b0b0b0;
-    text-decoration: none;
-    transition: all 0.3s ease;
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.footer-section a:hover {
-    color: #ffffff;
-    padding-left: 6px;
+.footer-links a {
+  color: #b0b0b0;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.3s;
 }
 
-/* Lista */
-.footer-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.footer-links a:hover {
+  color: #ffffff;
+  transform: translateX(4px);
 }
 
-/* ============================= */
-/* CARD DE DESENVOLVEDOR */
-/* ============================= */
+/* ===== DEVELOPERS ===== */
+
+.developers {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 
 .developer-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 15px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(6px);
-    display: flex;
-    flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.3s ease;
 }
 
 .developer-card:hover {
-    transform: translateY(-4px);
-    border-color: #007bff;
+  transform: translateY(-4px);
+  border-color: #007bff;
 }
 
-/* Nome do dev */
 .dev-name {
-    font-weight: bold;
-    font-size: 15px;
-    color: #ffffff;
-    margin-bottom: 10px;
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
 }
 
-/* Telefones */
-.dev-phones p {
-    margin: 5px 0;
+.dev-links {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
-/* ============================= */
-/* FOOTER BOTTOM */
-/* ============================= */
+.dev-links a,
+.dev-phones a {
+  font-size: 13px;
+  color: #b0b0b0;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.dev-links a:hover,
+.dev-phones a:hover {
+  color: #ffffff;
+}
+
+.dev-phones {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ===== BOTTOM ===== */
 
 .footer-bottom {
-    margin-top: 60px;
-    padding-top: 25px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    text-align: center;
-    font-size: 13px;
-    color: #777777;
+  margin-top: 60px;
+  padding-top: 25px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+  font-size: 13px;
+  color: #777;
 }
 
-/* ============================= */
-/* RESPONSIVO */
-/* ============================= */
+/* ===== RESPONSIVO ===== */
 
 @media (max-width: 768px) {
-    .footer-content {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
 
-    .developer-card {
-        padding: 15px;
-    }
+  .developer-card {
+    padding: 15px;
+  }
 }
