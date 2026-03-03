@@ -57,7 +57,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     accent: "#4b2e83",
     accentHover: "#2f1b59",
     sectionTitle: "#ffffff",
-    sectionTitle: "#00000",
+    sectionSubTitle: "#4b2e83",
     border: "#5f4b87",
   },
   "Tempo Pascal": {
@@ -96,6 +96,7 @@ function ensureThemeStyleTag() {
       --liturgical-accent: ${DEFAULT_PALETTE.accent};
       --liturgical-accent-hover: ${DEFAULT_PALETTE.accentHover};
       --liturgical-section-title: ${DEFAULT_PALETTE.sectionTitle};
+      --liturgical-section-subtitle: ${DEFAULT_PALETE.sectionSubTitle}
     }
 
     .app-container,
@@ -134,9 +135,11 @@ function ensureThemeStyleTag() {
       background-color: var(--liturgical-accent-hover);
     }
 
-    .about-title,
-    .about-subtitle {
+    .about-title {
       color: var(--liturgical-section-title);
+    }
+    .about-subtitle {
+    color: var(--liturgical-section-subtitle);
     }
 
     .about-card,
