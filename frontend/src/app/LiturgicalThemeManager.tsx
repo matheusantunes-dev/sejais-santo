@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { getLiturgicalSeason } from "@/utils/LiturgicalCalendar";
 
+/**
+ * Define todas as cores usadas pelo tema litúrgico.
+ * Se adicionar algo aqui, o TypeScript força consistência em todos os temas.
+ */
 type LiturgicalPalette = {
   appBg: string;
   headerBg: string;
@@ -14,8 +18,22 @@ type LiturgicalPalette = {
   accent: string;
   accentHover: string;
   sectionTitle: string;
+  sectionSubTitle: string;
 };
 
+/**
+ * Tipagem explícita das estações.
+ * Isso evita que qualquer string aleatória seja usada.
+ */
+type LiturgicalSeason =
+  | "Advento"
+  | "Quaresma"
+  | "Tempo Pascal";
+
+/**
+ * Paleta base.
+ * Sempre deve respeitar o contrato LiturgicalPalette.
+ */
 const DEFAULT_PALETTE: LiturgicalPalette = {
   appBg: "#ebeba4",
   headerBg: "#8b1a1a",
@@ -29,10 +47,13 @@ const DEFAULT_PALETTE: LiturgicalPalette = {
   accent: "#8b1a1a",
   accentHover: "#6b1414",
   sectionTitle: "#8b4513",
+  sectionSubTitle: "#8b4513",
 };
 
-// Regras de título: roxos => branco, tempo pascal => preto, demais => padrão do site.
-const palettes: Record<string, LiturgicalPalette> = {
+/**
+ * Todas as estações obrigatoriamente seguem o contrato.
+ */
+const palettes: Record<LiturgicalSeason, LiturgicalPalette> = {
   Advento: {
     ...DEFAULT_PALETTE,
     appBg: "#7647bf",
@@ -44,8 +65,10 @@ const palettes: Record<string, LiturgicalPalette> = {
     accent: "#6f42c1",
     accentHover: "#4f2683",
     sectionTitle: "#ffffff",
+    sectionSubTitle: "#ffffff",
     border: "#7a5ca8",
   },
+
   Quaresma: {
     ...DEFAULT_PALETTE,
     appBg: "#321263",
@@ -60,6 +83,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     sectionSubTitle: "#4b2e83",
     border: "#5f4b87",
   },
+
   "Tempo Pascal": {
     ...DEFAULT_PALETTE,
     appBg: "#f6e8a8",
@@ -71,17 +95,22 @@ const palettes: Record<string, LiturgicalPalette> = {
     accent: "#b8860b",
     accentHover: "#8d6608",
     sectionTitle: "#000000",
+    sectionSubTitle: "#000000",
     border: "#b9953c",
   },
 };
 
 const STYLE_ID = "liturgical-theme-overrides";
 
+/**
+ * Garante que o style base exista apenas uma vez no DOM.
+ */
 function ensureThemeStyleTag() {
   if (document.getElementById(STYLE_ID)) return;
 
   const style = document.createElement("style");
   style.id = STYLE_ID;
+
   style.textContent = `
     :root {
       --liturgical-app-bg: ${DEFAULT_PALETTE.appBg};
@@ -96,7 +125,7 @@ function ensureThemeStyleTag() {
       --liturgical-accent: ${DEFAULT_PALETTE.accent};
       --liturgical-accent-hover: ${DEFAULT_PALETTE.accentHover};
       --liturgical-section-title: ${DEFAULT_PALETTE.sectionTitle};
-      --liturgical-section-subtitle: ${DEFAULT_PALETE.sectionSubTitle}
+      --liturgical-section-subtitle: ${DEFAULT_PALETTE.sectionSubTitle};
     }
 
     .app-container,
@@ -110,15 +139,29 @@ function ensureThemeStyleTag() {
     }
 
     .hero-banner {
-      background: linear-gradient(90deg, var(--liturgical-hero-start) 0%, var(--liturgical-hero-mid) 50%, var(--liturgical-hero-start) 100%);
+      background: linear-gradient(
+        90deg,
+        var(--liturgical-hero-start) 0%,
+        var(--liturgical-hero-mid) 50%,
+        var(--liturgical-hero-start) 100%
+      );
     }
 
     .easter-banner {
-      background: linear-gradient(90deg, var(--liturgical-banner-start) 0%, var(--liturgical-banner-mid) 50%, var(--liturgical-banner-start) 100%);
+      background: linear-gradient(
+        90deg,
+        var(--liturgical-banner-start) 0%,
+        var(--liturgical-banner-mid) 50%,
+        var(--liturgical-banner-start) 100%
+      );
     }
 
     .feature-card {
-      background: linear-gradient(to bottom, var(--liturgical-card-top), var(--liturgical-card-bottom));
+      background: linear-gradient(
+        to bottom,
+        var(--liturgical-card-top),
+        var(--liturgical-card-bottom)
+      );
       border-color: var(--liturgical-border);
     }
 
@@ -138,8 +181,9 @@ function ensureThemeStyleTag() {
     .about-title {
       color: var(--liturgical-section-title);
     }
+
     .about-subtitle {
-    color: var(--liturgical-section-subtitle);
+      color: var(--liturgical-section-subtitle);
     }
 
     .about-card,
@@ -148,39 +192,50 @@ function ensureThemeStyleTag() {
     }
 
     .about-title-line {
-      background-color: color-mix(in srgb, var(--liturgical-section-title) 35%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--liturgical-section-title) 35%,
+        transparent
+      );
     }
   `;
 
   document.head.appendChild(style);
 }
 
+/**
+ * Aplica automaticamente todas as propriedades da palette.
+ * Escalável e difícil de esquecer algo.
+ */
 function applyPalette(season: string) {
-  const palette = palettes[season] ?? DEFAULT_PALETTE;
+  const palette =
+    (palettes as Record<string, LiturgicalPalette>)[season] ??
+    DEFAULT_PALETTE;
+
   const root = document.documentElement;
 
-  root.style.setProperty("--liturgical-app-bg", palette.appBg);
-  root.style.setProperty("--liturgical-header-bg", palette.headerBg);
-  root.style.setProperty("--liturgical-hero-start", palette.heroStart);
-  root.style.setProperty("--liturgical-hero-mid", palette.heroMid);
-  root.style.setProperty("--liturgical-banner-start", palette.bannerStart);
-  root.style.setProperty("--liturgical-banner-mid", palette.bannerMid);
-  root.style.setProperty("--liturgical-card-top", palette.cardTop);
-  root.style.setProperty("--liturgical-card-bottom", palette.cardBottom);
-  root.style.setProperty("--liturgical-border", palette.border);
-  root.style.setProperty("--liturgical-accent", palette.accent);
-  root.style.setProperty("--liturgical-accent-hover", palette.accentHover);
-  root.style.setProperty("--liturgical-section-title", palette.sectionTitle);
+  Object.entries(palette).forEach(([key, value]) => {
+    const cssVar = `--liturgical-${key
+      .replace(/([A-Z])/g, "-$1")
+      .toLowerCase()}`;
+
+    root.style.setProperty(cssVar, value);
+  });
 }
 
 export function LiturgicalThemeManager() {
   useEffect(() => {
     ensureThemeStyleTag();
 
-    const syncTheme = () => applyPalette(getLiturgicalSeason(new Date()));
+    const syncTheme = () =>
+      applyPalette(getLiturgicalSeason(new Date()));
 
     syncTheme();
-    const interval = window.setInterval(syncTheme, 1000 * 60 * 60);
+
+    const interval = window.setInterval(
+      syncTheme,
+      1000 * 60 * 60
+    );
 
     return () => window.clearInterval(interval);
   }, []);
