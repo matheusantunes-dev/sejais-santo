@@ -9,23 +9,11 @@ import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
 import { VersododiaModal } from "./components/VersododiaModal";
+import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
 import { useState } from "react";
 import "./App.css";
 
-// Configuração dos tempos litúrgicos
-const liturgicalSeasons = {
-  advent: { color: "#7b2cbf", name: "Advento" },
-  lent: { color: "#7b2cbf", name: "Quaresma" },
-  ordinary: { color: "#2d6a4f", name: "Tempo Comum" },
-  easter: { color: "#dc2f02", name: "Tempo Pascal" },
-  christmas: { color: "#d4af37", name: "Natal" },
-  default: { color: "#b71c1c", name: "Padrão" },
-};
-
 export default function App() {
-  const [currentSeason, setCurrentSeason] =
-    useState<keyof typeof liturgicalSeasons>("easter");
-  const seasonConfig = liturgicalSeasons[currentSeason];
   const [showOrganizer, setShowOrganizer] = useState(false);
   const [showVerseModal, setShowVerseModal] = useState(false);
 
@@ -45,6 +33,7 @@ export default function App() {
 
   return (
     <>
+      <LiturgicalThemeManager />
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <filter id="velvet-filter">
           <feTurbulence
