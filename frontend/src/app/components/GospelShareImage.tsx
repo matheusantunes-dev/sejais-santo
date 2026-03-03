@@ -16,7 +16,7 @@ export const GospelShareImage = forwardRef<
         width: "900px",
         minHeight: "1600px",
         padding: "120px 100px",
-        backgroundImage: "url('../../bible-paper.jpeg')",
+        backgroundImage: "url('../../assets/bible-paper.jpeg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         fontFamily: "Georgia, serif",
