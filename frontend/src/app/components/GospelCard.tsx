@@ -1,6 +1,7 @@
 import { Calendar } from "lucide-react";
 import { useGospel } from "../services/useGospel";
 import { useEffect } from "react";
+import "./GospelCard.css";
 
 interface GospelCardProps {
   gospel: {
