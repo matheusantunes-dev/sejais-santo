@@ -47,10 +47,12 @@ export function AboutSection() {
                 por unir fé e tecnologia, inspirando jovens com sua devoção e
                 simplicidade.
               </p>
-              <button className="about-button">
-                Saiba Mais
-                <ChevronRight className="about-button-icon" />
-              </button>
+              <a href="https://site-externo.com" target="_blank" rel="noopener noreferrer" className="about-button-link">
+                 <button className="about-button">
+                              Saiba Mais
+                          <ChevronRight className="about-button-icon" />
+                 </button>
+              </a>
             </div>
           </div>
         </div>
