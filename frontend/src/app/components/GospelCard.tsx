@@ -23,10 +23,10 @@ export function GospelCard({ gospel, loading, error }: GospelCardProps) {
         {loading && <p>Carregando...</p>}
         {error && <p>{error}</p>}
         {gospel && (
-          <>
-            <h4>{gospel.referencia}</h4>
-            <p>{gospel.texto}</p>
-          </>
+          <div clasName="gospel-content">
+            <h4 className="gospel-title">{gospel.referencia}</h4>
+            <p className="gospel-text">{gospel.texto}</p>
+          </div>
         )}
       </div>
     </div>
