@@ -13,7 +13,7 @@ type LiturgicalPalette = {
   border: string;
   accent: string;
   accentHover: string;
-  title: string;
+  sectionTitle: string;
 };
 
 const DEFAULT_PALETTE: LiturgicalPalette = {
@@ -28,9 +28,10 @@ const DEFAULT_PALETTE: LiturgicalPalette = {
   border: "#8b6f47",
   accent: "#8b1a1a",
   accentHover: "#6b1414",
-  title: "#8b4513",
+  sectionTitle: "#8b4513",
 };
 
+// Regras de título: roxos => branco, tempo pascal => preto, demais => padrão do site.
 const palettes: Record<string, LiturgicalPalette> = {
   Advento: {
     ...DEFAULT_PALETTE,
@@ -42,7 +43,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     bannerMid: "rgba(111,66,193,0.85)",
     accent: "#6f42c1",
     accentHover: "#4f2683",
-    title: "#4f2683",
+    sectionTitle: "#ffffff",
     border: "#7a5ca8",
   },
   Quaresma: {
@@ -55,7 +56,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     bannerMid: "rgba(75,46,131,0.85)",
     accent: "#4b2e83",
     accentHover: "#2f1b59",
-    title: "#fffff",
+    sectionTitle: "#ffffff",
     border: "#5f4b87",
   },
   "Tempo Pascal": {
@@ -68,7 +69,7 @@ const palettes: Record<string, LiturgicalPalette> = {
     bannerMid: "rgba(215,167,43,0.85)",
     accent: "#b8860b",
     accentHover: "#8d6608",
-    title: "#8d6608",
+    sectionTitle: "#000000",
     border: "#b9953c",
   },
 };
@@ -93,7 +94,7 @@ function ensureThemeStyleTag() {
       --liturgical-border: ${DEFAULT_PALETTE.border};
       --liturgical-accent: ${DEFAULT_PALETTE.accent};
       --liturgical-accent-hover: ${DEFAULT_PALETTE.accentHover};
-      --liturgical-title: ${DEFAULT_PALETTE.title};
+      --liturgical-section-title: ${DEFAULT_PALETTE.sectionTitle};
     }
 
     .app-container,
@@ -133,9 +134,8 @@ function ensureThemeStyleTag() {
     }
 
     .about-title,
-    .about-subtitle,
-    .organizer-modal-header h2 {
-      color: var(--liturgical-title);
+    .about-subtitle {
+      color: var(--liturgical-section-title);
     }
 
     .about-card,
@@ -144,7 +144,7 @@ function ensureThemeStyleTag() {
     }
 
     .about-title-line {
-      background-color: color-mix(in srgb, var(--liturgical-title) 35%, transparent);
+      background-color: color-mix(in srgb, var(--liturgical-section-title) 35%, transparent);
     }
   `;
 
@@ -166,7 +166,7 @@ function applyPalette(season: string) {
   root.style.setProperty("--liturgical-border", palette.border);
   root.style.setProperty("--liturgical-accent", palette.accent);
   root.style.setProperty("--liturgical-accent-hover", palette.accentHover);
-  root.style.setProperty("--liturgical-title", palette.title);
+  root.style.setProperty("--liturgical-section-title", palette.sectionTitle);
 }
 
 export function LiturgicalThemeManager() {
