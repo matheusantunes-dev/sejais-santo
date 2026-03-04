@@ -36,6 +36,8 @@ useEffect(() => {
 
       const res = await fetch(url);
       const json = await res.json();
+      const verse = json?.verse;
+      console.log("verso recebido:", verse)
 
       console.log("API RESPONSE:", json);
 
