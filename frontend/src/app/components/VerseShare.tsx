@@ -1,156 +1,120 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as htmlToImage from "html-to-image";
 
-/**
- * VerseShare
- *
- * Componente que:
- * - busca o versículo do dia numa API pública (ourmanna)
- * - renderiza um "card" no formato story (1080x1920)
- * - converte este card em PNG usando html-to-image
- *
- * Uso: coloque <VerseShare /> em qualquer lugar do app.
- *
- * Observações:
- * - html-to-image precisa que o conteúdo esteja no mesmo DOM (same-origin). Por isso não usamos iframe.
- * - explico cada bloco abaixo para você aprender como evoluir o código.
- */
+type Verse = {
+  text: string;
+  reference: string;
+};
 
-export default function VerseShare(): JSX.Element {
-  // ref para o elemento que será convertido em imagem
-  const cardRef = useRef<HTMLDivElement | null>(null);
+export default function VerseShare() {
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // estado que guarda o versículo e referência (ex: "Salmos 23:1")
-  const [texto, setTexto] = useState<string>("");
-  const [referencia, setReferencia] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [verse, setVerse] = useState<Verse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Ao montar, buscamos o versículo do dia na API do ourmanna
-useEffect(() => {
-  const url = "https://beta.ourmanna.com/api/v1/get/?format=json&order=daily";
+  useEffect(() => {
+    async function fetchVerse() {
+      try {
+        const res = await fetch(
+          "https://beta.ourmanna.com/api/v1/get/?format=json&order=daily"
+        );
 
-  async function fetchVerse() {
-    try {
-      setLoading(true);
+        const data = await res.json();
 
-      const res = await fetch(url);
-      const json = await res.json();
-      const verse = json?.verse;
-      console.log("verso recebido:", verse)
+        const verseData = data?.verse;
 
-      console.log("API RESPONSE:", json);
+        if (verseData) {
+          setVerse({
+            text: verseData.text,
+            reference: verseData.reference,
+          });
+        }
+      } catch (err) {
+        console.error("Erro ao buscar versículo:", err);
 
-      const verse = json?.verse;
-
-      if (verse) {
-        setTexto(String(verse.text ?? ""));
-        setReferencia(String(verse.reference ?? ""));
+        // fallback caso API falhe
+        setVerse({
+          text: "O Senhor é meu pastor, nada me faltará.",
+          reference: "Salmos 23:1",
+        });
       }
 
-    } catch (err) {
-      console.error("Erro ao buscar versículo:", err);
-    } finally {
       setLoading(false);
     }
-  }
 
-  fetchVerse();
-}, []);
+    fetchVerse();
+  }, []);
 
-  // Função que gera a imagem PNG a partir do cardRef usando html-to-image.
-  const gerarImagem = async () => {
+  async function baixarImagem() {
     if (!cardRef.current) return;
 
-    try {
-      // Ajustes para gerar imagem em alta resolução no formato de story
-      const dataUrl = await htmlToImage.toPng(cardRef.current, {
-        // largura e altura desejadas para stories (1080x1920)
-        width: 1080,
-        height: 1920,
-        // opcional: background color se precisar garantir branco (ou transparente)
-        backgroundColor: "#ffffff",
-      });
+    const dataUrl = await htmlToImage.toPng(cardRef.current);
 
-      // Cria link para download
-      const link = document.createElement("a");
-      link.download = "versiculo-story.png";
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error("Erro ao gerar imagem:", err);
-      alert("Erro ao gerar imagem. Veja o console para detalhes.");
-    }
-  };
+    const link = document.createElement("a");
+    link.download = "versiculo.png";
+    link.href = dataUrl;
+    link.click();
+  }
+
+  function copiarVersiculo() {
+    if (!verse) return;
+
+    const texto = `${verse.text} — ${verse.reference}`;
+
+    navigator.clipboard.writeText(texto);
+    alert("Versículo copiado!");
+  }
+
+  if (loading) {
+    return <p>Carregando versículo...</p>;
+  }
 
   return (
-    <div style={{ padding: 16 }}>
-      <h3>Gerador de Story — Versículo do Dia</h3>
-
-      {loading && <p>Carregando versículo...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* Este é o card que será renderizado e convertido em imagem.
-          Ele tem tamanho fixo (1080x1920) para caber nos stories.
-          Você pode ajustar tipografia, imagens de fundo, e branding aqui. */}
+    <div style={{ textAlign: "center" }}>
       <div
         ref={cardRef}
         style={{
-          width: 1080,
-          height: 1920,
-          maxWidth: "100%",
-          marginTop: 12,
-          borderRadius: 20,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background: "linear-gradient(180deg,#0f1724,#1e293b)", // fundo escuro elegante
-          color: "#fff",
-          padding: 80,
-          boxSizing: "border-box",
+          background: "linear-gradient(180deg,#1e0f3b,#3a1f70)",
+          color: "white",
+          padding: "40px",
+          borderRadius: "16px",
+          maxWidth: "500px",
+          margin: "auto",
+          fontFamily: "serif",
         }}
       >
-        <div>
-          <div style={{ opacity: 0.85, fontSize: 22, fontWeight: 600 }}>
-            Versículo do Dia
-          </div>
+        <h2>📖 Versículo do Dia</h2>
 
-          <div
-            style={{
-              marginTop: 30,
-              fontSize: 56,
-              lineHeight: 1.18,
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {texto || "—"}
-          </div>
-        </div>
+        <p
+          style={{
+            fontSize: "22px",
+            lineHeight: 1.5,
+            marginTop: "20px",
+          }}
+        >
+          {verse?.text}
+        </p>
 
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 28, opacity: 0.9 }}>{referencia}</div>
-          <div style={{ marginTop: 28, fontSize: 18, opacity: 0.6 }}>
-            @seusite.com
-          </div>
-        </div>
+        <p
+          style={{
+            marginTop: "20px",
+            fontWeight: "bold",
+          }}
+        >
+          {verse?.reference}
+        </p>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <button onClick={gerarImagem} style={{ padding: "8px 14px", fontSize: 16 }}>
-          Baixar imagem (PNG)
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={baixarImagem}>📥 Baixar imagem</button>
+
+        <button
+          onClick={copiarVersiculo}
+          style={{ marginLeft: "10px" }}
+        >
+          📋 Copiar
         </button>
-        <span style={{ marginLeft: 12, color: "#666" }}>
-          Pronto para postar nos Stories.
-        </span>
       </div>
-
-      <p style={{ marginTop: 12, color: "#666" }}>
-        Nota técnica: este card é renderizado no DOM da sua aplicação (same-origin),
-        por isso <strong>html-to-image</strong> consegue capturá-lo. Se você usar um iframe de outro domínio,
-        a captura não funcionará por políticas do navegador (CORS).
-      </p>
     </div>
   );
 }
