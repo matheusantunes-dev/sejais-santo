@@ -12,6 +12,7 @@ import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
 import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
+import VerseShare from "./components/VerseShare";
 
 import "./App.css";
 
@@ -121,6 +122,9 @@ export default function App() {
         <AboutSection />
 
         <LiturgicalFooter />
+                <div style={{ marginTop: 40 }}>
+          <VerseShare />
+        </div>
 
         <Footer />
       </div>
