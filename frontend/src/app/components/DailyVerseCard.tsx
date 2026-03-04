@@ -3,7 +3,7 @@ import html2canvas from "html2canvas";
 
 interface Verse {
   text: string;
-  reference: string;
+  reference: string; 
 }
 
 export default function DailyVerseCard() {
