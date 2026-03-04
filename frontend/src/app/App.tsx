@@ -1,21 +1,52 @@
 import { Header } from "./components/Header";
 import { HeroBanner } from "./components/HeroBanner";
 import { FeatureCard } from "./components/FeatureCard";
-import { GospelCard } from "./components/GospelCard";
 import VerseOrganizer from "./components/VerseOrganizer";
-import { VerseOrganizerIcon } from "./components/VerseOrganizerIcon";
 import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
 import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+
 import "./App.css";
+
+interface Verse {
+  text: string;
+  reference: string;
+}
 
 export default function App() {
   const [showOrganizer, setShowOrganizer] = useState(false);
   const [showVerseModal, setShowVerseModal] = useState(false);
+
+  const [verse, setVerse] = useState<Verse | null>(null);
+
+  // 🔎 busca versículo do dia automaticamente
+  useEffect(() => {
+    async function fetchVerse() {
+      try {
+        const res = await fetch(
+          "https://beta.ourmanna.com/api/v1/get/?format=json"
+        );
+
+        const data = await res.json();
+
+        const verseData = data?.verse?.details;
+
+        setVerse({
+          text: verseData.text,
+          reference: verseData.reference,
+        });
+      } catch (error) {
+        console.error("Erro ao buscar versículo:", error);
+      }
+    }
+
+    fetchVerse();
+  }, []);
 
   const handleShare = (feature: string) => {
     if (navigator.share) {
@@ -34,6 +65,7 @@ export default function App() {
   return (
     <>
       <LiturgicalThemeManager />
+
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <filter id="velvet-filter">
           <feTurbulence
@@ -53,6 +85,7 @@ export default function App() {
           />
         </filter>
       </svg>
+
       <div className="app-container">
         <Header />
         <HeroBanner />
@@ -65,12 +98,14 @@ export default function App() {
                 type="gospel"
                 onShare={() => handleShare("Evangelho do Dia")}
               />
+
               <FeatureCard
                 title="Versículos do Dia"
                 description="Leitura para o Dia"
                 type="verses"
                 onShare={() => setShowVerseModal(true)}
               />
+
               <FeatureCard
                 title="Organize Seus Versículos"
                 description="Crie e organize seus versículos favoritos."
@@ -81,11 +116,13 @@ export default function App() {
             </div>
           </div>
         </main>
+
         {showOrganizer && (
           <div className="organizer-overlay">
             <div className="organizer-modal">
               <div className="organizer-modal-header">
                 <h2>Organizador de Versículos</h2>
+
                 <button
                   className="organizer-close"
                   onClick={() => setShowOrganizer(false)}
@@ -99,11 +136,12 @@ export default function App() {
           </div>
         )}
 
-        {showVerseModal && (
+        {showVerseModal && verse && (
           <VersododiaModal
             open={showVerseModal}
             onClose={() => setShowVerseModal(false)}
-            iframeUrl="https://www.bibliatodo.com/pt/online/versiculo-del-dia"
+            verseText={verse.text}
+            verseReference={verse.reference}
           />
         )}
 
