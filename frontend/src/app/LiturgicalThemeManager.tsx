@@ -8,7 +8,7 @@ import { getLiturgicalSeason } from "@/utils/LiturgicalCalendar";
 type LiturgicalPalette = {
   appBg: string;
   headerBg: string;
-  heroStart: string;
+  heroStart: string; 
   heroMid: string;
   bannerStart: string;
   bannerMid: string;
