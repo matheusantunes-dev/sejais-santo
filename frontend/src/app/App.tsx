@@ -6,85 +6,64 @@ import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
-import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toPng } from "html-to-image";
 
 import "./App.css";
-
-interface Verse {
-  text: string;
-  reference: string;
-}
 
 export default function App() {
   const [showOrganizer, setShowOrganizer] = useState(false);
   const [showVerseModal, setShowVerseModal] = useState(false);
 
-  const [verse, setVerse] = useState<Verse | null>(null);
+  const shareRef = useRef<HTMLDivElement>(null);
 
-  // 🔎 busca versículo do dia automaticamente
+  // carregar script DailyVerses
   useEffect(() => {
-    async function fetchVerse() {
-      try {
-        const res = await fetch(
-          "https://beta.ourmanna.com/api/v1/get/?format=json"
-        );
+    const script = document.createElement("script");
+    script.src = "https://dailyverses.net/get/verse.js?language=nvi";
+    script.async = true;
+    script.defer = true;
 
-        const data = await res.json();
+    const container = document.getElementById("dailyVersesContainer");
 
-        const verseData = data?.verse?.details;
-
-        setVerse({
-          text: verseData.text,
-          reference: verseData.reference,
-        });
-      } catch (error) {
-        console.error("Erro ao buscar versículo:", error);
-      }
+    if (container && !container.querySelector("script")) {
+      container.appendChild(script);
     }
-
-    fetchVerse();
   }, []);
 
-  const handleShare = (feature: string) => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: `Sejais Santo - ${feature}`,
-          text: "Confira este conteúdo do Sejais Santo!",
-          url: window.location.href,
-        })
-        .catch((err) => console.log("Erro ao compartilhar:", err));
-    } else {
-      alert("Função de compartilhamento não disponível neste navegador");
+  // gerar imagem
+  const handleShareImage = async () => {
+    if (!shareRef.current) return;
+
+    try {
+      const dataUrl = await toPng(shareRef.current, {
+        pixelRatio: 2,
+      });
+
+      const blob = await (await fetch(dataUrl)).blob();
+
+      const file = new File([blob], "versiculo-do-dia.png", {
+        type: "image/png",
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Versículo do Dia",
+        });
+      } else {
+        alert("Seu navegador não suporta compartilhar imagem.");
+      }
+    } catch (error) {
+      console.error("Erro ao gerar imagem:", error);
     }
   };
 
   return (
     <>
       <LiturgicalThemeManager />
-
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <filter id="velvet-filter">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.5"
-            numOctaves="4"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix
-            type="matrix"
-            values={`
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 -0.4 1
-            `}
-          />
-        </filter>
-      </svg>
 
       <div className="app-container">
         <Header />
@@ -96,7 +75,7 @@ export default function App() {
               <FeatureCard
                 title="Evangelho do Dia"
                 type="gospel"
-                onShare={() => handleShare("Evangelho do Dia")}
+                onShare={() => {}}
               />
 
               <FeatureCard
@@ -110,7 +89,7 @@ export default function App() {
                 title="Organize Seus Versículos"
                 description="Crie e organize seus versículos favoritos."
                 type="organize"
-                onShare={() => handleShare("Organize Seus Versículos")}
+                onShare={() => {}}
                 onEdit={() => setShowOrganizer(true)}
               />
             </div>
@@ -136,13 +115,63 @@ export default function App() {
           </div>
         )}
 
-        {showVerseModal && verse && (
-          <VersododiaModal
-            open={showVerseModal}
-            onClose={() => setShowVerseModal(false)}
-            verseText={verse.text}
-            verseReference={verse.reference}
-          />
+        {showVerseModal && (
+          <div className="organizer-overlay">
+            <div className="organizer-modal">
+              <div className="organizer-modal-header">
+                <h2>Versículo do Dia</h2>
+
+                <button
+                  className="organizer-close"
+                  onClick={() => setShowVerseModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* versículo automático */}
+              <div
+                id="dailyVersesContainer"
+                style={{
+                  marginBottom: "20px",
+                  textAlign: "center",
+                }}
+              />
+
+              {/* card que vira imagem */}
+              <div
+                ref={shareRef}
+                style={{
+                  width: "1080px",
+                  height: "1080px",
+                  background: "#f6f1e8",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "80px",
+                  textAlign: "center",
+                  borderRadius: "20px",
+                  fontSize: "36px",
+                }}
+              >
+                <h2>Versículo do Dia</h2>
+
+                <div id="dailyVersesContainer"></div>
+
+                <p style={{ marginTop: "40px", fontSize: "24px" }}>
+                  sejaissanto.app
+                </p>
+              </div>
+
+              <button
+                style={{ marginTop: "20px" }}
+                onClick={handleShareImage}
+              >
+                Compartilhar imagem
+              </button>
+            </div>
+          </div>
         )}
 
         <EasterBanner />
