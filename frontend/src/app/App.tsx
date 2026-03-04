@@ -35,6 +35,25 @@ export default function App() {
   return (
     <>
       <LiturgicalThemeManager />
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+  <filter id="velvet-filter">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.5"
+      numOctaves="4"
+      stitchTiles="stitch"
+    />
+    <feColorMatrix
+      type="matrix"
+      values="
+        0 0 0 0 0.5
+        0 0 0 0 0.5
+        0 0 0 0 0.5
+        0 0 0 -0.4 1
+      "
+    />
+  </filter>
+</svg>
 
       <div className="app-container">
         <Header />
