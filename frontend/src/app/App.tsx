@@ -3,9 +3,7 @@ import { useState } from "react";
 import { Header } from "./components/Header";
 import { HeroBanner } from "./components/HeroBanner";
 import { FeatureCard } from "./components/FeatureCard";
-import { GospelCard } from "./components/GospelCard";
 import VerseOrganizer from "./components/VerseOrganizer";
-import { VerseOrganizerIcon } from "./components/VerseOrganizerIcon";
 import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
@@ -38,26 +36,6 @@ export default function App() {
     <>
       <LiturgicalThemeManager />
 
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <filter id="velvet-filter">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.5"
-            numOctaves="4"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix
-            type="matrix"
-            values="
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 -0.4 1
-            "
-          />
-        </filter>
-      </svg>
-
       <div className="app-container">
         <Header />
 
@@ -66,6 +44,7 @@ export default function App() {
         <main className="main-content">
           <div className="content-wrapper">
             <div className="cards-grid">
+
               <FeatureCard
                 title="Evangelho do Dia"
                 type="gospel"
@@ -86,10 +65,12 @@ export default function App() {
                 onShare={() => handleShare("Organize Seus Versículos")}
                 onEdit={() => setShowOrganizer(true)}
               />
+
             </div>
           </div>
         </main>
 
+        {/* ORGANIZADOR */}
         {showOrganizer && (
           <div className="organizer-overlay">
             <div className="organizer-modal">
@@ -109,12 +90,14 @@ export default function App() {
           </div>
         )}
 
+        {/* MODAL DO VERSÍCULO */}
         {showVerseModal && (
           <VersododiaModal
             open={showVerseModal}
             onClose={() => setShowVerseModal(false)}
-            iframeUrl="https://www.bibliatodo.com/pt/online/versiculo-del-dia-texto"
-          />
+          >
+            <VerseShare />
+          </VersododiaModal>
         )}
 
         <EasterBanner />
@@ -122,11 +105,9 @@ export default function App() {
         <AboutSection />
 
         <LiturgicalFooter />
-                <div style={{ marginTop: 40 }}>
-          <VerseShare />
-        </div>
 
         <Footer />
+
       </div>
     </>
   );
