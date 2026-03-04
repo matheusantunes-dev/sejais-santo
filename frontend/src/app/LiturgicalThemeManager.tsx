@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getLiturgicalSeason } from "@/utils/LiturgicalCalendar";
+import { getLiturgicalSeason, LiturgicalSeason } from "@/utils/LiturgicalCalendar";
 
 type LiturgicalPalette = {
   appBg: string;
@@ -14,6 +14,7 @@ type LiturgicalPalette = {
   accent: string;
   accentHover: string;
   sectionTitle: string;
+  sectionSubTitle: string;
 };
 
 const DEFAULT_PALETTE: LiturgicalPalette = {
@@ -29,24 +30,14 @@ const DEFAULT_PALETTE: LiturgicalPalette = {
   accent: "#8b1a1a",
   accentHover: "#6b1414",
   sectionTitle: "#8b4513",
+  sectionSubTitle: "#8b4513",
 };
 
-// Regras de título: roxos => branco, tempo pascal => preto, demais => padrão do site.
-const palettes: Record<string, LiturgicalPalette> = {
+/**
+ * Paletas por estação litúrgica
+ */
+const palettes: Record<LiturgicalSeason, LiturgicalPalette> = {
   Advento: {
-    ...DEFAULT_PALETTE,
-    appBg: "#7647bf",
-    headerBg: "#6f42c1",
-    heroStart: "rgba(79,38,131,0.95)",
-    heroMid: "rgba(111,66,193,0.9)",
-    bannerStart: "rgba(79,38,131,0.9)",
-    bannerMid: "rgba(111,66,193,0.85)",
-    accent: "#6f42c1",
-    accentHover: "#4f2683",
-    sectionTitle: "#ffffff",
-    border: "#7a5ca8",
-  },
-  Quaresma: {
     ...DEFAULT_PALETTE,
     appBg: "#321263",
     headerBg: "#4b2e83",
@@ -57,8 +48,25 @@ const palettes: Record<string, LiturgicalPalette> = {
     accent: "#4b2e83",
     accentHover: "#2f1b59",
     sectionTitle: "#ffffff",
+    sectionSubTitle: "#4b2e83",
     border: "#5f4b87",
   },
+
+  Quaresma: {
+    ...DEFAULT_PALETTE,
+    appBg: "#1e0b3a",
+    headerBg: "#1c0d3a",
+    heroStart: "rgba(42,24,76,0.95)",
+    heroMid: "rgba(34,20,63,0.9)",
+    bannerStart: "rgba(42,24,76,0.9)",
+    bannerMid: "rgba(75,46,131,0.85)",
+    accent: "#4b2e83",
+    accentHover: "#2f1b59",
+    sectionTitle: "#ffffff",
+    sectionSubTitle: "#4b2e83",
+    border: "#5f4b87",
+  },
+
   "Tempo Pascal": {
     ...DEFAULT_PALETTE,
     appBg: "#f6e8a8",
@@ -70,17 +78,22 @@ const palettes: Record<string, LiturgicalPalette> = {
     accent: "#b8860b",
     accentHover: "#8d6608",
     sectionTitle: "#000000",
+    sectionSubTitle: "#000000",
     border: "#b9953c",
   },
 };
 
 const STYLE_ID = "liturgical-theme-overrides";
 
+/**
+ * Garante que o style global seja inserido apenas uma vez
+ */
 function ensureThemeStyleTag() {
   if (document.getElementById(STYLE_ID)) return;
 
   const style = document.createElement("style");
   style.id = STYLE_ID;
+
   style.textContent = `
     :root {
       --liturgical-app-bg: ${DEFAULT_PALETTE.appBg};
@@ -95,28 +108,41 @@ function ensureThemeStyleTag() {
       --liturgical-accent: ${DEFAULT_PALETTE.accent};
       --liturgical-accent-hover: ${DEFAULT_PALETTE.accentHover};
       --liturgical-section-title: ${DEFAULT_PALETTE.sectionTitle};
+      --liturgical-section-subtitle: ${DEFAULT_PALETTE.sectionSubTitle};
     }
 
-    .app-container,
-    .app-container::before {
+    .app-container {
       background-color: var(--liturgical-app-bg);
     }
 
-    .header,
-    .header::before {
+    .header {
       background-color: var(--liturgical-header-bg);
     }
 
     .hero-banner {
-      background: linear-gradient(90deg, var(--liturgical-hero-start) 0%, var(--liturgical-hero-mid) 50%, var(--liturgical-hero-start) 100%);
+      background: linear-gradient(
+        90deg,
+        var(--liturgical-hero-start) 0%,
+        var(--liturgical-hero-mid) 50%,
+        var(--liturgical-hero-start) 100%
+      );
     }
 
     .easter-banner {
-      background: linear-gradient(90deg, var(--liturgical-banner-start) 0%, var(--liturgical-banner-mid) 50%, var(--liturgical-banner-start) 100%);
+      background: linear-gradient(
+        90deg,
+        var(--liturgical-banner-start) 0%,
+        var(--liturgical-banner-mid) 50%,
+        var(--liturgical-banner-start) 100%
+      );
     }
 
     .feature-card {
-      background: linear-gradient(to bottom, var(--liturgical-card-top), var(--liturgical-card-bottom));
+      background: linear-gradient(
+        to bottom,
+        var(--liturgical-card-top),
+        var(--liturgical-card-bottom)
+      );
       border-color: var(--liturgical-border);
     }
 
@@ -133,9 +159,12 @@ function ensureThemeStyleTag() {
       background-color: var(--liturgical-accent-hover);
     }
 
-    .about-title,
-    .about-subtitle {
+    .about-title {
       color: var(--liturgical-section-title);
+    }
+
+    .about-subtitle {
+      color: var(--liturgical-section-subtitle);
     }
 
     .about-card,
@@ -144,14 +173,21 @@ function ensureThemeStyleTag() {
     }
 
     .about-title-line {
-      background-color: color-mix(in srgb, var(--liturgical-section-title) 35%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--liturgical-section-title) 35%,
+        transparent
+      );
     }
   `;
 
   document.head.appendChild(style);
 }
 
-function applyPalette(season: string) {
+/**
+ * Aplica paleta conforme estação
+ */
+function applyPalette(season: LiturgicalSeason) {
   const palette = palettes[season] ?? DEFAULT_PALETTE;
   const root = document.documentElement;
 
@@ -167,18 +203,18 @@ function applyPalette(season: string) {
   root.style.setProperty("--liturgical-accent", palette.accent);
   root.style.setProperty("--liturgical-accent-hover", palette.accentHover);
   root.style.setProperty("--liturgical-section-title", palette.sectionTitle);
+  root.style.setProperty("--liturgical-section-subtitle", palette.sectionSubTitle);
 }
 
+/**
+ * Componente que gerencia o tema litúrgico
+ */
 export function LiturgicalThemeManager() {
   useEffect(() => {
     ensureThemeStyleTag();
 
-    const syncTheme = () => applyPalette(getLiturgicalSeason(new Date()));
-
-    syncTheme();
-    const interval = window.setInterval(syncTheme, 1000 * 60 * 60);
-
-    return () => window.clearInterval(interval);
+    const season = getLiturgicalSeason(new Date());
+    applyPalette(season);
   }, []);
 
   return null;
