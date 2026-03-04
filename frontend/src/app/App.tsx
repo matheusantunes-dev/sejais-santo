@@ -3,21 +3,18 @@ import { useState } from "react";
 import { Header } from "./components/Header";
 import { HeroBanner } from "./components/HeroBanner";
 import { FeatureCard } from "./components/FeatureCard";
-import { GospelCard } from "./components/GospelCard";
 import VerseOrganizer from "./components/VerseOrganizer";
-import { VerseOrganizerIcon } from "./components/VerseOrganizerIcon";
 import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
-import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
+import DailyVerseCard from "./components/DailyVerseCard";
 
 import "./App.css";
 
 export default function App() {
   const [showOrganizer, setShowOrganizer] = useState(false);
-  const [showVerseModal, setShowVerseModal] = useState(false);
 
   const handleShare = (feature: string) => {
     if (navigator.share) {
@@ -37,26 +34,6 @@ export default function App() {
     <>
       <LiturgicalThemeManager />
 
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <filter id="velvet-filter">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.5"
-            numOctaves="4"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix
-            type="matrix"
-            values="
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 -0.4 1
-            "
-          />
-        </filter>
-      </svg>
-
       <div className="app-container">
         <Header />
 
@@ -72,10 +49,10 @@ export default function App() {
               />
 
               <FeatureCard
-                title="Versículos do Dia"
-                description="Leitura para o Dia"
+                title="Versículo do Dia"
+                description="Compartilhe o versículo como imagem"
                 type="verses"
-                onShare={() => setShowVerseModal(true)}
+                onShare={() => handleShare("Versículo do Dia")}
               />
 
               <FeatureCard
@@ -86,6 +63,8 @@ export default function App() {
                 onEdit={() => setShowOrganizer(true)}
               />
             </div>
+
+            <DailyVerseCard />
           </div>
         </main>
 
@@ -106,14 +85,6 @@ export default function App() {
               <VerseOrganizer />
             </div>
           </div>
-        )}
-
-        {showVerseModal && (
-          <VersododiaModal
-            open={showVerseModal}
-            onClose={() => setShowVerseModal(false)}
-            iframeUrl="https://www.bibliatodo.com/pt/online/versiculo-del-dia-texto"
-          />
         )}
 
         <EasterBanner />
