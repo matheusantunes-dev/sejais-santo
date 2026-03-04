@@ -27,36 +27,34 @@ export default function VerseShare(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
 
   // Ao montar, buscamos o versículo do dia na API do ourmanna
-  useEffect(() => {
-    // ourmanna oferece um endpoint simples que retorna JSON com o versículo.
-    // Usamos "format=json" e "order=daily" para tentar pegar o versículo do dia.
-    // Se preferir outra API (bible-api, labs.bible.org), podemos trocar facilmente.
-    const url = "https://beta.ourmanna.com/api/v1/get/?format=json&order=daily";
+useEffect(() => {
+  const url = "https://beta.ourmanna.com/api/v1/get/?format=json&order=daily";
 
-    async function fetchVerse() {
-      try {
-        setLoading(true);
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const json = await res.json();
-        // Estrutura retornada:
-        // { verse: { text: "...", reference: "Book 1:1" }, ... }
-        const verse = json?.verse;
-        const text = verse?.text?.replace(/\s+/g, " ").trim() ?? "";
-        const ref = verse?.details ?? verse?.reference ?? "";
-        setTexto(text);
-        setReferencia(ref);
-        setError(null);
-      } catch (err: any) {
-        console.error("Erro ao buscar versículo:", err);
-        setError("Falha ao obter versículo. Tente novamente mais tarde.");
-      } finally {
-        setLoading(false);
+  async function fetchVerse() {
+    try {
+      setLoading(true);
+
+      const res = await fetch(url);
+      const json = await res.json();
+
+      console.log("API RESPONSE:", json);
+
+      const verse = json?.verse;
+
+      if (verse) {
+        setTexto(String(verse.text ?? ""));
+        setReferencia(String(verse.reference ?? ""));
       }
-    }
 
-    fetchVerse();
-  }, []);
+    } catch (err) {
+      console.error("Erro ao buscar versículo:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchVerse();
+}, []);
 
   // Função que gera a imagem PNG a partir do cardRef usando html-to-image.
   const gerarImagem = async () => {
