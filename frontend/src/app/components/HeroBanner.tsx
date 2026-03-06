@@ -28,11 +28,11 @@ export function HeroBanner() {
           {/* Texto */}
           <div className="hero-text-wrapper">
             <h2 className="hero-title">
-              São Carlo Acutis,
+              Venha Evangelizar
             </h2>
             <div className="hero-subtitle-container">
               <p className="hero-subtitle">
-                Rogai por nós!
+                como São Carlo Acutis!
               </p>
             </div>
           </div>
