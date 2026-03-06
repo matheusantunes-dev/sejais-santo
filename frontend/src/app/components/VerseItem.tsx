@@ -58,7 +58,9 @@ export default function VerseItem({
 
         {scheduledLabel && (
           <div className="vi-scheduled">
-            Agendado para: {scheduledLabel}
+            
+            Lembre-se de agendar no seu calendário! Agendado para: {scheduledLabel} 
+           
           </div>
         )}
       </div>

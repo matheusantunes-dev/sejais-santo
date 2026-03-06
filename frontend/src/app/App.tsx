@@ -112,7 +112,6 @@ export default function App() {
           <VersododiaModal
             open={showVerseModal}
             onClose={() => setShowVerseModal(false)}
-            iframeUrl="https://www.bibliatodo.com/pt/online/versiculo-del-dia-texto"
           />
         )}
 
