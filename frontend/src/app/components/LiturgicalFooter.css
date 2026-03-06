@@ -33,6 +33,13 @@
   margin-left: 0.5rem;
 }
 
+.liturgical-season-phrase {
+  font-size: 1.5rem;
+  opacity: 0.85;
+  margin-top: 6px;
+  font-style: italic;
+  font-weight: bold;
+}
 
 .liturgical-grid {
   display: grid;
