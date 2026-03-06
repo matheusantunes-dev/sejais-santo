@@ -213,7 +213,7 @@ export function VersododiaModal({ open, onClose }: Props) {
           ✕
         </button>
 
-        <h3>Versículo do Dia</h3>
+        <h3>Versículos para Leitura - Escolha o seu</h3>
 
         <div
           className="verse-card"
