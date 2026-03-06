@@ -72,8 +72,8 @@ export default function App() {
               />
 
               <FeatureCard
-                title="Versículos do Dia"
-                description="Leitura para o Dia"
+                title="Versículos para leitura"
+                description="Leitura diária"
                 type="verses"
                 onShare={() => setShowVerseModal(true)}
               />
