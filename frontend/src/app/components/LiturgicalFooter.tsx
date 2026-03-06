@@ -13,7 +13,6 @@ interface LiturgicalFooterProps {
 console.log("Data do sistema:", new Date());
 console.log("Tempo litúrgico atual:", getLiturgicalSeason(new Date()));
 
-
 export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
   const [season, setSeason] = useState<string>(() =>
     getLiturgicalSeason(new Date()),
@@ -29,8 +28,14 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
 
     return () => clearInterval(interval);
   }, []);
-
+  const seasonPhrases: Record<string, string> = {
+    Advento: "''Preparai o caminho do Senhor''",
+    Quaresma: "''Eis o tempo de conversão''",
+    "Tempo Comum": "''Caminhando com Cristo sempre''",
+    "Tempo Pascal": "''Ele Ressuscitou, Aleluia!''",
+  };
   const activeSeason = currentPeriod ?? season;
+  const phrase = seasonPhrases[activeSeason];
   console.log("Props recebidas:", { currentPeriod });
 
   const seasons = [
@@ -38,24 +43,27 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
       name: "Advento",
       color: "#7b2cbf",
       image: adventoImg,
+      phrase: "Preparai o caminho do Senhor",
     },
     {
       name: "Quaresma",
       image: quaresmaImg,
       color: "#3d165f",
+      phrase: "Eis o tempo de conversão",
     },
     {
       name: "Tempo Comum",
       image: comumImg,
       color: "#18635a",
+      phrase: "Caminhando com Cristo no cotidiano",
     },
     {
       name: "Tempo Pascal",
       image: pascalImg,
       color: "#f5c500",
+      phrase: "Cristo venceu a morte!",
     },
   ];
-
   return (
     <footer className="liturgical-footer">
       <div className="liturgical-container">
@@ -65,6 +73,8 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
             Tempo Litúrgico Atual:
             <span className="liturgical-current-period">{activeSeason}</span>
           </h3>
+
+          {phrase && <p className="liturgical-season-phrase">{phrase}</p>}
         </div>
 
         {/* Season Cards */}
