@@ -1,14 +1,12 @@
 import { Share2, Pencil, BookOpen } from "lucide-react";
 import { GospelCard } from "./GospelCard";
-import { GospelShareImage } from "./GospelShareImage";
 import { toPng } from "html-to-image";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import "./FeatureCard.css";
 import recomendacao from "@/assets/recomendação.png";
 import organizacao from "@/assets/organizacao.png";
 import { useAuth } from "../context/AuthContext";
 import { useGospel } from "../services/useGospel";
-import { splitGospelText } from "../services/splitGospelText";
 
 interface FeatureCardProps {
   title: string;
@@ -29,7 +27,11 @@ export function FeatureCard({
   const user = session?.user;
   const { gospel, loading, error } = useGospel();
 
-  const slideRefs = useRef<HTMLDivElement[]>([]);
+  // referência para o container visual (o GospelCard que o usuário vê)
+  const shareRef = useRef<HTMLDivElement | null>(null);
+
+  // armazena arquivo pré-gerado para compartilhar rapidamente
+  const preGeneratedFileRef = useRef<File | null>(null);
 
   const isOrganizer = type === "organize";
 
@@ -40,57 +42,107 @@ export function FeatureCard({
       ? "Abrir a Bíblia"
       : "Compartilhar";
 
-  const slides = gospel ? splitGospelText(gospel.texto) : [];
+  /**
+   * Pré-gerar uma imagem quando o gospel mudar ou o shareRef ficar disponível.
+   * Isso evita o problema do navegador bloquear navigator.share por não ser
+   * mais um "gesture" do usuário (NotAllowedError).
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    async function preGenerate() {
+      preGeneratedFileRef.current = null;
+
+      if (!gospel || !shareRef.current) return;
+
+      try {
+        // pequeno delay para garantir layout estável (evita imagens cortadas)
+        await new Promise((r) => setTimeout(r, 120));
+
+        const dataUrl = await toPng(shareRef.current, {
+          pixelRatio: 3,        // alta resolução para redes sociais
+          cacheBust: true,
+          backgroundColor: "#ffffff",
+          skipFonts: true,      // evita erros CORS ao tentar embutir Google Fonts
+        });
+
+        if (cancelled) return;
+
+        // converte dataURL p/ blob e cria File (rápido no clique depois)
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], "evangelho-do-dia.png", {
+          type: "image/png",
+        });
+
+        preGeneratedFileRef.current = file;
+        // opcional: console.log("Pré-gerada imagem pronta");
+      } catch (err) {
+        console.error("Erro pré-gerando imagem:", err);
+      }
+    }
+
+    preGenerate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [gospel]);
 
   const handleShareGospel = async () => {
-  if (!gospel) return;
+    if (!gospel) return;
 
-  try {
-    // força render completo antes de capturar
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      // se já tem arquivo pré-gerado, tenta compartilhar imediatamente
+      if (preGeneratedFileRef.current) {
+        const files = [preGeneratedFileRef.current];
 
-    const files: File[] = [];
+        if (navigator.canShare && navigator.canShare({ files })) {
+          await navigator.share({
+            files,
+            title: "Evangelho do Dia",
+            text: gospel.referencia,
+          });
+          return;
+        }
+      }
 
-    for (let i = 0; i < slideRefs.current.length; i++) {
-      const node = slideRefs.current[i];
+      // fallback: gerar na hora (tentar manter operação rápida)
+      if (!shareRef.current) {
+        alert("Elemento de compartilhamento não disponível.");
+        return;
+      }
 
-      if (!node) continue;
-
-      const dataUrl = await toPng(node, {
+      const dataUrl = await toPng(shareRef.current, {
         pixelRatio: 3,
         cacheBust: true,
         backgroundColor: "#ffffff",
+        skipFonts: true,
       });
 
       const blob = await (await fetch(dataUrl)).blob();
-
-      const file = new File(
-        [blob],
-        `evangelho-${i + 1}.png`,
-        { type: "image/png" }
-      );
-
-      files.push(file);
-    }
-
-    if (files.length === 0) {
-      alert("Erro ao gerar imagens.");
-      return;
-    }
-
-    if (navigator.canShare && navigator.canShare({ files })) {
-      await navigator.share({
-        files,
-        title: "Evangelho do Dia",
+      const file = new File([blob], "evangelho-do-dia.png", {
+        type: "image/png",
       });
-    } else {
-      alert("Seu dispositivo não suporta compartilhar múltiplas imagens.");
-    }
 
-  } catch (error) {
-    console.error("Erro ao compartilhar:", error);
-  }
-};
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Evangelho do Dia",
+          text: gospel.referencia,
+        });
+      } else {
+        // fallback amigável: copia texto e alerta
+        await navigator.clipboard.writeText(`${gospel.referencia}\n\n${gospel.texto}`);
+        alert("Compartilhamento direto não disponível. Texto copiado para a área de transferência.");
+      }
+    } catch (err: any) {
+      // se o navegador reclamar por não ser gesture, informe e peça ao usuário.
+      if (err && err.name === "NotAllowedError") {
+        alert("O compartilhamento foi bloqueado pelo navegador. Tente novamente pressionando o botão e mantendo a página ativa.");
+      }
+      console.error("Erro ao compartilhar:", err);
+    }
+  };
 
   const buttonAction = () => {
     if (isOrganizer) {
@@ -98,7 +150,6 @@ export function FeatureCard({
         alert("Faça login com Google para organizar versículos.");
         return;
       }
-
       onEdit?.();
     } else if (type === "gospel") {
       handleShareGospel();
@@ -115,7 +166,10 @@ export function FeatureCard({
 
       <div className="feature-card-content">
         {type === "gospel" && (
-          <GospelCard gospel={gospel} loading={loading} error={error} />
+          // compartilhamos o próprio card visível: attach ref no container real
+          <div ref={shareRef as any}>
+            <GospelCard gospel={gospel} loading={loading} error={error} />
+          </div>
         )}
 
         {type === "verses" && (
@@ -130,15 +184,12 @@ export function FeatureCard({
           </div>
         )}
 
-        {description && (
-          <p className="feature-card-description">{description}</p>
-        )}
+        {description && <p className="feature-card-description">{description}</p>}
       </div>
 
       <div className="feature-card-footer">
         <button onClick={buttonAction} className="share-button">
           <span>{buttonLabel}</span>
-
           {isOrganizer ? (
             <Pencil className="share-icon" />
           ) : type === "verses" ? (
@@ -148,22 +199,6 @@ export function FeatureCard({
           )}
         </button>
       </div>
-
-      {/* Slides invisíveis para gerar as imagens */}
-      {gospel && (
-        <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
-          {slides.map((text, index) => (
-            <GospelShareImage
-              key={index}
-              ref={(el) => {
-                if (el) slideRefs.current[index] = el;
-              }}
-              referencia={gospel.referencia}
-              texto={text}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
