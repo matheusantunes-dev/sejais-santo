@@ -39,8 +39,8 @@ export function FeatureCard({
     type === "organize"
       ? "Editar"
       : type === "verses"
-      ? "Abrir a Bíblia"
-      : "Compartilhar";
+        ? "Abrir a Bíblia"
+        : "Compartilhar";
 
   /**
    * Divide o texto em frases
@@ -117,11 +117,15 @@ export function FeatureCard({
 
       const files = await generateImages(chunks);
 
-      if (navigator.share && navigator.canShare?.({ files })) {
-        await navigator.share({
-          files,
-          title: "Evangelho do Dia",
-        });
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files,
+            title: "Evangelho do Dia",
+          });
+        } catch (err) {
+          console.warn("Share cancelado ou não suportado", err);
+        }
       } else {
         await navigator.clipboard.writeText(
           `${gospel.referencia}\n\n${gospel.texto}`
