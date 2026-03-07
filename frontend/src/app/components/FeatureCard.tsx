@@ -62,22 +62,24 @@ export function FeatureCard({
       text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((s) => s.trim()) || [];
 
     const pages: string[] = [];
-
     let currentText = "";
 
     const MAX_HEIGHT = 1400;
 
     for (const sentence of sentences) {
-      const testText = currentText + " " + sentence;
+      const testText = currentText
+        ? `${currentText} ${sentence}`
+        : sentence;
 
       setRenderText(testText);
 
-      // espera o React renderizar
+      // esperar React + layout estabilizar
+      await new Promise(requestAnimationFrame);
       await new Promise(requestAnimationFrame);
 
       const height = shareRef.current.scrollHeight;
 
-      if (height > MAX_HEIGHT && currentText !== "") {
+      if (height > MAX_HEIGHT && currentText) {
         pages.push(currentText.trim());
         currentText = sentence;
       } else {
