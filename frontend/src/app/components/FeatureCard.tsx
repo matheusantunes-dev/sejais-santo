@@ -8,6 +8,7 @@ import recomendacao from "@/assets/recomendação.png";
 import organizacao from "@/assets/organizacao.png";
 import { useAuth } from "../context/AuthContext";
 import { useGospel } from "../services/useGospel";
+import { splitGospelText } from "../services/splitGospelText";
 
 interface FeatureCardProps {
   title: string;
@@ -27,7 +28,9 @@ export function FeatureCard({
   const { session } = useAuth();
   const user = session?.user;
   const { gospel, loading, error } = useGospel();
-  const shareRef = useRef<HTMLDivElement>(null);
+
+  const slideRefs = useRef<HTMLDivElement[]>([]);
+
   const isOrganizer = type === "organize";
 
   const buttonLabel =
@@ -37,32 +40,45 @@ export function FeatureCard({
       ? "Abrir a Bíblia"
       : "Compartilhar";
 
+  const slides = gospel ? splitGospelText(gospel.texto) : [];
+
   const handleShareGospel = async () => {
-    if (!gospel || !shareRef.current) return;
+    if (!gospel || slideRefs.current.length === 0) return;
 
     try {
-      const dataUrl = await toPng(shareRef.current, {
-        pixelRatio: 2,
-      });
+      const files: File[] = [];
 
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], "evangelho-do-dia.png", {
-        type: "image/png",
-      });
+      for (let i = 0; i < slideRefs.current.length; i++) {
+        const node = slideRefs.current[i];
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        const dataUrl = await toPng(node, {
+          pixelRatio: 2,
+          cacheBust: true,
+        });
+
+        const blob = await (await fetch(dataUrl)).blob();
+
+        const file = new File([blob], `evangelho-${i + 1}.png`, {
+          type: "image/png",
+        });
+
+        files.push(file);
+      }
+
+      if (navigator.canShare && navigator.canShare({ files })) {
         await navigator.share({
-          files: [file],
+          files,
           title: "Evangelho do Dia",
         });
       } else {
         await navigator.clipboard.writeText(
           `${gospel.referencia}\n\n${gospel.texto}`
         );
+
         alert("Compartilhamento de imagem não suportado. Texto copiado!");
       }
     } catch (error) {
-      console.error("Erro ao gerar imagem:", error);
+      console.error("Erro ao gerar imagens:", error);
     }
   };
 
@@ -72,6 +88,7 @@ export function FeatureCard({
         alert("Faça login com Google para organizar versículos.");
         return;
       }
+
       onEdit?.();
     } else if (type === "gospel") {
       handleShareGospel();
@@ -122,13 +139,19 @@ export function FeatureCard({
         </button>
       </div>
 
+      {/* Slides invisíveis para gerar as imagens */}
       {gospel && (
         <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
-          <GospelShareImage
-            ref={shareRef}
-            referencia={gospel.referencia}
-            texto={gospel.texto}
-          />
+          {slides.map((text, index) => (
+            <GospelShareImage
+              key={index}
+              ref={(el) => {
+                if (el) slideRefs.current[index] = el;
+              }}
+              referencia={gospel.referencia}
+              texto={text}
+            />
+          ))}
         </div>
       )}
     </div>
