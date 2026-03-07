@@ -1,48 +1,54 @@
 import { Calendar } from "lucide-react";
 import "./GospelCard.css";
 
+interface Gospel {
+  referencia: string;
+  texto: string;
+}
+
 interface GospelCardProps {
-  gospel: {
-    referencia: string;
-    texto: string;
-  } | null;
+  gospel: Gospel | null;
   loading: boolean;
   error: string | null;
 }
 
 /**
- * GospelCard
- * É o container visual que o usuário vê. A ideia é que o html-to-image capture
- * *exatamente* esse elemento (com ref no FeatureCard).
+ * GospelCard - componente puramente visual (dumb component).
+ * Ele recebe o evangelho por props e renderiza o layout editorial.
+ * A imagem gerada pelo html-to-image deve capturar este container visível.
  */
 export function GospelCard({ gospel, loading, error }: GospelCardProps) {
   return (
-    <div className="gospel-card">
-      <div className="gospel-card-top">
-        <div className="gospel-badge">
+    <article className="gs-gospel-card" aria-live="polite">
+      <header className="gs-gospel-header">
+        <div className="gs-badge">
           <Calendar size={16} />
           <span>Evangelho de Hoje</span>
         </div>
-      </div>
+        {/* referência visível */}
+        {gospel && <div className="gs-ref">{gospel.referencia}</div>}
+      </header>
 
-      <div className="gospel-card-body">
-        {loading && <p className="gospel-loading">Carregando...</p>}
-        {error && <p className="gospel-error">{error}</p>}
+      <section className="gs-gospel-body">
+        {loading && <p className="gs-loading">Carregando...</p>}
+        {error && <p className="gs-error">{error}</p>}
+
         {gospel && (
-          <>
-            <h4 className="gospel-ref">{gospel.referencia}</h4>
-            <div className="gospel-text-grid">
-  <p className="gospel-text">
-    {gospel.texto}
-  </p>
-</div>
-          </>
+          <div className="gs-text-wrap">
+            {/* 
+              Usamos um único parágrafo. A diagramação em duas colunas
+              é feita por CSS (column-count + column-rule). Isso mantém
+              a ordem de leitura natural (coluna por coluna) e mostra
+              a linha vertical no meio.
+            */}
+            <p className="gs-text">{gospel.texto}</p>
+          </div>
         )}
-      </div>
+      </section>
 
-      <div className="gospel-card-footer">
-        <span className="gospel-brand">gospelapp</span>
-      </div>
-    </div>
+      <footer className="gs-gospel-footer">
+        <small className="gs-brand">gospelapp</small>
+      </footer>
+    </article>
   );
 }
