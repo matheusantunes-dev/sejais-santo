@@ -39,8 +39,8 @@ export function FeatureCard({
     type === "organize"
       ? "Editar"
       : type === "verses"
-        ? "Abrir a Bíblia"
-        : "Compartilhar";
+      ? "Abrir a Bíblia"
+      : "Compartilhar";
 
   /**
    * Divide o texto em frases
@@ -55,43 +55,26 @@ export function FeatureCard({
   /**
    * Agrupa frases em blocos para cada imagem
    */
-  const buildChunksByHeight = async (text: string) => {
-    if (!shareRef.current) return [text];
+  const buildChunks = (text: string) => {
+    const sentences = splitSentences(text);
 
-    const sentences =
-      text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((s) => s.trim()) || [];
+    const chunks: string[] = [];
+    let current = "";
 
-    const pages: string[] = [];
-    let currentText = "";
-
-    const MAX_HEIGHT = 1400;
+    const MAX_CHARS = 420;
 
     for (const sentence of sentences) {
-      const testText = currentText
-        ? `${currentText} ${sentence}`
-        : sentence;
-
-      setRenderText(testText);
-
-      // esperar React + layout estabilizar
-      await new Promise(requestAnimationFrame);
-      await new Promise(requestAnimationFrame);
-
-      const height = shareRef.current.scrollHeight;
-
-      if (height > MAX_HEIGHT && currentText) {
-        pages.push(currentText.trim());
-        currentText = sentence;
+      if ((current + sentence).length > MAX_CHARS) {
+        chunks.push(current.trim());
+        current = sentence + " ";
       } else {
-        currentText = testText;
+        current += sentence + " ";
       }
     }
 
-    if (currentText.trim()) {
-      pages.push(currentText.trim());
-    }
+    if (current.trim()) chunks.push(current.trim());
 
-    return pages;
+    return chunks;
   };
 
   /**
@@ -104,7 +87,7 @@ export function FeatureCard({
       setRenderText(chunks[i]);
 
       // espera React renderizar
-      await new Promise(requestAnimationFrame);
+      await new Promise((resolve) => setTimeout(resolve, 120));
 
       const dataUrl = await toPng(shareRef.current!, {
         pixelRatio: 2,
@@ -130,30 +113,22 @@ export function FeatureCard({
     if (!gospel || !shareRef.current) return;
 
     try {
-      const chunks = await buildChunksByHeight(gospel.texto);
+      const chunks = buildChunks(gospel.texto);
+
       const files = await generateImages(chunks);
 
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            files,
-            title: "Evangelho do Dia",
-          });
-          return;
-        } catch (err) {
-          console.warn("Share cancelado ou não suportado", err);
-        }
+      if (navigator.share && navigator.canShare?.({ files })) {
+        await navigator.share({
+          files,
+          title: "Evangelho do Dia",
+        });
+      } else {
+        await navigator.clipboard.writeText(
+          `${gospel.referencia}\n\n${gospel.texto}`
+        );
+
+        alert("Compartilhamento de imagem não suportado. Texto copiado.");
       }
-
-      // fallback download
-      files.forEach((file) => {
-        const url = URL.createObjectURL(file);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        a.click();
-      });
-
     } catch (error) {
       console.error("Erro ao gerar imagens:", error);
     }
