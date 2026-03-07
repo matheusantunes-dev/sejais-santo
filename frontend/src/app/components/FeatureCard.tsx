@@ -39,8 +39,8 @@ export function FeatureCard({
     type === "organize"
       ? "Editar"
       : type === "verses"
-      ? "Abrir a Bíblia"
-      : "Compartilhar";
+        ? "Abrir a Bíblia"
+        : "Compartilhar";
 
   /**
    * Divide o texto em frases
@@ -117,18 +117,26 @@ export function FeatureCard({
 
       const files = await generateImages(chunks);
 
-      if (navigator.share && navigator.canShare?.({ files })) {
-        await navigator.share({
-          files,
-          title: "Evangelho do Dia",
-        });
-      } else {
-        await navigator.clipboard.writeText(
-          `${gospel.referencia}\n\n${gospel.texto}`
-        );
-
-        alert("Compartilhamento de imagem não suportado. Texto copiado.");
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files,
+            title: "Evangelho do Dia",
+          });
+          return;
+        } catch (err) {
+          console.warn("Share bloqueado pelo navegador", err);
+        }
       }
+
+      // fallback download
+      files.forEach((file) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+      });
     } catch (error) {
       console.error("Erro ao gerar imagens:", error);
     }
