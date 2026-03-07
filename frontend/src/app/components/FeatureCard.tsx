@@ -61,7 +61,7 @@ export function FeatureCard({
     const chunks: string[] = [];
     let current = "";
 
-    const MAX_CHARS = 420;
+    const MAX_CHARS = 600;
 
     for (const sentence of sentences) {
       if ((current + sentence).length > MAX_CHARS) {
@@ -87,11 +87,12 @@ export function FeatureCard({
       setRenderText(chunks[i]);
 
       // espera React renderizar
-      await new Promise((resolve) => setTimeout(resolve, 120));
+      await new Promise(requestAnimationFrame);
 
       const dataUrl = await toPng(shareRef.current!, {
-        pixelRatio: 2,
+        pixelRatio: window.devicePixelRatio || 1,
         skipFonts: true,
+        cacheBust: true
       });
 
       const blob = await (await fetch(dataUrl)).blob();
