@@ -55,26 +55,41 @@ export function FeatureCard({
   /**
    * Agrupa frases em blocos para cada imagem
    */
-  const buildChunks = (text: string) => {
-    const sentences = splitSentences(text);
+  const buildChunksByHeight = async (text: string) => {
+    if (!shareRef.current) return [text];
 
-    const chunks: string[] = [];
-    let current = "";
+    const sentences =
+      text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((s) => s.trim()) || [];
 
-    const MAX_CHARS = 420;
+    const pages: string[] = [];
+
+    let currentText = "";
+
+    const MAX_HEIGHT = 1400;
 
     for (const sentence of sentences) {
-      if ((current + sentence).length > MAX_CHARS) {
-        chunks.push(current.trim());
-        current = sentence + " ";
+      const testText = currentText + " " + sentence;
+
+      setRenderText(testText);
+
+      // espera o React renderizar
+      await new Promise(requestAnimationFrame);
+
+      const height = shareRef.current.scrollHeight;
+
+      if (height > MAX_HEIGHT && currentText !== "") {
+        pages.push(currentText.trim());
+        currentText = sentence;
       } else {
-        current += sentence + " ";
+        currentText = testText;
       }
     }
 
-    if (current.trim()) chunks.push(current.trim());
+    if (currentText.trim()) {
+      pages.push(currentText.trim());
+    }
 
-    return chunks;
+    return pages;
   };
 
   /**
@@ -87,7 +102,7 @@ export function FeatureCard({
       setRenderText(chunks[i]);
 
       // espera React renderizar
-      await new Promise((resolve) => setTimeout(resolve, 120));
+      await new Promise(requestAnimationFrame);
 
       const dataUrl = await toPng(shareRef.current!, {
         pixelRatio: 2,
@@ -113,8 +128,7 @@ export function FeatureCard({
     if (!gospel || !shareRef.current) return;
 
     try {
-      const chunks = buildChunks(gospel.texto);
-
+      const chunks = await buildChunksByHeight(gospel.texto);
       const files = await generateImages(chunks);
 
       if (navigator.share) {
@@ -123,16 +137,21 @@ export function FeatureCard({
             files,
             title: "Evangelho do Dia",
           });
+          return;
         } catch (err) {
           console.warn("Share cancelado ou não suportado", err);
         }
-      } else {
-        await navigator.clipboard.writeText(
-          `${gospel.referencia}\n\n${gospel.texto}`
-        );
-
-        alert("Compartilhamento de imagem não suportado. Texto copiado.");
       }
+
+      // fallback download
+      files.forEach((file) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+      });
+
     } catch (error) {
       console.error("Erro ao gerar imagens:", error);
     }
