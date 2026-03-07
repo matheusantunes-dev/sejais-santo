@@ -31,7 +31,11 @@ export function GospelCard({ gospel, loading, error }: GospelCardProps) {
         {gospel && (
           <>
             <h4 className="gospel-ref">{gospel.referencia}</h4>
-            <p className="gospel-text">{gospel.texto}</p>
+            <div className="gospel-text-grid">
+  <p className="gospel-text">
+    {gospel.texto}
+  </p>
+</div>
           </>
         )}
       </div>
