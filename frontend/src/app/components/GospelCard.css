@@ -1,81 +1,57 @@
-/* GospelCard.css - layout responsivo e legível (mais largo no mobile) */
-
 .gospel-card {
   width: 100%;
-  max-width: 920px;            /* desktop show: largura limitada */
+  max-width: 1100px; /* mais largo */
   margin: 0 auto;
-  background: linear-gradient(180deg, #fffaf2 0%, #fff8ee 100%);
-  border-radius: 14px;
-  padding: 20px 22px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-  color: #1d1d1d;
+
+  background: #fffaf2;
+  border-radius: 16px;
+
+  padding: 24px 32px;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
+  gap: 14px;
 }
 
-/* Cabeçalho pequeno */
+/* topo */
 .gospel-card-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
 .gospel-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
+
   font-weight: 600;
   color: #6b4e2e;
 }
 
-/* Corpo com leitura confortável */
-.gospel-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* referência */
 .gospel-ref {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #3b2a17;
-  margin: 0;
 }
 
-/* Texto principal — responsivo: fica mais largo em telas menores */
+/* TEXTO PRINCIPAL */
 .gospel-text {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.8;
+
   text-align: justify;
-  margin: 0;
-  color: #222;
-  word-break: break-word;
+
+  max-width: 100%; /* ocupa mais largura */
 }
 
-/* Footer / branding discreto */
+/* footer */
 .gospel-card-footer {
   display: flex;
   justify-content: flex-end;
+
   font-size: 12px;
   opacity: 0.6;
-}
-
-/* Mobile: usar toda largura e aumentar legibilidade */
-@media (max-width: 480px) {
-  .gospel-card {
-    padding: 18px;
-    border-radius: 10px;
-    max-width: 100%;
-  }
-
-  .gospel-ref {
-    font-size: 20px;
-  }
-
-  .gospel-text {
-    font-size: 18px;
-    line-height: 1.9;
-  }
 }
