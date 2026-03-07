@@ -14,9 +14,9 @@ export const GospelShareImage = forwardRef<
     <div
       ref={ref}
       style={{
-        width: "900px",
-        minHeight: "1600px",
-        padding: "120px 100px",
+        width: "1080px",
+        height: "1920px",
+        padding: "160px 120px",
         backgroundImage: `url(${biblePaper})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -24,35 +24,37 @@ export const GospelShareImage = forwardRef<
         color: "#1c1c1c",
         display: "flex",
         flexDirection: "column",
+        justifyContent: "space-between",
       }}
     >
-      <span
-        style={{
-          fontSize: "48px",
-          marginBottom: "60px",
-          opacity: 0.7,
-        }}
-      >
-        {referencia}
-      </span>
+      <div>
+        <span
+          style={{
+            fontSize: "40px",
+            opacity: 0.7,
+            marginBottom: "40px",
+            display: "block",
+          }}
+        >
+          {referencia}
+        </span>
 
-      <div
-        style={{
-          fontSize: "32px",
-          lineHeight: 1.8,
-          textAlign: "justify",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
-      >
-        {texto}
+        <div
+          style={{
+            fontSize: "42px",
+            lineHeight: 1.9,
+            textAlign: "justify",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {texto}
+        </div>
       </div>
 
       <div
         style={{
-          marginTop: "80px",
-          fontSize: "20px",
-          opacity: 0.5,
+          fontSize: "22px",
+          opacity: 0.6,
           textAlign: "right",
         }}
       >
