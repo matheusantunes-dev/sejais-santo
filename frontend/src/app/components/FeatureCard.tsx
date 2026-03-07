@@ -96,7 +96,8 @@ export function FeatureCard({
         await new Promise((resolve) => setTimeout(resolve, 50));
 
         const dataUrl = await toPng(element, {
-          pixelRatio: 2,
+  pixelRatio: 2,
+  skipFonts: true
         });
 
         const blob = await (await fetch(dataUrl)).blob();
@@ -108,7 +109,7 @@ export function FeatureCard({
         files.push(file);
       }
 
-      if (navigator.canShare && navigator.canShare({ files })) {
+      if (navigator.share && navigator.canShare?.({ files })) {
         await navigator.share({
           files,
           title: "Evangelho do Dia",
