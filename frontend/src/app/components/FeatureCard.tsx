@@ -25,12 +25,13 @@ export function FeatureCard({
 }: FeatureCardProps) {
   const { session } = useAuth();
   const user = session?.user;
+
   const { gospel, loading, error } = useGospel();
 
-  // referência para o container visual (o GospelCard que o usuário vê)
+  // referência do container que será capturado
   const shareRef = useRef<HTMLDivElement | null>(null);
 
-  // armazena arquivo pré-gerado para compartilhar rapidamente
+  // arquivo pré-gerado
   const preGeneratedFileRef = useRef<File | null>(null);
 
   const isOrganizer = type === "organize";
@@ -43,113 +44,127 @@ export function FeatureCard({
       : "Compartilhar";
 
   /**
-   * Pré-gerar uma imagem quando o gospel mudar ou o shareRef ficar disponível.
-   * Isso evita o problema do navegador bloquear navigator.share por não ser
-   * mais um "gesture" do usuário (NotAllowedError).
+   * Pré-gera a imagem do evangelho assim que ele carregar.
+   * Isso evita o erro do navegador bloquear o share.
    */
   useEffect(() => {
     let cancelled = false;
 
-    async function preGenerate() {
+    async function generateImage() {
       preGeneratedFileRef.current = null;
 
-      if (!gospel || !shareRef.current) return;
+      if (!gospel) return;
+      if (!shareRef.current) return;
 
       try {
-        // pequeno delay para garantir layout estável (evita imagens cortadas)
-        await new Promise((r) => setTimeout(r, 120));
+        // pequeno delay para garantir layout estável
+        await new Promise((r) => setTimeout(r, 150));
 
         const dataUrl = await toPng(shareRef.current, {
-          pixelRatio: 3,        // alta resolução para redes sociais
+          pixelRatio: 2.5,
           cacheBust: true,
           backgroundColor: "#ffffff",
-          skipFonts: true,      // evita erros CORS ao tentar embutir Google Fonts
+          skipFonts: true,
         });
 
         if (cancelled) return;
 
-        // converte dataURL p/ blob e cria File (rápido no clique depois)
         const blob = await (await fetch(dataUrl)).blob();
+
         const file = new File([blob], "evangelho-do-dia.png", {
           type: "image/png",
         });
 
         preGeneratedFileRef.current = file;
-        // opcional: console.log("Pré-gerada imagem pronta");
-      } catch (err) {
-        console.error("Erro pré-gerando imagem:", err);
+      } catch (error) {
+        console.error("Erro ao gerar imagem do evangelho:", error);
       }
     }
 
-    preGenerate();
+    generateImage();
 
     return () => {
       cancelled = true;
     };
   }, [gospel]);
 
+  /**
+   * Compartilhar evangelho
+   */
   const handleShareGospel = async () => {
     if (!gospel) return;
 
     try {
-      // se já tem arquivo pré-gerado, tenta compartilhar imediatamente
-      if (preGeneratedFileRef.current) {
-        const files = [preGeneratedFileRef.current];
+      const file = preGeneratedFileRef.current;
 
-        if (navigator.canShare && navigator.canShare({ files })) {
-          await navigator.share({
-            files,
-            title: "Evangelho do Dia",
-            text: gospel.referencia,
-          });
-          return;
-        }
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Evangelho do Dia",
+          text: gospel.referencia,
+        });
+
+        return;
       }
 
-      // fallback: gerar na hora (tentar manter operação rápida)
+      // fallback caso a imagem ainda não esteja pronta
       if (!shareRef.current) {
-        alert("Elemento de compartilhamento não disponível.");
+        alert("Não foi possível gerar a imagem.");
         return;
       }
 
       const dataUrl = await toPng(shareRef.current, {
-        pixelRatio: 3,
+        pixelRatio: 2.5,
         cacheBust: true,
         backgroundColor: "#ffffff",
         skipFonts: true,
       });
 
       const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], "evangelho-do-dia.png", {
+
+      const fallbackFile = new File([blob], "evangelho.png", {
         type: "image/png",
       });
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (
+        navigator.canShare &&
+        navigator.canShare({ files: [fallbackFile] })
+      ) {
         await navigator.share({
-          files: [file],
+          files: [fallbackFile],
           title: "Evangelho do Dia",
           text: gospel.referencia,
         });
       } else {
-        // fallback amigável: copia texto e alerta
-        await navigator.clipboard.writeText(`${gospel.referencia}\n\n${gospel.texto}`);
-        alert("Compartilhamento direto não disponível. Texto copiado para a área de transferência.");
+        await navigator.clipboard.writeText(
+          `${gospel.referencia}\n\n${gospel.texto}`
+        );
+
+        alert(
+          "Seu dispositivo não suporta compartilhamento de imagem. O texto foi copiado."
+        );
       }
-    } catch (err: any) {
-      // se o navegador reclamar por não ser gesture, informe e peça ao usuário.
-      if (err && err.name === "NotAllowedError") {
-        alert("O compartilhamento foi bloqueado pelo navegador. Tente novamente pressionando o botão e mantendo a página ativa.");
+    } catch (error: any) {
+      if (error?.name === "NotAllowedError") {
+        alert(
+          "O navegador bloqueou o compartilhamento. Tente novamente tocando no botão."
+        );
       }
-      console.error("Erro ao compartilhar:", err);
+
+      console.error("Erro ao compartilhar evangelho:", error);
     }
   };
 
+  /**
+   * ação do botão principal
+   */
   const buttonAction = () => {
     if (isOrganizer) {
       if (!user) {
         alert("Faça login com Google para organizar versículos.");
         return;
       }
+
       onEdit?.();
     } else if (type === "gospel") {
       handleShareGospel();
@@ -166,30 +181,41 @@ export function FeatureCard({
 
       <div className="feature-card-content">
         {type === "gospel" && (
-          // compartilhamos o próprio card visível: attach ref no container real
-          <div ref={shareRef as any}>
-            <GospelCard gospel={gospel} loading={loading} error={error} />
+          <div ref={shareRef}>
+            <GospelCard
+              gospel={gospel}
+              loading={loading}
+              error={error}
+            />
           </div>
         )}
 
         {type === "verses" && (
           <div className="verses-image-container">
-            <img src={recomendacao} alt="Versículos" />
+            <img src={recomendacao} alt="Versículos recomendados" />
           </div>
         )}
 
         {type === "organize" && (
           <div className="verses-image-container">
-            <img src={organizacao} alt="Organizar" />
+            <img src={organizacao} alt="Organizar versículos" />
           </div>
         )}
 
-        {description && <p className="feature-card-description">{description}</p>}
+        {description && (
+          <p className="feature-card-description">
+            {description}
+          </p>
+        )}
       </div>
 
       <div className="feature-card-footer">
-        <button onClick={buttonAction} className="share-button">
+        <button
+          onClick={buttonAction}
+          className="share-button"
+        >
           <span>{buttonLabel}</span>
+
           {isOrganizer ? (
             <Pencil className="share-icon" />
           ) : type === "verses" ? (
