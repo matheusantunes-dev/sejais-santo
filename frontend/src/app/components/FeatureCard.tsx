@@ -27,6 +27,7 @@ export function FeatureCard({
   const { session } = useAuth();
   const user = session?.user;
   const { gospel, loading, error } = useGospel();
+
   const shareRef = useRef<HTMLDivElement>(null);
   const isOrganizer = type === "organize";
 
@@ -37,22 +38,79 @@ export function FeatureCard({
       ? "Abrir a Bíblia"
       : "Compartilhar";
 
+  /**
+   * Divide o texto em frases respeitando pontuação
+   */
+  const splitSentences = (text: string) => {
+    const regex = /[^.!?]+[.!?]+/g;
+    const sentences = text.match(regex);
+
+    if (!sentences) return [text];
+
+    return sentences.map((s) => s.trim());
+  };
+
+  /**
+   * Agrupa frases em blocos que cabem melhor na imagem
+   */
+  const buildTextChunks = (text: string) => {
+    const sentences = splitSentences(text);
+
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    const MAX_CHARS = 420; // limite seguro visual para seu layout
+
+    sentences.forEach((sentence) => {
+      if ((currentChunk + sentence).length > MAX_CHARS) {
+        chunks.push(currentChunk.trim());
+        currentChunk = sentence + " ";
+      } else {
+        currentChunk += sentence + " ";
+      }
+    });
+
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
+    }
+
+    return chunks;
+  };
+
+  /**
+   * Gera múltiplas imagens
+   */
   const handleShareGospel = async () => {
     if (!gospel || !shareRef.current) return;
 
     try {
-      const dataUrl = await toPng(shareRef.current, {
-        pixelRatio: 2,
-      });
+      const chunks = buildTextChunks(gospel.texto);
 
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], "evangelho-do-dia.png", {
-        type: "image/png",
-      });
+      const files: File[] = [];
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      for (let i = 0; i < chunks.length; i++) {
+        const element = shareRef.current;
+
+        element.dataset.text = chunks[i];
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const dataUrl = await toPng(element, {
+          pixelRatio: 2,
+        });
+
+        const blob = await (await fetch(dataUrl)).blob();
+
+        const file = new File([blob], `evangelho-${i + 1}.png`, {
+          type: "image/png",
+        });
+
+        files.push(file);
+      }
+
+      if (navigator.canShare && navigator.canShare({ files })) {
         await navigator.share({
-          files: [file],
+          files,
           title: "Evangelho do Dia",
         });
       } else {
@@ -62,7 +120,7 @@ export function FeatureCard({
         alert("Compartilhamento de imagem não suportado. Texto copiado!");
       }
     } catch (error) {
-      console.error("Erro ao gerar imagem:", error);
+      console.error("Erro ao gerar imagens:", error);
     }
   };
 
