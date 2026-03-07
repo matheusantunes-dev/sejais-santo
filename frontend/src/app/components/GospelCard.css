@@ -38,16 +38,34 @@
 }
 
 /* TEXTO PRINCIPAL */
+.gospel-text-grid {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 32px;
+
+  margin-top: 10px;
+}
+
+/* linha no meio */
+.gospel-text-grid::before {
+  content: "";
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+  background: rgba(0,0,0,0.15);
+}
+
 .gospel-text {
   font-size: 18px;
   line-height: 1.8;
-
   text-align: justify;
-
-  column-count: 2;        /* duas colunas */
-  column-gap: 32px;       /* espaço entre colunas */
-
-  max-width: 100%;
 }
 
 /* footer */
