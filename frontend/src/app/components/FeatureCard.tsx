@@ -43,44 +43,54 @@ export function FeatureCard({
   const slides = gospel ? splitGospelText(gospel.texto) : [];
 
   const handleShareGospel = async () => {
-    if (!gospel || slideRefs.current.length === 0) return;
+  if (!gospel) return;
 
-    try {
-      const files: File[] = [];
+  try {
+    // força render completo antes de capturar
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-      for (let i = 0; i < slideRefs.current.length; i++) {
-        const node = slideRefs.current[i];
+    const files: File[] = [];
 
-        const dataUrl = await toPng(node, {
-          pixelRatio: 2,
-          cacheBust: true,
-        });
+    for (let i = 0; i < slideRefs.current.length; i++) {
+      const node = slideRefs.current[i];
 
-        const blob = await (await fetch(dataUrl)).blob();
+      if (!node) continue;
 
-        const file = new File([blob], `evangelho-${i + 1}.png`, {
-          type: "image/png",
-        });
+      const dataUrl = await toPng(node, {
+        pixelRatio: 3,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
 
-        files.push(file);
-      }
+      const blob = await (await fetch(dataUrl)).blob();
 
-      if (navigator.canShare && navigator.canShare({ files })) {
-        await navigator.share({
-          files,
-          title: "Evangelho do Dia",
-        });
-      } else {
-        await navigator.clipboard.writeText(
-          `${gospel.referencia}\n\n${gospel.texto}`
-        );
+      const file = new File(
+        [blob],
+        `evangelho-${i + 1}.png`,
+        { type: "image/png" }
+      );
 
-        alert("Compartilhamento de imagem não suportado. Texto copiado!");
-      }
-    } catch (error) {
-      console.error("Erro ao gerar imagens:", error);
+      files.push(file);
     }
-  };
+
+    if (files.length === 0) {
+      alert("Erro ao gerar imagens.");
+      return;
+    }
+
+    if (navigator.canShare && navigator.canShare({ files })) {
+      await navigator.share({
+        files,
+        title: "Evangelho do Dia",
+      });
+    } else {
+      alert("Seu dispositivo não suporta compartilhar múltiplas imagens.");
+    }
+
+  } catch (error) {
+    console.error("Erro ao compartilhar:", error);
+  }
+};
 
   const buttonAction = () => {
     if (isOrganizer) {
