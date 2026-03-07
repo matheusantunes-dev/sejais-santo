@@ -76,3 +76,13 @@
   font-size: 12px;
   opacity: 0.6;
 }
+
+@media (max-width: 600px) {
+  .gospel-text-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gospel-text-grid::before {
+    display: none;
+  }
+}
