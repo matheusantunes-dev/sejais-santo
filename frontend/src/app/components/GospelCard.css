@@ -44,7 +44,10 @@
 
   text-align: justify;
 
-  max-width: 100%; /* ocupa mais largura */
+  column-count: 2;        /* duas colunas */
+  column-gap: 32px;       /* espaço entre colunas */
+
+  max-width: 100%;
 }
 
 /* footer */
