@@ -17,37 +17,50 @@ export const GospelShareImage = forwardRef<
         width: "900px",
         minHeight: "1600px",
         padding: "120px 100px",
+
         backgroundImage: `url(${biblePaper})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+
         fontFamily: "Georgia, serif",
         color: "#1c1c1c",
+
         display: "flex",
         flexDirection: "column",
+        justifyContent: "flex-start",
+
+        boxSizing: "border-box",
       }}
     >
+      {/* Referência bíblica */}
       <span
         style={{
           fontSize: "48px",
           marginBottom: "60px",
           opacity: 0.7,
+          fontWeight: 600,
         }}
       >
         {referencia}
       </span>
 
+      {/* Texto do evangelho */}
       <div
         style={{
           fontSize: "32px",
           lineHeight: 1.8,
           textAlign: "justify",
+
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
+
+          flex: 1,
         }}
       >
         {texto}
       </div>
 
+      {/* assinatura */}
       <div
         style={{
           marginTop: "80px",
