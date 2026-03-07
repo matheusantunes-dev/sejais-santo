@@ -120,3 +120,53 @@
     font-size: clamp(16px, 1.8vw, 18px);
   }
 }
+
+/* container das colunas */
+
+.gs-text-wrap {
+  column-count: 2;
+  column-gap: 36px;
+  column-rule: 1px solid rgba(0,0,0,0.08);
+}
+
+/* versículo */
+
+.gs-verse {
+  font-size: 17px;
+  line-height: 1.9;
+  margin-bottom: 10px;
+
+  text-align: left;
+
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* número do versículo */
+
+.gs-verse-number {
+  font-weight: 700;
+  font-size: 13px;
+
+  vertical-align: super;
+
+  margin-right: 6px;
+
+  color: #7a5c35;
+}
+
+/* MOBILE */
+
+@media (max-width: 680px) {
+
+  .gs-text-wrap {
+    column-count: 1;
+    column-rule: none;
+  }
+
+  .gs-verse {
+    font-size: 18px;
+    line-height: 1.9;
+  }
+
+}
