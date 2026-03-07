@@ -61,10 +61,10 @@ export function FeatureCard({
     const chunks: string[] = [];
     let current = "";
 
-    const MAX_CHARS = 600;
+    const MAX_CHARS = 900;
 
     for (const sentence of sentences) {
-      if ((current + sentence).length > MAX_CHARS) {
+      if ((current + sentence).length > MAX_CHARS && current.length > 200) {
         chunks.push(current.trim());
         current = sentence + " ";
       } else {
