@@ -1,6 +1,4 @@
 import { Calendar } from "lucide-react";
-import { useGospel } from "../services/useGospel";
-import { useEffect } from "react";
 import "./GospelCard.css";
 
 interface GospelCardProps {
@@ -12,23 +10,34 @@ interface GospelCardProps {
   error: string | null;
 }
 
+/**
+ * GospelCard
+ * É o container visual que o usuário vê. A ideia é que o html-to-image capture
+ * *exatamente* esse elemento (com ref no FeatureCard).
+ */
 export function GospelCard({ gospel, loading, error }: GospelCardProps) {
   return (
     <div className="gospel-card">
-      <div className="gospel-date-selector">
-        <Calendar />
-        <span>Evangelho de Hoje</span>
+      <div className="gospel-card-top">
+        <div className="gospel-badge">
+          <Calendar size={16} />
+          <span>Evangelho de Hoje</span>
+        </div>
       </div>
 
-      <div className="gospel-preview">
-        {loading && <p>Carregando...</p>}
-        {error && <p>{error}</p>}
+      <div className="gospel-card-body">
+        {loading && <p className="gospel-loading">Carregando...</p>}
+        {error && <p className="gospel-error">{error}</p>}
         {gospel && (
-          <div clasName="gospel-content">
-            <h4 className="gospel-title">{gospel.referencia}</h4>
+          <>
+            <h4 className="gospel-ref">{gospel.referencia}</h4>
             <p className="gospel-text">{gospel.texto}</p>
-          </div>
+          </>
         )}
+      </div>
+
+      <div className="gospel-card-footer">
+        <span className="gospel-brand">gospelapp</span>
       </div>
     </div>
   );
