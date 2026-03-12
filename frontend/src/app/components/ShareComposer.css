@@ -1,4 +1,12 @@
-﻿.share-composer-overlay {
+﻿.share-composer-modal * {
+  max-width: 100%;
+}
+
+.share-composer-layout>* {
+  min-width: 0;
+}
+
+.share-composer-overlay {
   position: fixed;
   inset: 0;
   display: flex;
@@ -14,7 +22,9 @@
   position: relative;
   width: min(1080px, 100%);
   max-height: min(92vh, 960px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* impede scroll horizontal */
   border-radius: 24px;
   padding: 24px;
   background: linear-gradient(180deg, #fffaf2 0%, #f8efe4 100%);
@@ -147,4 +157,3 @@
     justify-content: center;
   }
 }
-
