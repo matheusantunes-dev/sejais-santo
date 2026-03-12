@@ -7,7 +7,7 @@ import biblePaperImage5 from "@/assets/templates/biblePaperImage5.avif";
 
 /* Import do Versículo */
 import verseBackgroundImage from "@/assets/versiculobg.jpg";
-import Campos from "@/assets/templates/Campos.avif";
+import Campos from "@/assets/templates/campos.avif";
 import Paisagem from "@/assets/templates/paisagem.avif";
 import PorDoSol from "@/assets/templates/por do sol.avif";
 import Montanhas from "@/assets/templates/montanhas.avif";
