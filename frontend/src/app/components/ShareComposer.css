@@ -1,0 +1,159 @@
+﻿.share-composer-modal * {
+  max-width: 100%;
+}
+
+.share-composer-layout>* {
+  min-width: 0;
+}
+
+.share-composer-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(17, 10, 7, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 10010;
+}
+
+.share-composer-modal {
+  position: relative;
+  width: min(1080px, 100%);
+  max-height: min(92vh, 960px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* impede scroll horizontal */
+  border-radius: 24px;
+  padding: 24px;
+  background: linear-gradient(180deg, #fffaf2 0%, #f8efe4 100%);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+}
+
+.share-composer-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: #6f4b35;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.share-composer-header {
+  padding-right: 36px;
+}
+
+.share-composer-header h3 {
+  margin: 0;
+  color: #5b341d;
+  font-size: 1.5rem;
+}
+
+.share-composer-header p {
+  margin: 10px 0 0;
+  color: #7a5d49;
+  line-height: 1.6;
+}
+
+.share-composer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 22px;
+  align-items: start;
+}
+
+.share-composer-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid #dbc4a7;
+  background: linear-gradient(180deg, #f7ead7 0%, #ead6bb 100%);
+  min-height: 360px;
+}
+
+.share-composer-preview.is-portrait {
+  min-height: 500px;
+}
+
+.share-composer-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.share-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.share-composer-button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.share-composer-button--primary {
+  background: #8b1a1a;
+  color: #fff;
+}
+
+.share-composer-button--secondary {
+  background: #efe2d2;
+  color: #5f4330;
+}
+
+.share-composer-button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.share-composer-note {
+  margin: 0;
+  color: #7b5f4e;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.hidden-capture-root {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 840px) {
+  .share-composer-modal {
+    padding: 18px;
+  }
+
+  .share-composer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .share-composer-preview,
+  .share-composer-preview.is-portrait {
+    min-height: unset;
+  }
+
+  .share-composer-actions {
+    flex-direction: column;
+  }
+
+  .share-composer-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
