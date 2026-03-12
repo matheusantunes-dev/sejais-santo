@@ -7,7 +7,7 @@
   padding: 20px;
   background: rgba(17, 10, 7, 0.72);
   backdrop-filter: blur(6px);
-  z-index: 9999;
+  z-index: 10010;
 }
 
 .share-composer-modal {
@@ -147,3 +147,4 @@
     justify-content: center;
   }
 }
+

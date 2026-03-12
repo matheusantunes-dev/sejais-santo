@@ -1,4 +1,5 @@
 ﻿import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
 import { toBlob } from "html-to-image";
 import { GospelShareImage } from "./GospelShareImage";
@@ -46,8 +47,9 @@ function buildChunks(text: string) {
 }
 
 export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProps) {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(gospelShareTemplates[0].id);
-  const [backgroundSrc, setBackgroundSrc] = useState(gospelShareTemplates[0].src);
+  const defaultTemplate = gospelShareTemplates[0];
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
+  const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
   const [customFileName, setCustomFileName] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [renderText, setRenderText] = useState("");
@@ -61,10 +63,14 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
 
   useEffect(() => {
     if (!open) return;
-    setRenderText(previewText);
-  }, [open, previewText]);
 
-  if (!open || !gospel) return null;
+    setSelectedTemplateId(defaultTemplate.id);
+    setBackgroundSrc(defaultTemplate.src);
+    setCustomFileName("");
+    setRenderText(previewText);
+  }, [defaultTemplate.id, defaultTemplate.src, open, previewText]);
+
+  if (!open || !gospel || typeof document === "undefined") return null;
 
   function handleTemplateSelect(template: ShareTemplate) {
     setSelectedTemplateId(template.id);
@@ -137,7 +143,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     }
   }
 
-  return (
+  const modal = (
     <div className="share-composer-overlay" onClick={onClose}>
       <div className="share-composer-modal" onClick={(event) => event.stopPropagation()}>
         <button type="button" className="share-composer-close" onClick={onClose}>
@@ -207,4 +213,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

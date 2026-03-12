@@ -1,4 +1,5 @@
-﻿import { ChangeEvent, useState } from "react";
+﻿import { ChangeEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
 import { toBlob } from "html-to-image";
 import { ShareSquareCard } from "./ShareSquareCard";
@@ -34,13 +35,22 @@ export function VerseImageShareModal({
   shareTitle,
   loading = false,
 }: VerseImageShareModalProps) {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(verseShareTemplates[0].id);
-  const [backgroundSrc, setBackgroundSrc] = useState(verseShareTemplates[0].src);
+  const defaultTemplate = verseShareTemplates[0];
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
+  const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
   const [customFileName, setCustomFileName] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [captureRef, setCaptureRef] = useState<HTMLDivElement | null>(null);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (!open) return;
+
+    setSelectedTemplateId(defaultTemplate.id);
+    setBackgroundSrc(defaultTemplate.src);
+    setCustomFileName("");
+  }, [defaultTemplate.id, defaultTemplate.src, open]);
+
+  if (!open || typeof document === "undefined") return null;
 
   const previewText = text || (loading ? "Carregando versiculo..." : "Versiculo indisponivel no momento.");
   const canShare = !loading && Boolean(text.trim()) && !isSharing && Boolean(captureRef);
@@ -95,7 +105,7 @@ export function VerseImageShareModal({
     }
   }
 
-  return (
+  const modal = (
     <div className="share-composer-overlay" onClick={onClose}>
       <div className="share-composer-modal" onClick={(event) => event.stopPropagation()}>
         <button type="button" className="share-composer-close" onClick={onClose}>
@@ -166,4 +176,6 @@ export function VerseImageShareModal({
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
