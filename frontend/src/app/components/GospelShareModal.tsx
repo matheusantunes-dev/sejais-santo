@@ -1,11 +1,11 @@
 ﻿import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
-import { toBlob } from "html-to-image";
+import { toPng } from "html-to-image";
 import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
-import { fileToDataUrl, shareFilesOrDownload, waitForNextPaint } from "../share/shareUtils";
+import { fileToDataUrl, waitForNextPaint } from "../share/shareUtils";
 import "./ShareComposer.css";
 
 interface GospelData {
@@ -27,23 +27,22 @@ function buildChunks(text: string) {
   const sentences = splitSentences(text);
   const chunks: string[] = [];
   let current = "";
-  const maxChars = 900;
+  const MAX_CHARS = 900;
 
-  sentences.forEach((sentence) => {
-    if ((current + sentence).length > maxChars && current.length > 220) {
+  for (const sentence of sentences) {
+    if ((current + sentence).length > MAX_CHARS && current.length > 200) {
       chunks.push(current.trim());
       current = `${sentence} `;
-      return;
+    } else {
+      current += `${sentence} `;
     }
-
-    current += `${sentence} `;
-  });
+  }
 
   if (current.trim()) {
     chunks.push(current.trim());
   }
 
-  return chunks.length ? chunks : [text];
+  return chunks.length ? chunks : [text.trim()];
 }
 
 export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProps) {
@@ -106,15 +105,13 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
       setRenderText(chunks[index]);
       await waitForNextPaint();
 
-      const blob = await toBlob(captureRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
+      const dataUrl = await toPng(captureRef.current, {
+        pixelRatio: window.devicePixelRatio || 1,
         skipFonts: true,
+        cacheBust: true,
       });
 
-      if (!blob) {
-        throw new Error("Nao foi possivel gerar a imagem do evangelho.");
-      }
+      const blob = await (await fetch(dataUrl)).blob();
 
       files.push(
         new File([blob], `evangelho-${index + 1}.png`, {
@@ -133,9 +130,35 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
 
     try {
       const files = await generateFiles();
-      await shareFilesOrDownload({ files, title: "Evangelho do Dia" });
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files,
+            title: "Evangelho do Dia",
+          });
+          return;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "AbortError") {
+            return;
+          }
+
+          console.warn("Share bloqueado pelo navegador", error);
+        }
+      }
+
+      files.forEach((file) => {
+        const url = URL.createObjectURL(file);
+        const anchor = document.createElement("a");
+
+        anchor.href = url;
+        anchor.download = file.name;
+        anchor.click();
+
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+      });
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao gerar imagens:", error);
       alert("Nao foi possivel compartilhar o evangelho agora.");
     } finally {
       setRenderText(previewText);
@@ -153,8 +176,8 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
         <div className="share-composer-header">
           <h3>Compartilhar Evangelho</h3>
           <p>
-            Escolha um dos 5 templates com folha de biblia ou use uma imagem da galeria do celular
-            antes de gerar as artes do evangelho.
+            Escolha um dos 5 templates ou use uma imagem da galeria do celular. O compartilhamento
+            continua dividindo o evangelho em 2 ou mais imagens quando o texto for grande.
           </p>
         </div>
 
@@ -165,14 +188,13 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
               texto={previewText}
               backgroundSrc={backgroundSrc}
               width={252}
-              height={448}
             />
           </div>
 
           <div className="share-composer-side">
             <ShareTemplatePicker
-              heading="Fundos prontos do Evangelho"
-              helperText="Todos os 5 templates foram preparados para leitura com textura de pagina biblica."
+              heading="Fundos do Evangelho"
+              helperText="Escolha um template pronto ou uma imagem da galeria sem alterar o formato original do evangelho."
               templates={gospelShareTemplates}
               selectedTemplateId={selectedTemplateId}
               customFileName={customFileName}
@@ -182,7 +204,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
             />
 
             <p className="share-composer-note">
-              Se o texto do evangelho ficar longo, o app vai gerar varias imagens automaticamente.
+              O layout de compartilhamento do evangelho foi mantido no formato antigo, com quebra em varias imagens quando necessario.
             </p>
 
             <div className="share-composer-actions">

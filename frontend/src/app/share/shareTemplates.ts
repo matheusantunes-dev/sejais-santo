@@ -1,18 +1,9 @@
-﻿/* Import do evanvelho */
-import biblePaperImage1 from "@/assets/templates/biblePaperImage1.jpeg";
-import biblePaperImage2 from "@/assets/templates/biblePaperImage2.jpg";
-import biblePaperImage3 from "@/assets/templates/biblePaperImage3.jpg";
-import biblePaperImage4 from "@/assets/templates/biblePaperImage4.jpg";
-import biblePaperImage5 from "@/assets/templates/biblePaperImage5.avif";
-
-/* Import do Versículo */
+﻿import adventoImage from "@/assets/advento.png";
+import biblePaperImage from "@/assets/bible-paper.jpeg";
+import pascalImage from "@/assets/pascal.png";
+import quaresmaImage from "@/assets/quaresma.png";
+import tempoComumImage from "@/assets/tempo comum.png";
 import verseBackgroundImage from "@/assets/versiculobg.jpg";
-import Campos from "@/assets/templates/campos.avif";
-import Paisagem from "@/assets/templates/paisagem.avif";
-import PorDoSol from "@/assets/templates/por do sol.avif";
-import Montanhas from "@/assets/templates/montanhas.avif";
-
-
 
 export interface ShareTemplate {
   id: string;
@@ -21,17 +12,17 @@ export interface ShareTemplate {
 }
 
 export const gospelShareTemplates: ShareTemplate[] = [
-  { id: "gospel-template-1", name: "Bíblico Normal", src: biblePaperImage1 },
-  { id: "gospel-template-2", name: "Bíblico Escuro", src: biblePaperImage2 },
-  { id: "gospel-template-3", name: "Bíblico Fosco", src: biblePaperImage3 },
-  { id: "gospel-template-4", name: "Bíblico Claro", src: biblePaperImage4 },
-  { id: "gospel-template-5", name: "Bíblico Original", src: biblePaperImage5 },
+  { id: "gospel-template-1", name: "Papel Biblico", src: biblePaperImage },
+  { id: "gospel-template-2", name: "Advento", src: adventoImage },
+  { id: "gospel-template-3", name: "Pascal", src: pascalImage },
+  { id: "gospel-template-4", name: "Quaresma", src: quaresmaImage },
+  { id: "gospel-template-5", name: "Tempo Comum", src: tempoComumImage },
 ];
 
 export const verseShareTemplates: ShareTemplate[] = [
   { id: "verse-template-1", name: "Biblia Aberta", src: verseBackgroundImage },
-  { id: "verse-template-2", name: "Campos", src: Campos },
-  { id: "verse-template-3", name: "Paisagem", src: Paisagem },
-  { id: "verse-template-4", name: "Pôr do Sol", src: PorDoSol },
-  { id: "verse-template-5", name: "Montanhas", src: Montanhas },
+  { id: "verse-template-2", name: "Advento", src: adventoImage },
+  { id: "verse-template-3", name: "Pascal", src: pascalImage },
+  { id: "verse-template-4", name: "Quaresma", src: quaresmaImage },
+  { id: "verse-template-5", name: "Tempo Comum", src: tempoComumImage },
 ];
