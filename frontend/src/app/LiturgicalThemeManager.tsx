@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { getLiturgicalSeason, LiturgicalSeason } from "@/utils/LiturgicalCalendar";
+import { useLayoutEffect } from "react";
+import { getLiturgicalSeason } from "@/utils/LiturgicalCalendar";
+import type { LiturgicalSeason } from "@/utils/LiturgicalCalendar";
 
 type LiturgicalPalette = {
   appBg: string;
@@ -36,7 +37,7 @@ const DEFAULT_PALETTE: LiturgicalPalette = {
 /**
  * Paletas por estação litúrgica
  */
-const palettes: Record<LiturgicalSeason, LiturgicalPalette> = {
+const palettes: Partial<Record<LiturgicalSeason, LiturgicalPalette>> = {
   Advento: {
     ...DEFAULT_PALETTE,
     appBg: "#321263",
@@ -88,7 +89,7 @@ const STYLE_ID = "liturgical-theme-overrides";
 /**
  * Garante que o style global seja inserido apenas uma vez
  */
-function ensureThemeStyleTag() {
+function ensureThemeStyleTag(initialPalette: LiturgicalPalette = DEFAULT_PALETTE) {
   if (document.getElementById(STYLE_ID)) return;
 
   const style = document.createElement("style");
@@ -96,19 +97,19 @@ function ensureThemeStyleTag() {
 
   style.textContent = `
     :root {
-      --liturgical-app-bg: ${DEFAULT_PALETTE.appBg};
-      --liturgical-header-bg: ${DEFAULT_PALETTE.headerBg};
-      --liturgical-hero-start: ${DEFAULT_PALETTE.heroStart};
-      --liturgical-hero-mid: ${DEFAULT_PALETTE.heroMid};
-      --liturgical-banner-start: ${DEFAULT_PALETTE.bannerStart};
-      --liturgical-banner-mid: ${DEFAULT_PALETTE.bannerMid};
-      --liturgical-card-top: ${DEFAULT_PALETTE.cardTop};
-      --liturgical-card-bottom: ${DEFAULT_PALETTE.cardBottom};
-      --liturgical-border: ${DEFAULT_PALETTE.border};
-      --liturgical-accent: ${DEFAULT_PALETTE.accent};
-      --liturgical-accent-hover: ${DEFAULT_PALETTE.accentHover};
-      --liturgical-section-title: ${DEFAULT_PALETTE.sectionTitle};
-      --liturgical-section-subtitle: ${DEFAULT_PALETTE.sectionSubTitle};
+      --liturgical-app-bg: ${initialPalette.appBg};
+      --liturgical-header-bg: ${initialPalette.headerBg};
+      --liturgical-hero-start: ${initialPalette.heroStart};
+      --liturgical-hero-mid: ${initialPalette.heroMid};
+      --liturgical-banner-start: ${initialPalette.bannerStart};
+      --liturgical-banner-mid: ${initialPalette.bannerMid};
+      --liturgical-card-top: ${initialPalette.cardTop};
+      --liturgical-card-bottom: ${initialPalette.cardBottom};
+      --liturgical-border: ${initialPalette.border};
+      --liturgical-accent: ${initialPalette.accent};
+      --liturgical-accent-hover: ${initialPalette.accentHover};
+      --liturgical-section-title: ${initialPalette.sectionTitle};
+      --liturgical-section-subtitle: ${initialPalette.sectionSubTitle};
     }
 
     .app-container {
@@ -184,6 +185,21 @@ function ensureThemeStyleTag() {
   document.head.appendChild(style);
 }
 
+function getCurrentPalette(): LiturgicalPalette {
+  const season = getLiturgicalSeason(new Date());
+  return palettes[season] ?? DEFAULT_PALETTE;
+}
+
+function bootstrapLiturgicalTheme() {
+  if (typeof document === "undefined") return;
+
+  const initialPalette = getCurrentPalette();
+  ensureThemeStyleTag(initialPalette);
+  applyPalette(getLiturgicalSeason(new Date()));
+}
+
+bootstrapLiturgicalTheme();
+
 /**
  * Aplica paleta conforme estação
  */
@@ -210,10 +226,9 @@ function applyPalette(season: LiturgicalSeason) {
  * Componente que gerencia o tema litúrgico
  */
 export function LiturgicalThemeManager() {
-  useEffect(() => {
-    ensureThemeStyleTag();
-
+  useLayoutEffect(() => {
     const season = getLiturgicalSeason(new Date());
+    ensureThemeStyleTag(palettes[season] ?? DEFAULT_PALETTE);
     applyPalette(season);
   }, []);
 

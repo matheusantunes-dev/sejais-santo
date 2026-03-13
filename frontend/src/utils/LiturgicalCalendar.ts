@@ -1,4 +1,6 @@
-export function getLiturgicalSeason(date: Date): string {
+export type LiturgicalSeason = "Advento" | "Tempo do Natal" | "Quaresma" | "Tempo Pascal" | "Tempo Comum";
+
+export function getLiturgicalSeason(date: Date): LiturgicalSeason {
   const year = date.getFullYear();
 
   // 🔒 Criar datas sempre ao meio-dia (evita bug de timezone)
