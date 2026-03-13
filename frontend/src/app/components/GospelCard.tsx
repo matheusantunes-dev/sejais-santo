@@ -1,3 +1,4 @@
+
 import { Calendar } from "lucide-react";
 import { useGospel } from "../services/useGospel";
 import { useEffect } from "react";
@@ -24,7 +25,7 @@ export function GospelCard({ gospel, loading, error }: GospelCardProps) {
         {loading && <p>Carregando...</p>}
         {error && <p>{error}</p>}
         {gospel && (
-          <div className="gospel-content">
+          <div clasName="gospel-content">
             <h4 className="gospel-title">{gospel.referencia}</h4>
             <p className="gospel-text">{gospel.texto}</p>
           </div>
