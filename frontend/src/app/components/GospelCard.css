@@ -71,6 +71,17 @@
   letter-spacing: 0.5px;
 }
 
+/* Texto do evangelho:
+   - Em telas maiores: justificamos (visual clássico)
+   - Em telas pequenas (coluna estreita): usamos left para evitar espaçamento excessivo entre palavras */
 .gospel-text {
   text-align: justify;
+  line-height: 1.45;
+}
+
+/* quebra responsiva para evitar texto SUPER-esticado em colunas estreitas */
+@media (max-width: 480px) {
+  .gospel-text {
+    text-align: left;
+  }
 }
