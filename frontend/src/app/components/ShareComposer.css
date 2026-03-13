@@ -152,3 +152,33 @@
   }
 }
 
+
+.share-composer-generated {
+  border: 1px dashed #c5a27f;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 249, 239, 0.9);
+  color: #6b4d39;
+}
+
+.share-composer-generated strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.share-composer-generated ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.share-composer-generated a {
+  color: #8b1a1a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.share-composer-generated a:hover {
+  text-decoration: underline;
+}
