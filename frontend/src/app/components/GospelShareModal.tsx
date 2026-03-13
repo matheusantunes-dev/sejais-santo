@@ -46,7 +46,8 @@ function buildChunks(text: string) {
 }
 
 export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProps) {
-  const defaultTemplate = gospelShareTemplates[0];
+  // muda o padrão para o template escuro (índice 1)
+  const defaultTemplate = gospelShareTemplates[1];
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
   const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
   const [customFileName, setCustomFileName] = useState("");
@@ -147,16 +148,17 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
         }
       }
 
-      files.forEach((file) => {
-        const url = URL.createObjectURL(file);
-        const anchor = document.createElement("a");
-
-        anchor.href = url;
-        anchor.download = file.name;
-        anchor.click();
-
-        setTimeout(() => URL.revokeObjectURL(url), 0);
-      });
+      // FALLBACK NÃO FORÇAR DOWNLOAD AUTOMÁTICO:
+// Em vez de criar um <a download> e acionar um clique (o que salva automaticamente no dispositivo),
+// abrimos cada imagem em uma nova aba. Assim o usuário pode ver a imagem e optar por salvar manualmente
+// (ou compartilhar via opções do próprio navegador). Isso evita downloads silenciosos em celulares.
+   files.forEach((file) => {
+  const url = URL.createObjectURL(file);
+  // abre em nova aba; NÃO força o download
+  window.open(url, "_blank");
+  // lixeira: revoga o URL depois de um tempo
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+});
     } catch (error) {
       console.error("Erro ao gerar imagens:", error);
       alert("Nao foi possivel compartilhar o evangelho agora.");
