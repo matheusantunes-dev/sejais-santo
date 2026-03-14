@@ -36,12 +36,16 @@ export async function shareFilesOrDownload({
 }): Promise<void> {
   if (!files.length) return;
 
-  const canShareFiles =
+  const hasNavigator =
     typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
+    typeof navigator.share === "function";
+
+  const canShareFiles =
+    hasNavigator &&
     typeof navigator.canShare === "function" &&
     navigator.canShare({ files });
 
+  // 1️⃣ Compartilhamento ideal
   if (canShareFiles) {
     try {
       await navigator.share({ files, title });
@@ -50,6 +54,23 @@ export async function shareFilesOrDownload({
       if (error instanceof DOMException && error.name === "AbortError") {
         return;
       }
+    }
+  }
+
+  // 2️⃣ fallback melhor (sem download)
+  if (hasNavigator) {
+    try {
+      await navigator.share({
+        title,
+        text: title,
+      });
+      return;
+    } catch {}
+  }
+
+  // 3️⃣ último fallback
+  downloadFiles(files);
+}
 
       console.warn("Compartilhamento indisponivel, usando download.", error);
     }
