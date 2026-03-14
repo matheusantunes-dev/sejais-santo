@@ -73,8 +73,4 @@ export async function shareFilesOrDownload({
 }
 
       console.warn("Compartilhamento indisponivel, usando download.", error);
-    }
   }
-
-  downloadFiles(files);
-}
