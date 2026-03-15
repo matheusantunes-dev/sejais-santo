@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import VerseItem from "./VerseItem";
 import VerseOrganizerIcon from "./VerseOrganizerIcon";
-import { VerseImageShareModal } from "./VerseImageShareModal";
+import VerseImageShareModal from "./VerseImageShareModal";
 import "./VerseOrganizer.css";
 import { useAuth } from "../context/AuthContext";
 
