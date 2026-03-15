@@ -1,4 +1,4 @@
-// src/components/VerseImageShareModal.tsx
+// src/app/components/VerseImageShareModal.tsx
 
 import React, { useRef } from "react";
 import { toBlob } from "html-to-image";
@@ -19,6 +19,7 @@ export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Prop
     }
 
     try {
+      // Gera um blob da div de captura (usando pixelRatio=2 para boa resolução)
       const blob = await toBlob(captureRef.current, {
         pixelRatio: 2,
         cacheBust: true,
@@ -30,18 +31,18 @@ export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Prop
         return;
       }
 
+      // Converte blob em File, necessário para share
       const fileName = `${shareTitle.replace(/\s+/g, "-").toLowerCase()}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
 
-      const file = new File([blob], fileName, {
-        type: "image/png",
-      });
-
+      // Chama o compartilhamento nativo com o arquivo gerado
       await shareFiles({
         files: [file],
         title: shareTitle,
         text: shareTitle,
       });
 
+      // Após compartilhar, fecha o modal
       onClose();
     } catch (err) {
       console.error("Erro ao compartilhar:", err);
@@ -51,18 +52,14 @@ export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Prop
   return (
     <div className="verse-share-modal">
       <div ref={captureRef} id="verse-capture" style={{ padding: 16 }}>
+        {/* Conteúdo do evangelho que será capturado em imagem */}
         <h2>{shareTitle}</h2>
         <p>Texto do evangelho — substitua com seu conteúdo dinâmico</p>
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <button onClick={handleShareClick}>
-          Compartilhar
-        </button>
-
-        <button onClick={onClose}>
-          Fechar
-        </button>
+        <button onClick={handleShareClick}>Compartilhar</button>
+        <button onClick={onClose}>Fechar</button>
       </div>
     </div>
   );
