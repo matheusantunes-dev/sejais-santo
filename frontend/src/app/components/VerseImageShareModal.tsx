@@ -1,7 +1,7 @@
 // src/components/VerseImageShareModal.tsx
 import React, { useRef, useState, useEffect } from "react";
 import { toBlob } from "html-to-image"; // ou outra lib que você use
-import { shareFilesOrDownload } from "../utils/shareUtils";
+import { shareFilesOrDownload } from "../share/shareUtils";
 
 type Props = {
   onClose: () => void;
