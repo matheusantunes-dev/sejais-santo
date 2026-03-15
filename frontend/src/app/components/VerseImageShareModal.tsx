@@ -9,7 +9,7 @@ type Props = {
   // outros props que seu modal usa...
 };
 
-export default function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Props) {
+export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Props) {
   const captureRef = useRef<HTMLDivElement | null>(null); // elemento a ser convertido para imagem
   const [fallbackUrls, setFallbackUrls] = useState<string[] | null>(null);
 
