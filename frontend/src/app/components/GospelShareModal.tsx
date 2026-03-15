@@ -1,3 +1,5 @@
+// src/app/components/GospelShareModal.tsx
+
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
@@ -20,15 +22,15 @@ interface GospelShareModalProps {
 }
 
 function splitSentences(text: string) {
-  return text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) => sentence.trim()) ?? [];
+  return text
+    .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+    ?.map((sentence) => sentence.trim()) ?? [];
 }
 
 function buildChunks(text: string) {
   const sentences = splitSentences(text);
-
   const chunks: string[] = [];
   let current = "";
-
   const MAX_CHARS = 900;
 
   for (const sentence of sentences) {
@@ -48,9 +50,7 @@ function buildChunks(text: string) {
 }
 
 export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProps) {
-
   const defaultTemplate = gospelShareTemplates[1];
-
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
   const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
   const [customFileName, setCustomFileName] = useState("");
@@ -66,7 +66,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
 
   useEffect(() => {
     if (!open) return;
-
     setSelectedTemplateId(defaultTemplate.id);
     setBackgroundSrc(defaultTemplate.src);
     setCustomFileName("");
@@ -83,12 +82,10 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     try {
       const dataUrl = await fileToDataUrl(file);
-
       setSelectedTemplateId(null);
       setBackgroundSrc(dataUrl);
       setCustomFileName(file.name);
@@ -100,18 +97,13 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     }
   }
 
-  async function generateFiles() {
-
+  async function generateFiles(): Promise<File[]> {
     if (!captureRef.current) return [];
-
     const chunks = buildChunks(gospel.texto);
-
     const files: File[] = [];
 
     for (let index = 0; index < chunks.length; index += 1) {
-
       setRenderText(chunks[index]);
-
       await waitForNextPaint();
 
       const dataUrl = await toPng(captureRef.current, {
@@ -121,7 +113,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
       });
 
       const blob = await (await fetch(dataUrl)).blob();
-
       files.push(
         new File([blob], `evangelho-${index + 1}.png`, {
           type: "image/png",
@@ -133,38 +124,45 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   }
 
   async function handleShare() {
-
     if (isSharing) return;
-
     setIsSharing(true);
 
     try {
-
       const files = await generateFiles();
-
       if (!files.length) {
         throw new Error("Nao foi possivel gerar as imagens.");
       }
 
+      // Tenta compartilhar as imagens
       await navigator.share({
         files,
         title: "Evangelho do Dia",
       });
 
       onClose();
-
     } catch (error) {
-
+      // Se usuário cancelar ou erro, tenta fallback
       if (error instanceof DOMException && error.name === "AbortError") {
         return;
       }
 
       console.error("Erro ao compartilhar:", error);
 
+      // Fallback: compartilhar texto/URL
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Evangelho do Dia",
+            text: "Evangelho do Dia",
+            url: window.location.href,
+          });
+          onClose();
+          return;
+        } catch {}
+      }
+
       alert("Seu navegador nao suporta compartilhamento de imagens.");
-
     } finally {
-
       setRenderText(previewText);
       setIsSharing(false);
     }
@@ -173,7 +171,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   const modal = (
     <div className="share-composer-overlay" onClick={onClose}>
       <div className="share-composer-modal" onClick={(event) => event.stopPropagation()}>
-
         <button type="button" className="share-composer-close" onClick={onClose}>
           x
         </button>
@@ -183,7 +180,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
         </div>
 
         <div className="share-composer-layout">
-
           <div className="share-composer-preview is-portrait">
             <GospelShareImage
               referencia={gospel.referencia}
@@ -194,7 +190,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
           </div>
 
           <div className="share-composer-side">
-
             <ShareTemplatePicker
               heading="Fundos do Evangelho"
               helperText="Escolha um template ou imagem da galeria."
@@ -207,7 +202,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
             />
 
             <div className="share-composer-actions">
-
               <button
                 type="button"
                 className="share-composer-button share-composer-button--secondary"
@@ -215,7 +209,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
               >
                 Fechar
               </button>
-
               <button
                 type="button"
                 className="share-composer-button share-composer-button--primary"
@@ -225,12 +218,11 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
                 <Share2 size={18} />
                 {isSharing ? "Gerando..." : "Compartilhar"}
               </button>
-
             </div>
-
           </div>
         </div>
 
+        {/* Área oculta para captura */}
         <div className="hidden-capture-root" aria-hidden="true">
           <GospelShareImage
             ref={captureRef}
@@ -239,7 +231,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
             backgroundSrc={backgroundSrc}
           />
         </div>
-
       </div>
     </div>
   );
