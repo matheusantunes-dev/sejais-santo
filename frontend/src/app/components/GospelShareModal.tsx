@@ -19,19 +19,16 @@ interface GospelShareModalProps {
   gospel: GospelData | null;
 }
 
-interface GeneratedImageLink {
-  name: string;
-  url: string;
-}
-
 function splitSentences(text: string) {
   return text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) => sentence.trim()) ?? [];
 }
 
 function buildChunks(text: string) {
   const sentences = splitSentences(text);
+
   const chunks: string[] = [];
   let current = "";
+
   const MAX_CHARS = 900;
 
   for (const sentence of sentences) {
@@ -51,13 +48,14 @@ function buildChunks(text: string) {
 }
 
 export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProps) {
+
   const defaultTemplate = gospelShareTemplates[1];
+
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
   const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
   const [customFileName, setCustomFileName] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [renderText, setRenderText] = useState("");
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImageLink[]>([]);
 
   const captureRef = useRef<HTMLDivElement>(null);
 
@@ -75,30 +73,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     setRenderText(previewText);
   }, [defaultTemplate.id, defaultTemplate.src, open, previewText]);
 
-  useEffect(() => {
-    return () => {
-      generatedImages.forEach((image) => URL.revokeObjectURL(image.url));
-    };
-  }, [generatedImages]);
-
   if (!open || !gospel || typeof document === "undefined") return null;
-
-  function replaceGeneratedImages(files: File[]) {
-    setGeneratedImages((current) => {
-      current.forEach((image) => URL.revokeObjectURL(image.url));
-      return files.map((file) => ({
-        name: file.name,
-        url: URL.createObjectURL(file),
-      }));
-    });
-  }
-
-  function clearGeneratedImages() {
-    setGeneratedImages((current) => {
-      current.forEach((image) => URL.revokeObjectURL(image.url));
-      return [];
-    });
-  }
 
   function handleTemplateSelect(template: ShareTemplate) {
     setSelectedTemplateId(template.id);
@@ -113,6 +88,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
 
     try {
       const dataUrl = await fileToDataUrl(file);
+
       setSelectedTemplateId(null);
       setBackgroundSrc(dataUrl);
       setCustomFileName(file.name);
@@ -125,13 +101,17 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   }
 
   async function generateFiles() {
+
     if (!captureRef.current) return [];
 
     const chunks = buildChunks(gospel.texto);
+
     const files: File[] = [];
 
     for (let index = 0; index < chunks.length; index += 1) {
+
       setRenderText(chunks[index]);
+
       await waitForNextPaint();
 
       const dataUrl = await toPng(captureRef.current, {
@@ -145,7 +125,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
       files.push(
         new File([blob], `evangelho-${index + 1}.png`, {
           type: "image/png",
-        }),
+        })
       );
     }
 
@@ -153,44 +133,38 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   }
 
   async function handleShare() {
+
     if (isSharing) return;
 
     setIsSharing(true);
 
     try {
+
       const files = await generateFiles();
 
       if (!files.length) {
         throw new Error("Nao foi possivel gerar as imagens.");
       }
 
-      const canShareFiles =
-        typeof navigator !== "undefined" &&
-        typeof navigator.share === "function" &&
-        (typeof navigator.canShare !== "function" || navigator.canShare({ files }));
+      await navigator.share({
+        files,
+        title: "Evangelho do Dia",
+      });
 
-      if (canShareFiles) {
-        try {
-          await navigator.share({
-            files,
-            title: "Evangelho do Dia",
-          });
-          clearGeneratedImages();
-          return;
-        } catch (error) {
-          if (error instanceof DOMException && error.name === "AbortError") {
-            return;
-          }
+      onClose();
 
-          console.warn("Compartilhamento indisponivel. Mostrando imagens para abrir manualmente.", error);
-        }
+    } catch (error) {
+
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
       }
 
-      replaceGeneratedImages(files);
-    } catch (error) {
-      console.error("Erro ao gerar imagens:", error);
-      alert("Nao foi possivel compartilhar o evangelho agora.");
+      console.error("Erro ao compartilhar:", error);
+
+      alert("Seu navegador nao suporta compartilhamento de imagens.");
+
     } finally {
+
       setRenderText(previewText);
       setIsSharing(false);
     }
@@ -199,19 +173,17 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   const modal = (
     <div className="share-composer-overlay" onClick={onClose}>
       <div className="share-composer-modal" onClick={(event) => event.stopPropagation()}>
+
         <button type="button" className="share-composer-close" onClick={onClose}>
           x
         </button>
 
         <div className="share-composer-header">
           <h3>Compartilhar Evangelho</h3>
-          <p>
-            Escolha um dos 5 templates ou use uma imagem da galeria do celular. O compartilhamento
-            continua dividindo o evangelho em 2 ou mais imagens quando o texto for grande.
-          </p>
         </div>
 
         <div className="share-composer-layout">
+
           <div className="share-composer-preview is-portrait">
             <GospelShareImage
               referencia={gospel.referencia}
@@ -222,9 +194,10 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
           </div>
 
           <div className="share-composer-side">
+
             <ShareTemplatePicker
               heading="Fundos do Evangelho"
-              helperText="Escolha um template pronto ou uma imagem da galeria sem alterar o formato original do evangelho."
+              helperText="Escolha um template ou imagem da galeria."
               templates={gospelShareTemplates}
               selectedTemplateId={selectedTemplateId}
               customFileName={customFileName}
@@ -233,37 +206,16 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
               fileInputId="gospel-background-file"
             />
 
-            <p className="share-composer-note">
-              Se o navegador nao suportar compartilhamento direto, exibimos os links das imagens para voce
-              abrir manualmente, sem popup bloqueado e sem download automatico.
-            </p>
-
-            {generatedImages.length > 0 && (
-              <div className="share-composer-generated" role="status" aria-live="polite">
-                <strong>Imagens prontas:</strong>
-                <ul>
-                  {generatedImages.map((image) => (
-                    <li key={image.url}>
-                      <a href={image.url} target="_blank" rel="noreferrer">
-                        Abrir {image.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  className="share-composer-button share-composer-button--secondary"
-                  onClick={clearGeneratedImages}
-                >
-                  Limpar links
-                </button>
-              </div>
-            )}
-
             <div className="share-composer-actions">
-              <button type="button" className="share-composer-button share-composer-button--secondary" onClick={onClose}>
+
+              <button
+                type="button"
+                className="share-composer-button share-composer-button--secondary"
+                onClick={onClose}
+              >
                 Fechar
               </button>
+
               <button
                 type="button"
                 className="share-composer-button share-composer-button--primary"
@@ -273,7 +225,9 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
                 <Share2 size={18} />
                 {isSharing ? "Gerando..." : "Compartilhar"}
               </button>
+
             </div>
+
           </div>
         </div>
 
@@ -285,6 +239,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
             backgroundSrc={backgroundSrc}
           />
         </div>
+
       </div>
     </div>
   );
