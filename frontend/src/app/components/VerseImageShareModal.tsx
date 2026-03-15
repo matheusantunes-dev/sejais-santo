@@ -1,7 +1,7 @@
 // src/components/VerseImageShareModal.tsx
 import React, { useRef, useState, useEffect } from "react";
 import { toBlob } from "html-to-image"; // ou outra lib que você use
-import { shareFilesOrDownload } from "../share/shareUtils";
+import { shareFiles } from "../share/shareUtils";
 
 type Props = {
   onClose: () => void;
@@ -50,7 +50,7 @@ export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Prop
       const file = new File([blob], fileName, { type: "image/png" });
 
       // 3) chamar a util e receber resultado (não força download automático)
-      const result = await shareFilesOrDownload({
+      const result = await shareFiles({
         files: [file],
         title: shareTitle,
         text: shareTitle,
