@@ -1,181 +1,127 @@
-﻿import { ChangeEvent, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { Share2 } from "lucide-react";
-import { toBlob } from "html-to-image";
-import { ShareSquareCard } from "./ShareSquareCard";
-import { ShareTemplatePicker } from "./ShareTemplatePicker";
-import { verseShareTemplates, type ShareTemplate } from "../share/shareTemplates";
-import { fileToDataUrl, shareFilesOrDownload } from "../share/shareUtils";
-import "./ShareComposer.css";
+// src/components/VerseImageShareModal.tsx
+import React, { useRef, useState, useEffect } from "react";
+import { toBlob } from "html-to-image"; // ou outra lib que você use
+import { shareFilesOrDownload } from "../utils/shareUtils";
 
-interface VerseImageShareModalProps {
-  open: boolean;
+type Props = {
   onClose: () => void;
-  modalTitle: string;
-  helperText: string;
-  cardLabel: string;
-  text: string;
-  reference?: string;
-  footerLabel?: string;
-  fileName: string;
-  shareTitle: string;
-  loading?: boolean;
-}
+  shareTitle?: string;
+  // outros props que seu modal usa...
+};
 
-export function VerseImageShareModal({
-  open,
-  onClose,
-  modalTitle,
-  helperText,
-  cardLabel,
-  text,
-  reference,
-  footerLabel,
-  fileName,
-  shareTitle,
-  loading = false,
-}: VerseImageShareModalProps) {
-  const defaultTemplate = verseShareTemplates[0];
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(defaultTemplate.id);
-  const [backgroundSrc, setBackgroundSrc] = useState(defaultTemplate.src);
-  const [customFileName, setCustomFileName] = useState("");
-  const [isSharing, setIsSharing] = useState(false);
-  const [captureRef, setCaptureRef] = useState<HTMLDivElement | null>(null);
+export default function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Props) {
+  const captureRef = useRef<HTMLDivElement | null>(null); // elemento a ser convertido para imagem
+  const [fallbackUrls, setFallbackUrls] = useState<string[] | null>(null);
 
+  // Guarda URLs para revogar quando fechar ou trocar
   useEffect(() => {
-    if (!open) return;
+    return () => {
+      // revoga object URLs quando o componente desmontar
+      if (fallbackUrls && fallbackUrls.length) {
+        fallbackUrls.forEach((u) => URL.revokeObjectURL(u));
+      }
+    };
+  }, [fallbackUrls]);
 
-    setSelectedTemplateId(defaultTemplate.id);
-    setBackgroundSrc(defaultTemplate.src);
-    setCustomFileName("");
-  }, [defaultTemplate.id, defaultTemplate.src, open]);
-
-  if (!open || typeof document === "undefined") return null;
-
-  const previewText = text || (loading ? "Carregando versiculo..." : "Versiculo indisponivel no momento.");
-  const canShare = !loading && Boolean(text.trim()) && !isSharing && Boolean(captureRef);
-
-  function handleTemplateSelect(template: ShareTemplate) {
-    setSelectedTemplateId(template.id);
-    setBackgroundSrc(template.src);
-    setCustomFileName("");
-  }
-
-  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      setSelectedTemplateId(null);
-      setBackgroundSrc(dataUrl);
-      setCustomFileName(file.name);
-    } catch (error) {
-      console.error(error);
-      alert("Nao foi possivel carregar a imagem escolhida.");
-    } finally {
-      event.target.value = "";
+  // Função chamada quando usuário clica em "Compartilhar"
+  async function handleShareClick() {
+    // 1) pega o elemento e converte em blob (imagem)
+    if (!captureRef.current) {
+      console.error("[VerseShare] captureRef not found");
+      return;
     }
-  }
-
-  async function handleShare() {
-    if (!captureRef || !canShare) return;
-
-    setIsSharing(true);
 
     try {
-      const blob = await toBlob(captureRef, {
+      // IMPORTANTE: escolhi skipFonts=false para preservar fontes custom.
+      // pixelRatio aumenta resolução da imagem; ajuste conforme necessidade.
+      const blob = await toBlob(captureRef.current, {
         pixelRatio: 2,
         cacheBust: true,
-        skipFonts: true,
+        skipFonts: false,
       });
 
       if (!blob) {
-        throw new Error("Nao foi possivel gerar a imagem do versiculo.");
+        console.error("[VerseShare] html-to-image returned null blob");
+        return;
       }
 
+      // 2) transformar em File (necessário para navigator.share com files)
+      const fileName = `${shareTitle.replace(/\s+/g, "-").toLowerCase()}.png`;
       const file = new File([blob], fileName, { type: "image/png" });
-      await shareFilesOrDownload({ files: [file], title: shareTitle });
-    } catch (error) {
-      console.error(error);
-      alert("Nao foi possivel compartilhar o versiculo agora.");
-    } finally {
-      setIsSharing(false);
+
+      // 3) chamar a util e receber resultado (não força download automático)
+      const result = await shareFilesOrDownload({
+        files: [file],
+        title: shareTitle,
+        text: shareTitle,
+        url: window.location.href,
+      });
+
+      // 4) se for fallback, exibir links para o usuário abrir manualmente
+      if (!result.didShare && result.fallbackUrls && result.fallbackUrls.length) {
+        // revoke antigos, se existirem
+        if (fallbackUrls && fallbackUrls.length) {
+          fallbackUrls.forEach((u) => URL.revokeObjectURL(u));
+        }
+        setFallbackUrls(result.fallbackUrls);
+      } else {
+        // sucesso no share — fecha modal se quiser
+        setFallbackUrls(null);
+        onClose();
+      }
+    } catch (err) {
+      console.error("[VerseShare] error generating or sharing image:", err);
     }
   }
 
-  const modal = (
-    <div className="share-composer-overlay" onClick={onClose}>
-      <div className="share-composer-modal" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="share-composer-close" onClick={onClose}>
-          x
+  function handleClearLinks() {
+    if (fallbackUrls) {
+      fallbackUrls.forEach((u) => URL.revokeObjectURL(u));
+    }
+    setFallbackUrls(null);
+  }
+
+  return (
+    <div className="verse-share-modal">
+      {/* Capture area — o conteúdo que será transformado em imagem */}
+      <div ref={captureRef} id="verse-capture" style={{ padding: 16 }}>
+        {/* seu markup do evangelho aqui */}
+        <h2>{shareTitle}</h2>
+        <p>Texto do evangelho — substitua com seu conteúdo dinâmico</p>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <button onClick={handleShareClick} aria-label="Compartilhar">
+          Compartilhar
         </button>
 
-        <div className="share-composer-header">
-          <h3>{modalTitle}</h3>
-          <p>{helperText}</p>
-        </div>
-
-        <div className="share-composer-layout">
-          <div className="share-composer-preview">
-            <ShareSquareCard
-              headerLabel={cardLabel}
-              text={previewText}
-              reference={reference}
-              footerLabel={footerLabel}
-              backgroundSrc={backgroundSrc}
-              width={308}
-              height={308}
-            />
-          </div>
-
-          <div className="share-composer-side">
-            <ShareTemplatePicker
-              heading="Fundos prontos para versiculo"
-              helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma foto da galeria."
-              templates={verseShareTemplates}
-              selectedTemplateId={selectedTemplateId}
-              customFileName={customFileName}
-              onTemplateSelect={handleTemplateSelect}
-              onFileChange={handleFileChange}
-              fileInputId={`${fileName}-background-file`}
-            />
-
-            <p className="share-composer-note">
-              O compartilhamento gera uma imagem quadrada pronta para story, status ou envio direto.
-            </p>
-
-            <div className="share-composer-actions">
-              <button type="button" className="share-composer-button share-composer-button--secondary" onClick={onClose}>
-                Fechar
-              </button>
-              <button
-                type="button"
-                className="share-composer-button share-composer-button--primary"
-                onClick={handleShare}
-                disabled={!canShare}
-              >
-                <Share2 size={18} />
-                {isSharing ? "Gerando..." : "Compartilhar"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="hidden-capture-root" aria-hidden="true">
-          <ShareSquareCard
-            ref={setCaptureRef}
-            headerLabel={cardLabel}
-            text={previewText}
-            reference={reference}
-            footerLabel={footerLabel}
-            backgroundSrc={backgroundSrc}
-          />
-        </div>
+        <button onClick={() => { handleClearLinks(); onClose(); }}>
+          Fechar
+        </button>
       </div>
+
+      {fallbackUrls && fallbackUrls.length > 0 && (
+        <div className="fallback-links" style={{ marginTop: 12 }}>
+          <p>
+            Seu navegador não suporta compartilhamento de arquivos diretamente. Abra a(s) imagem(s)
+            abaixo e compartilhe manualmente:
+          </p>
+          <ul>
+            {fallbackUrls.map((u, idx) => (
+              <li key={u}>
+                {/* abrimos em nova aba para não forçar o download */}
+                <a href={u} target="_blank" rel="noreferrer">
+                  Abrir evangelho-{idx + 1}.png
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div style={{ marginTop: 8 }}>
+            <button onClick={handleClearLinks}>Limpar links</button>
+          </div>
+        </div>
+      )}
     </div>
   );
-
-  return createPortal(modal, document.body);
 }
