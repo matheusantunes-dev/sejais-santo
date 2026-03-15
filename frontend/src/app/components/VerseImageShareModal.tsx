@@ -21,7 +21,7 @@ export function VerseImageShareModal({ onClose, shareTitle = "Evangelho" }: Prop
     try {
       // Gera um blob da div de captura (usando pixelRatio=2 para boa resolução)
       const blob = await toBlob(captureRef.current, {
-        pixelRatio: 2,
+        pixelRatio: 1,
         cacheBust: true,
         skipFonts: false,
       });
