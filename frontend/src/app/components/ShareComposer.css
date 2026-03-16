@@ -179,19 +179,6 @@
   text-decoration: none;
 }
 
-/* exemplo resumido */
-.gospel-share-image { position: relative; border-radius: 20px; overflow: hidden; }
-.gsi__background { position: absolute; inset: 0; filter: brightness(0.8); }
-.gsi__content { position: relative; z-index: 2; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 32px; color: #fff; }
-
-/* variante versículo (fontes maiores, centralizadas) */
-.gsi--versiculo .gsi__texto { font-size: 56px; text-align:center; line-height:1.02; font-weight:700; }
-.gsi--versiculo .gsi__referencia { margin-top: 16px; font-size: 18px; color: #f4e6b8; }
-
-/* variante evangelho (outro estilo) */
-.gsi--evangelho .gsi__texto { font-size: 20px; text-align:left; line-height:1.4; }
-.gsi--evangelho .gsi__referencia { font-size:14px; color:#666; }
-
 .share-composer-generated a:hover {
   text-decoration: underline;
 }
