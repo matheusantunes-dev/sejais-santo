@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
+import html2canvas from "html2canvas";
 import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
@@ -53,6 +54,9 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
   const [customFileName, setCustomFileName] = useState("");
   const [isSharing, setIsSharing] = useState(false);
 
+  // estado para alterar texto durante geração
+  const [renderText, setRenderText] = useState("");
+
   const captureRef = useRef<HTMLDivElement>(null);
 
   const previewText = useMemo(() => {
@@ -66,8 +70,9 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     setSelectedTemplateId(defaultTemplate.id);
     setBackgroundSrc(defaultTemplate.src);
     setCustomFileName("");
+    setRenderText(previewText);
 
-  }, [defaultTemplate.id, defaultTemplate.src, open]);
+  }, [defaultTemplate.id, defaultTemplate.src, open, previewText]);
 
   if (!open || !gospel || typeof document === "undefined") return null;
 
@@ -96,14 +101,14 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     if (!captureRef.current) return [];
 
     const chunks = buildChunks(gospel.texto);
-
     const files: File[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
 
-      captureRef.current.querySelector(".gospel-text")!.textContent = chunks[i];
+      setRenderText(chunks[i]);
 
-      await new Promise(r => setTimeout(r, 80));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
 
       const canvas = await html2canvas(captureRef.current, {
         scale: 1,
@@ -146,7 +151,6 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
     } catch (error) {
 
       console.error(error);
-
       alert("Erro ao compartilhar. Tente novamente.");
 
     } finally {
@@ -217,7 +221,7 @@ export function GospelShareModal({ open, onClose, gospel }: GospelShareModalProp
           <GospelShareImage
             ref={captureRef}
             referencia={gospel.referencia}
-            texto={previewText}
+            texto={renderText || previewText}
             backgroundSrc={backgroundSrc}
           />
         </div>
