@@ -1,63 +1,75 @@
-// src/app/components/GospelShareImage.tsx
-import React, { forwardRef } from "react";
 
-type Props = {
+﻿import { forwardRef } from "react";
+
+interface GospelShareImageProps {
   referencia: string;
   texto: string;
-  backgroundSrc?: string;
+  backgroundSrc: string;
   width?: number;
-  layoutVariant?: "evangelho" | "versiculo" | string | null;
-};
+  minHeight?: number;
+}
 
-/**
- * GospelShareImage
- *
- * Componente responsável por renderizar o layout que será capturado em imagem.
- * - forwardRef para permitir que html-to-image capture o elemento real.
- * - layoutVariant controla pequenas variações de UI (tipografia, padding, posição de referência).
- *
- * OBS: o CSS define a maior parte do visual. Use classes `.gsi--evangelho` e `.gsi--versiculo`
- * no seu arquivo ShareComposer.css para ajustar tipografias e espaçamentos.
- */
-export const GospelShareImage = forwardRef<HTMLDivElement, Props>(
-  ({ referencia, texto, backgroundSrc, width = 252, layoutVariant = "evangelho" }, ref) => {
-    const variantClass = layoutVariant === "versiculo" ? "gsi--versiculo" : "gsi--evangelho";
+export const GospelShareImage = forwardRef<HTMLDivElement, GospelShareImageProps>(
+  ({ referencia, texto, backgroundSrc, width = 900, minHeight }, ref) => {
+    const scale = width / 900;
+    const computedMinHeight = minHeight ?? width * (1600 / 900);
 
     return (
       <div
         ref={ref}
-        className={`gospel-share-image ${variantClass}`}
-        style={{ width: typeof width === "number" ? `${width}px` : width }}
+        style={{
+          width: `${width}px`,
+          minHeight: `${computedMinHeight}px`,
+          padding: `${120 * scale}px ${100 * scale}px`,
+          backgroundImage: `url(${backgroundSrc})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          fontFamily: "Georgia, serif",
+          color: "#1c1c1c",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          boxSizing: "border-box",
+        }}
       >
-        <div
-          className="gsi__background"
+        <span
           style={{
-            backgroundImage: backgroundSrc ? `url("${backgroundSrc}")` : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            fontSize: `${48 * scale}px`,
+            marginBottom: `${60 * scale}px`,
+            opacity: 0.7,
+            fontWeight: 600,
           }}
-        />
+        >
+          {referencia}
+        </span>
 
-        <div className="gsi__overlay" />
+        <div
+          style={{
+            fontSize: `${32 * scale}px`,
+            lineHeight: 1.8,
+            textAlign: "justify",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            flex: 1,
+          }}
+        >
+          {texto}
+        </div>
 
-        <div className="gsi__content">
-          {/* texto principal — controle via CSS por variant */}
-          <div className="gsi__texto" aria-hidden>
-            {texto}
-          </div>
-
-          {/* referência — geralmente menor, posicionada segundo variant */}
-          <div className="gsi__referencia" aria-hidden>
-            {referencia}
-          </div>
-
-          {/* crédito fixo (opcional) */}
-          <div className="gsi__credit" aria-hidden>
-            SEJAIS SANTO
-          </div>
+        <div
+          style={{
+            marginTop: `${80 * scale}px`,
+            fontSize: `${20 * scale}px`,
+            opacity: 0.5,
+            textAlign: "right",
+          }}
+        >
+          gospelapp
         </div>
       </div>
     );
-  }
+  },
 );
+
 GospelShareImage.displayName = "GospelShareImage";
