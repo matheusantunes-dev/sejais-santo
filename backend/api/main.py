@@ -76,7 +76,7 @@ def get_current_user(authorization: str = Header(None)):
 
 @app.get("/")
 def health():
-    return {"status": "alive"}
+    return {"status": "alive, ok"}
 
 
 # =========================
