@@ -1,6 +1,5 @@
 // src/app/components/VerseImageShareModal.tsx
 import { GospelShareModal } from "./GospelShareModal";
-// importamos todo o módulo de templates (um único arquivo onde você provavelmente já tem as coleções)
 import * as templatesModule from "../share/shareTemplates";
 
 type Props = {
@@ -23,17 +22,15 @@ export function VerseImageShareModal({
 
   if (!verseText && !verseReference) return null;
 
-  // seleciona templates do versículo, se existirem; se não, usa os templates do evangelho como fallback.
-  // usamos vários nomes possíveis (verseShareTemplates, versiculoTemplates, verseTemplates)
-  // para ser compatível com diferentes nomes de arquivo/exports que você possa ter.
+  // pega templates do versículo se existirem, senão usa gospel como fallback
   const verseTemplates =
-    // @ts-ignore - acessos dinâmicos ao módulo
+    // @ts-ignore
     templatesModule.verseShareTemplates ??
     // @ts-ignore
     templatesModule.versiculoTemplates ??
     // @ts-ignore
     templatesModule.verseTemplates ??
-    // fallback: templates do evangelho (deve sempre existir)
+    // fallback
     // @ts-ignore
     templatesModule.gospelShareTemplates ??
     [];
@@ -50,6 +47,8 @@ export function VerseImageShareModal({
       templates={verseTemplates}
       templatesHeading="Fundos do Versículo"
       defaultTemplateId={defaultTemplateId}
+      // ESSA LINHA: indica ao modal qual layout usar
+      layoutVariant="versiculo"
     />
   );
 }
