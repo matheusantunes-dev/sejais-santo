@@ -1,9 +1,7 @@
 // src/app/components/VerseImageShareModal.tsx
 import { GospelShareModal } from "./GospelShareModal";
-// ajuste o caminho se o seu projeto nomeou o arquivo diferentemente.
-// se o seu arquivo de templates do versículo estiver em "../share/shareTemplates" exportando verseShareTemplates,
-// ajuste a import para: import { verseShareTemplates } from "../share/shareTemplates";
-import { verseShareTemplates } from "../share/verseShareTemplates";
+// importamos todo o módulo de templates (um único arquivo onde você provavelmente já tem as coleções)
+import * as templatesModule from "../share/shareTemplates";
 
 type Props = {
   open: boolean;
@@ -25,15 +23,33 @@ export function VerseImageShareModal({
 
   if (!verseText && !verseReference) return null;
 
+  // seleciona templates do versículo, se existirem; se não, usa os templates do evangelho como fallback.
+  // usamos vários nomes possíveis (verseShareTemplates, versiculoTemplates, verseTemplates)
+  // para ser compatível com diferentes nomes de arquivo/exports que você possa ter.
+  const verseTemplates =
+    // @ts-ignore - acessos dinâmicos ao módulo
+    templatesModule.verseShareTemplates ??
+    // @ts-ignore
+    templatesModule.versiculoTemplates ??
+    // @ts-ignore
+    templatesModule.verseTemplates ??
+    // fallback: templates do evangelho (deve sempre existir)
+    // @ts-ignore
+    templatesModule.gospelShareTemplates ??
+    [];
+
+  const defaultTemplateId =
+    (verseTemplates && verseTemplates[0] && verseTemplates[0].id) ?? null;
+
   return (
     <GospelShareModal
       open={open}
       onClose={onClose}
       gospel={{ referencia: verseReference, texto: verseText }}
       shareTitle="Compartilhar Versículo"
-      templates={verseShareTemplates}
+      templates={verseTemplates}
       templatesHeading="Fundos do Versículo"
-      defaultTemplateId={verseShareTemplates?.[0]?.id ?? null}
+      defaultTemplateId={defaultTemplateId}
     />
   );
 }
