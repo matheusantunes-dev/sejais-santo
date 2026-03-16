@@ -31,7 +31,7 @@ interface GospelShareModalProps {
   defaultBackgroundSrc?: string | null;
   defaultTemplateId?: string | null;
 
-  // NOVO: permite customizar o título do picker ("Fundos do Evangelho" por padrão)
+  // permite customizar o título do picker (ex.: "Fundos do Versículo")
   templatesHeading?: string | null;
 }
 
@@ -64,8 +64,12 @@ export function GospelShareModal({
   templates,
   defaultBackgroundSrc = null,
   defaultTemplateId = null,
-  templatesHeading = null, // usa string passada pelo wrapper (ex: "Fundos do Versículo")
+  templatesHeading = null,
 }: GospelShareModalProps) {
+  // defensive: se não abriu ou gospel é null, não renderiza
+  if (!open || gospel == null) return null;
+
+  // available templates (override possível)
   const availableTemplates = templates ?? gospelShareTemplates;
   const defaultTemplate =
     availableTemplates.find((t) => t.id === defaultTemplateId) ?? availableTemplates[0];
@@ -83,9 +87,10 @@ export function GospelShareModal({
   const [generatedFiles, setGeneratedFiles] = useState<File[] | null>(null);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
 
+  // previewText defensivo: usa gospel.texto se disponível
   const previewText = useMemo(() => {
-    if (!gospel) return "";
-    return buildChunks(gospel.texto)[0] ?? gospel.texto;
+    const text = gospel?.texto ?? "";
+    return buildChunks(text)[0] ?? text;
   }, [gospel]);
 
   useEffect(() => {
@@ -96,6 +101,7 @@ export function GospelShareModal({
     setRenderText(previewText);
     setGeneratedFiles(null);
     setProgress({ done: 0, total: 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, defaultTemplate?.id, defaultTemplate?.src, defaultBackgroundSrc, previewText]);
 
   function handleTemplateSelect(template: ShareTemplate) {
@@ -125,13 +131,15 @@ export function GospelShareModal({
   async function generateFiles() {
     if (!captureRef.current) return [];
 
-    const chunks = buildChunks(gospel.texto);
+    // defensivo: use o texto do gospel atual (não assume não-nulo)
+    const textToSplit = gospel?.texto ?? "";
+    const chunks = buildChunks(textToSplit);
     const files: File[] = [];
     const safePixelRatio = 1; // velocidade
 
     const toBlobOptions = {
       pixelRatio: safePixelRatio,
-      skipFonts: true, // evita CORS ao embutir fonts remotas
+      skipFonts: true,
       cacheBust: true,
     };
 
@@ -148,7 +156,7 @@ export function GospelShareModal({
 
       if (!blob) continue;
 
-      const fileName = `evangelho-${index + 1}.png`;
+      const fileName = `share-${index + 1}.png`;
       files.push(
         new File([blob], fileName, {
           type: "image/png",
@@ -162,7 +170,7 @@ export function GospelShareModal({
   }
 
   useEffect(() => {
-    if (!open || !gospel) return;
+    if (!open) return;
     let cancelled = false;
 
     async function preGenerate() {
@@ -184,7 +192,8 @@ export function GospelShareModal({
       cancelled = true;
       window.clearTimeout(id);
     };
-  }, [open, gospel, backgroundSrc, selectedTemplateId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, backgroundSrc, selectedTemplateId, gospel]);
 
   async function handleShare() {
     if (isSharing) return;
@@ -215,8 +224,8 @@ export function GospelShareModal({
 
       await navigator.share({
         files,
-        title: shareTitle ?? "Evangelho do Dia",
-        text: gospel.referencia,
+        title: shareTitle ?? "Compartilhar",
+        text: gospel?.referencia ?? "",
       });
 
       onClose();
@@ -246,13 +255,13 @@ export function GospelShareModal({
         </button>
 
         <div className="share-composer-header">
-          <h3>{shareTitle ?? "Compartilhar Evangelho"}</h3>
+          <h3>{shareTitle ?? "Compartilhar"}</h3>
         </div>
 
         <div className="share-composer-layout">
           <div className="share-composer-preview is-portrait">
             <GospelShareImage
-              referencia={gospel.referencia}
+              referencia={gospel?.referencia ?? ""}
               texto={previewText}
               backgroundSrc={backgroundSrc ?? undefined}
               width={252}
@@ -261,8 +270,7 @@ export function GospelShareModal({
 
           <div className="share-composer-side">
             <ShareTemplatePicker
-              // AQUI: usamos o templatesHeading (se passado) ou o label padrão
-              heading={templatesHeading ?? "Fundos do Evangelho"}
+              heading={templatesHeading ?? "Fundos"}
               templates={availableTemplates}
               selectedTemplateId={selectedTemplateId}
               customFileName={customFileName}
@@ -294,7 +302,7 @@ export function GospelShareModal({
         <div className="hidden-capture-root" aria-hidden="true">
           <GospelShareImage
             ref={captureRef as any}
-            referencia={gospel.referencia}
+            referencia={gospel?.referencia ?? ""}
             texto={renderText || previewText}
             backgroundSrc={backgroundSrc ?? undefined}
           />
