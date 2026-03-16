@@ -1,10 +1,7 @@
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.65);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.verse-card{
+  width:100%;
+  max-width:360px;
+  aspect-ratio:1/1;
   backdrop-filter:blur(4px);
   z-index:9999;
 }
@@ -21,8 +18,9 @@
 }
 
 .verse-card{
-  width:360px;
-  height:360px;
+  width:100%;
+  max-width:360px;
+  aspect-ratio:1/1;
   margin:18px auto;
   border-radius:16px;
   overflow:hidden;
