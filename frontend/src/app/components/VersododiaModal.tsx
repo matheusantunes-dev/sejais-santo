@@ -1,5 +1,5 @@
 ﻿"use client";
-
+import './VersododiaModal.css';
 import { useEffect, useState } from "react";
 import { VerseImageShareModal } from "./VerseImageShareModal";
 
