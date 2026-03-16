@@ -1,16 +1,18 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { shareFiles } from "../share/shareUtils";
+import { ShareTemplatePicker } from "./ShareTemplatePicker";
+import { verseShareTemplates } from "../share/shareTemplates";
 
 interface Props {
   open: boolean;
   onClose: () => void;
 
   modalTitle: string;
-  helperText?: string;
-  cardLabel?: string;
+  helperText: string;
+  cardLabel: string;
 
   text: string;
   reference: string;
@@ -34,7 +36,11 @@ export function VerseImageShareModal({
   loading,
 }: Props) {
 
-  const captureRef = useRef<HTMLDivElement>(null);
+  const captureRef = useRef<HTMLDivElement | null>(null);
+
+  const [background, setBackground] = useState(verseShareTemplates[0].src);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(verseShareTemplates[0].id);
+  const [customFileName, setCustomFileName] = useState("");
 
   if (!open) return null;
 
@@ -50,9 +56,7 @@ export function VerseImageShareModal({
 
       if (!blob) return;
 
-      const file = new File([blob], fileName, {
-        type: "image/png",
-      });
+      const file = new File([blob], fileName, { type: "image/png" });
 
       await shareFiles({
         files: [file],
@@ -61,59 +65,83 @@ export function VerseImageShareModal({
       });
 
       onClose();
-
     } catch (err) {
       console.error("Erro ao compartilhar:", err);
     }
   }
 
+  function handleTemplateSelect(template: any) {
+    setSelectedTemplateId(template.id);
+    setBackground(template.src);
+    setCustomFileName("");
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    setSelectedTemplateId(null);
+    setBackground(url);
+    setCustomFileName(file.name);
+  }
+
   return (
-    <div className="verse-share-modal">
+    <div className="modal-overlay">
 
-      <div className="verse-share-header">
+      <div className="modal-container">
+
+        <button className="modal-close" onClick={onClose}>×</button>
+
         <h2>{modalTitle}</h2>
-        {helperText && <p>{helperText}</p>}
-      </div>
-
-      <div className="verse-preview-wrapper">
+        <p>{helperText}</p>
 
         <div
           ref={captureRef}
-          className="verse-preview-card"
+          className="verse-card"
+          style={{ backgroundImage: `url(${background})` }}
         >
+          <div className="verse-overlay">
 
-          <div className="verse-preview-overlay" />
+            <div className="verse-content">
 
-          {cardLabel && (
-            <div className="verse-preview-label">
-              {cardLabel}
+              <div className="verse-text">
+                {loading ? "Carregando..." : text}
+              </div>
+
+              <div className="verse-ref">
+                {reference}
+              </div>
+
             </div>
-          )}
 
-          <div className="verse-preview-text">
-            {loading ? "Carregando..." : text}
           </div>
+        </div>
 
-          <div className="verse-preview-reference">
-            {reference}
-          </div>
+        <ShareTemplatePicker
+          heading="Fundos do Versículo"
+          helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma imagem da galeria."
+          templates={verseShareTemplates}
+          selectedTemplateId={selectedTemplateId}
+          customFileName={customFileName}
+          onTemplateSelect={handleTemplateSelect}
+          onFileChange={handleFileChange}
+          fileInputId="verse-upload"
+        />
 
-          <div className="verse-preview-credit">
-            SEJAIS SANTO
-          </div>
+        <div className="modal-actions">
+
+          <button className="btn-close" onClick={onClose}>
+            Fechar
+          </button>
+
+          <button className="btn-share" onClick={handleShare} disabled={loading}>
+            Compartilhar
+          </button>
 
         </div>
 
-      </div>
-
-      <div className="verse-share-actions">
-        <button onClick={onClose}>
-          Fechar
-        </button>
-
-        <button onClick={handleShare}>
-          Compartilhar
-        </button>
       </div>
 
     </div>
