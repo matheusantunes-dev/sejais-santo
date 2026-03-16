@@ -51,7 +51,8 @@ export function VerseImageShareModal({
     try {
 
       const blob = await toBlob(captureRef.current, {
-        pixelRatio: 2,
+        pixelRatio: window.devicePixelRatio || 2,
+        backgroundColor: null,
         cacheBust: true,
         skipFonts: true,
       });
