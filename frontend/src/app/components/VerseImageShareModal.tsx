@@ -34,7 +34,7 @@ export function VerseImageShareModal({
   loading,
 }: Props) {
 
-  const captureRef = useRef<HTMLDivElement | null>(null);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
@@ -61,6 +61,7 @@ export function VerseImageShareModal({
       });
 
       onClose();
+
     } catch (err) {
       console.error("Erro ao compartilhar:", err);
     }
@@ -74,27 +75,33 @@ export function VerseImageShareModal({
         {helperText && <p>{helperText}</p>}
       </div>
 
-      <div
-        ref={captureRef}
-        className="verse-share-card"
-      >
+      <div className="verse-preview-wrapper">
 
-        {cardLabel && (
-          <div className="verse-card-label">
-            {cardLabel}
+        <div
+          ref={captureRef}
+          className="verse-preview-card"
+        >
+
+          <div className="verse-preview-overlay" />
+
+          {cardLabel && (
+            <div className="verse-preview-label">
+              {cardLabel}
+            </div>
+          )}
+
+          <div className="verse-preview-text">
+            {loading ? "Carregando..." : text}
           </div>
-        )}
 
-        <div className="verse-text">
-          {loading ? "Carregando..." : text}
-        </div>
+          <div className="verse-preview-reference">
+            {reference}
+          </div>
 
-        <div className="verse-reference">
-          {reference}
-        </div>
+          <div className="verse-preview-credit">
+            SEJAIS SANTO
+          </div>
 
-        <div className="verse-credit">
-          SEJAIS SANTO
         </div>
 
       </div>
