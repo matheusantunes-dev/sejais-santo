@@ -1,6 +1,7 @@
 // src/app/components/GospelShareModal.tsx
 import {
   ChangeEvent,
+  forwardRef,
   useEffect,
   useMemo,
   useRef,
@@ -31,8 +32,11 @@ interface GospelShareModalProps {
   defaultBackgroundSrc?: string | null;
   defaultTemplateId?: string | null;
 
-  // permite customizar o título do picker (ex.: "Fundos do Versículo")
+  // personaliza o heading do picker (ex.: "Fundos do Versículo")
   templatesHeading?: string | null;
+
+  // define qual variante do layout usar (evangelho | versiculo)
+  layoutVariant?: "evangelho" | "versiculo" | string | null;
 }
 
 function splitSentences(text: string) {
@@ -65,15 +69,17 @@ export function GospelShareModal({
   defaultBackgroundSrc = null,
   defaultTemplateId = null,
   templatesHeading = null,
+  layoutVariant = "evangelho",
 }: GospelShareModalProps) {
-  // defensive: se não abriu ou gospel é null, não renderiza
+  // defensive guard: se não abriu ou gospel nulo, não renderiza nada
   if (!open || gospel == null) return null;
 
-  // available templates (override possível)
+  // templates disponíveis (override possível)
   const availableTemplates = templates ?? gospelShareTemplates;
   const defaultTemplate =
     availableTemplates.find((t) => t.id === defaultTemplateId) ?? availableTemplates[0];
 
+  // refs + estados
   const captureRef = useRef<HTMLDivElement>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     defaultTemplate?.id ?? null
@@ -87,12 +93,13 @@ export function GospelShareModal({
   const [generatedFiles, setGeneratedFiles] = useState<File[] | null>(null);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-  // previewText defensivo: usa gospel.texto se disponível
+  // previewText defensivo: pega texto do gospel (ou "")
   const previewText = useMemo(() => {
     const text = gospel?.texto ?? "";
     return buildChunks(text)[0] ?? text;
   }, [gospel]);
 
+  // reset quando abrir / mudar template/base
   useEffect(() => {
     if (!open) return;
     setSelectedTemplateId(defaultTemplate?.id ?? null);
@@ -128,18 +135,19 @@ export function GospelShareModal({
     }
   }
 
+  // Gera arquivos para compartilhar (pré-geração)
   async function generateFiles() {
     if (!captureRef.current) return [];
 
-    // defensivo: use o texto do gospel atual (não assume não-nulo)
+    // toma o texto atual do gospel (defensivo)
     const textToSplit = gospel?.texto ?? "";
     const chunks = buildChunks(textToSplit);
     const files: File[] = [];
-    const safePixelRatio = 1; // velocidade
+    const safePixelRatio = 1; // performance balance
 
     const toBlobOptions = {
       pixelRatio: safePixelRatio,
-      skipFonts: true,
+      skipFonts: true, // evita CORS/slow ao embutir fonts remotas
       cacheBust: true,
     };
 
@@ -169,6 +177,7 @@ export function GospelShareModal({
     return files;
   }
 
+  // pré-geração ao abrir/trocar fundo
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -255,7 +264,7 @@ export function GospelShareModal({
         </button>
 
         <div className="share-composer-header">
-          <h3>{shareTitle ?? "Compartilhar"}</h3>
+          <h3>{shareTitle ?? (layoutVariant === "versiculo" ? "Compartilhar Versículo" : "Compartilhar")}</h3>
         </div>
 
         <div className="share-composer-layout">
@@ -265,12 +274,13 @@ export function GospelShareModal({
               texto={previewText}
               backgroundSrc={backgroundSrc ?? undefined}
               width={252}
+              layoutVariant={layoutVariant ?? "evangelho"}
             />
           </div>
 
           <div className="share-composer-side">
             <ShareTemplatePicker
-              heading={templatesHeading ?? "Fundos"}
+              heading={templatesHeading ?? (layoutVariant === "versiculo" ? "Fundos do Versículo" : "Fundos")}
               templates={availableTemplates}
               selectedTemplateId={selectedTemplateId}
               customFileName={customFileName}
@@ -305,6 +315,7 @@ export function GospelShareModal({
             referencia={gospel?.referencia ?? ""}
             texto={renderText || previewText}
             backgroundSrc={backgroundSrc ?? undefined}
+            layoutVariant={layoutVariant ?? "evangelho"}
           />
         </div>
       </div>
