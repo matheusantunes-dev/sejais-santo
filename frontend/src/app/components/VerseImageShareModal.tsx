@@ -5,6 +5,7 @@ import { toBlob } from "html-to-image";
 import { shareFiles } from "../share/shareUtils";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { verseShareTemplates } from "../share/shareTemplates";
+import "./VersododiaModal.css";
 
 interface Props {
   open: boolean;
@@ -48,8 +49,9 @@ export function VerseImageShareModal({
     if (!captureRef.current) return;
 
     try {
+
       const blob = await toBlob(captureRef.current, {
-        pixelRatio: 1,
+        pixelRatio: 2,
         cacheBust: true,
         skipFonts: true,
       });
@@ -65,6 +67,7 @@ export function VerseImageShareModal({
       });
 
       onClose();
+
     } catch (err) {
       console.error("Erro ao compartilhar:", err);
     }
@@ -95,13 +98,17 @@ export function VerseImageShareModal({
         <button className="modal-close" onClick={onClose}>×</button>
 
         <h2>{modalTitle}</h2>
+
         <p>{helperText}</p>
+
+        {/* CARD DO VERSÍCULO */}
 
         <div
           ref={captureRef}
           className="verse-card"
           style={{ backgroundImage: `url(${background})` }}
         >
+
           <div className="verse-overlay">
 
             <div className="verse-content">
@@ -114,14 +121,21 @@ export function VerseImageShareModal({
                 {reference}
               </div>
 
+              <div style={{marginTop:20, fontSize:12}}>
+                SEJAIS SANTO
+              </div>
+
             </div>
 
           </div>
+
         </div>
 
+        {/* TEMPLATES */}
+
         <ShareTemplatePicker
-          heading="Fundos do Versículo"
-          helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma imagem da galeria."
+          heading="Fundos prontos para versiculo"
+          helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma foto da galeria."
           templates={verseShareTemplates}
           selectedTemplateId={selectedTemplateId}
           customFileName={customFileName}
@@ -130,13 +144,15 @@ export function VerseImageShareModal({
           fileInputId="verse-upload"
         />
 
+        {/* BOTÕES */}
+
         <div className="modal-actions">
 
           <button className="btn-close" onClick={onClose}>
             Fechar
           </button>
 
-          <button className="btn-share" onClick={handleShare} disabled={loading}>
+          <button className="btn-share" onClick={handleShare}>
             Compartilhar
           </button>
 
