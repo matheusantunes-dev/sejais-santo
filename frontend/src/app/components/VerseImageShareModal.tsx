@@ -1,7 +1,8 @@
+// src/app/components/VerseImageShareModal.tsx
+
 import React, { useRef } from "react";
 import { toBlob } from "html-to-image";
 import { shareFiles } from "../share/shareUtils";
-import { VerseImageShare } from "./VerseImageShare";
 
 type Props = {
   open: boolean;
@@ -59,14 +60,31 @@ export function VerseImageShareModal({
   return (
     <div className="verse-share-modal">
 
-      <div ref={captureRef}>
-        <VerseImageShare
-          texto={text}
-          referencia={reference}
-        />
+      <div
+        ref={captureRef}
+        className="verse-share-image"
+      >
+        <div className="verse-background" />
+
+        <div className="verse-content">
+
+          <div className="verse-text">
+            {text}
+          </div>
+
+          <div className="verse-reference">
+            {reference}
+          </div>
+
+          <div className="verse-credit">
+            SEJAIS SANTO
+          </div>
+
+        </div>
       </div>
 
       <div className="verse-share-actions">
+
         <button onClick={onClose}>
           Fechar
         </button>
@@ -74,6 +92,7 @@ export function VerseImageShareModal({
         <button onClick={handleShareClick}>
           Compartilhar
         </button>
+
       </div>
 
     </div>
