@@ -1,14 +1,13 @@
-// src/app/components/VerseImageShareModal.tsx
-import { GospelShareModal } from "./GospelShareModal";
-// ajuste este import se o seu arquivo de templates estiver em outro lugar.
-// se você exporta verseShareTemplates de ../share/shareTemplates, mantenha o import abaixo.
-import * as templatesModule from "../share/shareTemplates";
+import React, { useRef } from "react";
+import { toBlob } from "html-to-image";
+import { shareFiles } from "../share/shareUtils";
+import { VerseImageShare } from "./VerseImageShare";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  text?: string | null;
-  reference?: string | null;
+  text: string;
+  reference: string;
 };
 
 export function VerseImageShareModal({
@@ -17,37 +16,66 @@ export function VerseImageShareModal({
   text,
   reference,
 }: Props) {
+
+  const captureRef = useRef<HTMLDivElement | null>(null);
+
   if (!open) return null;
 
-  const verseText = text ?? "";
-  const verseReference = reference ?? "";
+  async function handleShareClick() {
 
-  if (!verseText && !verseReference) return null;
+    if (!captureRef.current) return;
 
-  const verseTemplates =
-    // @ts-ignore - suporte a variados nomes/exports para compatibilidade entre branches
-    templatesModule.verseShareTemplates ??
-    // @ts-ignore
-    templatesModule.versiculoTemplates ??
-    // @ts-ignore
-    templatesModule.verseTemplates ??
-    // fallback seguro: gospel templates (garante build mesmo sem arquivo separado)
-    // @ts-ignore
-    templatesModule.gospelShareTemplates ??
-    [];
+    try {
 
-  const defaultTemplateId = (verseTemplates && verseTemplates[0] && verseTemplates[0].id) ?? null;
+      const blob = await toBlob(captureRef.current, {
+        pixelRatio: 1,
+        cacheBust: true,
+        skipFonts: true,
+      });
+
+      if (!blob) return;
+
+      const file = new File(
+        [blob],
+        "versiculo-do-dia.png",
+        { type: "image/png" }
+      );
+
+      await shareFiles({
+        files: [file],
+        title: "Versículo do Dia",
+        text: reference,
+      });
+
+      onClose();
+
+    } catch (err) {
+
+      console.error("Erro ao compartilhar:", err);
+
+    }
+  }
 
   return (
-    <GospelShareModal
-      open={open}
-      onClose={onClose}
-      gospel={{ referencia: verseReference, texto: verseText }}
-      shareTitle="Compartilhar Versículo"
-      templates={verseTemplates}
-      templatesHeading="Fundos do Versículo"
-      defaultTemplateId={defaultTemplateId}
-      layoutVariant="versiculo"
-    />
+    <div className="verse-share-modal">
+
+      <div ref={captureRef}>
+        <VerseImageShare
+          texto={text}
+          referencia={reference}
+        />
+      </div>
+
+      <div className="verse-share-actions">
+        <button onClick={onClose}>
+          Fechar
+        </button>
+
+        <button onClick={handleShareClick}>
+          Compartilhar
+        </button>
+      </div>
+
+    </div>
   );
 }
