@@ -18,6 +18,7 @@ export function VersododiaModal({ open, onClose }: Props) {
   const [verseText, setVerseText] = useState("");
   const [verseRef, setVerseRef] = useState("");
   const [loading, setLoading] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   useEffect(() => {
     if (!open) return;

@@ -150,7 +150,7 @@ function ensureThemeStyleTag(initialPalette: LiturgicalPalette = DEFAULT_PALETTE
     .feature-card-header,
     .share-button,
     .about-button,
-    .organizer-close {
+    .modal-close {
       background-color: var(--liturgical-accent);
     }
 

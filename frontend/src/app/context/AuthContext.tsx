@@ -22,20 +22,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session ?? null);
-    });
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session ?? null);
+  });
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_, session) => {
-        setSession(session);
-      }
-    );
+  const { data: listener } = supabase.auth.onAuthStateChange(
+    (_, session) => {
+      setSession(session);
+    }
+  );
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+  return () => {
+    listener?.subscription?.unsubscribe?.();
+  };
+}, []);
 
   const login = async () => {
     await supabase.auth.signInWithOAuth({

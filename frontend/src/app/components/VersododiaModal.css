@@ -157,7 +157,6 @@
   cursor: pointer;
 }
 
-
 /* BOTÃO X */
 .modal-close {
   position: absolute;
@@ -166,6 +165,6 @@
   border: none;
   background: transparent;
   color: #6f4b35;
-  font-size: 28px;
+  font-size: 32px;
   cursor: pointer;
 }
