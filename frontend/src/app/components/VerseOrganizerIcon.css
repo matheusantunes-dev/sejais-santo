@@ -1,28 +1,5 @@
-.verse-organizer-icon-container {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-
-}
-
-.verse-organizer-icon-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* ou cover se quiser preencher */
-  border-radius: 10px;
-}
-
-.organizer-image-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.organizer-image {
-  width: 120px; /* tamanho base real */
-  height: auto;
-  object-fit: contain;
-  transform: scale(1.4); /* aumenta 40% visualmente */
-  transform-origin: center;
+.verse-organizer-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
 }
