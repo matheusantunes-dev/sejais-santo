@@ -94,6 +94,7 @@ export function VerseImageShareModal({
   return (
     <div className="modal-overlay">
 
+
       <div className="modal-container">
 
         <button className="modal-close" onClick={onClose}>×</button>
@@ -122,7 +123,7 @@ export function VerseImageShareModal({
                 {reference}
               </div>
 
-              <div style={{marginTop:20, fontSize:12}}>
+              <div style={{ marginTop: 20, fontSize: 12 }}>
                 SEJAIS SANTO
               </div>
 
@@ -148,10 +149,6 @@ export function VerseImageShareModal({
         {/* BOTÕES */}
 
         <div className="modal-actions">
-
-          <button className="btn-close" onClick={onClose}>
-            Fechar
-          </button>
 
           <button className="btn-share" onClick={handleShare}>
             Compartilhar
