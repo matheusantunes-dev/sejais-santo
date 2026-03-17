@@ -20,14 +20,14 @@
   animation: fadeIn 0.3s ease;
 }
 
-.modal-close {
+.share-composer-close {
   position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
+  top: 14px;
+  right: 16px;
   border: none;
-  color: #fff;
-  font-size: 22px;
+  background: transparent;
+  color: #6f4b35;
+  font-size: 28px;
   cursor: pointer;
 }
 

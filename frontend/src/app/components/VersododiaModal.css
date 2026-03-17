@@ -157,15 +157,14 @@
   cursor: pointer;
 }
 
-
 /* BOTÃO X */
-.modal-close {
+.share-composer-close {
   position: absolute;
   top: 14px;
   right: 16px;
   border: none;
   background: transparent;
   color: #6f4b35;
-  font-size: 28px;
+  font-size: 32px;
   cursor: pointer;
 }

@@ -18,16 +18,18 @@
   overflow: auto;
   position: relative;
 }
-.modal-close {
+
+.share-composer-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
+  top: 14px;
+  right: 16px;
   border: none;
-  color: #fff;
-  font-size: 20px;
+  background: transparent;
+  color: #6f4b35;
+  font-size: 28px;
   cursor: pointer;
 }
+
 .modal-content textarea {
   width: 100%;
   resize: vertical;

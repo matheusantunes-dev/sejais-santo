@@ -97,7 +97,7 @@ export function VerseImageShareModal({
 
       <div className="modal-container">
 
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="share-composer-close" onClick={onClose}>×</button>
 
         <h2>{modalTitle}</h2>
 
