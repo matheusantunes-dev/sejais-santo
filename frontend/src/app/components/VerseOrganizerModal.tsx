@@ -91,7 +91,7 @@ export function VerseOrganizerModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="close-modal">✕</button>
+        <button onClick={onClose} className="organizer-close">✕</button>
         <h2>Organizador de Versículos</h2>
 
         <textarea value={text} onChange={(e) => setText(e.target.value)} />
