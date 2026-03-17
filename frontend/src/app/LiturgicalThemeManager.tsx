@@ -155,8 +155,7 @@ function ensureThemeStyleTag(initialPalette: LiturgicalPalette = DEFAULT_PALETTE
     }
 
     .share-button:hover,
-    .about-button:hover,
-    .organizer-close:hover {
+    .about-button:hover {
       background-color: var(--liturgical-accent-hover);
     }
 
