@@ -159,14 +159,13 @@
 
 
 /* BOTÃO X */
-.modal-close{
+.modal-close {
   position: absolute;
-  top: 10px;
-  right: 14px;
-
+  top: 14px;
+  right: 16px;
   border: none;
   background: transparent;
-
-  font-size: 20px;
+  color: #6f4b35;
+  font-size: 28px;
   cursor: pointer;
 }
