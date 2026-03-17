@@ -12,7 +12,7 @@ export function SobreModal({ isOpen, onClose }: SobreModalProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
+        <button className="share-composer-close" onClick={onClose}>
           ✕
         </button>
 

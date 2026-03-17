@@ -96,7 +96,7 @@ export default function App() {
                 <h2>Organizador de Versículos</h2>
 
                 <button
-                  className="modal-close"
+                  className="share-composer-close"
                   onClick={() => setShowOrganizer(false)}
                 >
                   ✕
