@@ -96,18 +96,14 @@
 }
 
 .organizer-close {
-  background: #8B1A1A;
-  color: white;
+  position: absolute;
+  top: 14px;
+  right: 16px;
   border: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  background: transparent;
+  color: #6f4b35;
+  font-size: 28px;
   cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s ease;
-}
-
-.organizer-close:hover {
-  background: #6B1414;
 }
 
 /* animações */
