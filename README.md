@@ -179,6 +179,9 @@ Não é permitida cópia, redistribuição, modificação ou uso comercial sem a
 
 © 2026 Matheus Antunes and © Fred Joaquim
 
+## 📄 License
+This project is licensed under the MIT License.
+
 ---
 
 ## 👨‍💻 Autores
