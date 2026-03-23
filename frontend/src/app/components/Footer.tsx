@@ -24,7 +24,7 @@ export function Footer() {
     },
     {
       name: "Fred Joaquim",
-      email: "Fredjoaquimsocial@gmail.com",
+      email: "Fredjoaquimprogramador@gmail.com",
       linkedin: "https://www.linkedin.com/in/fredjoaquim/",
       instagram: "https://www.instagram.com/fredjoaquim/",
       phones: ["(38) 9121-6266"],
