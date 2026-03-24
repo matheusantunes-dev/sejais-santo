@@ -24,7 +24,7 @@ export function Footer() {
     },
     {
       name: "Fred Joaquim",
-      email: "Fredjoaquimprogramador@gmail.com",
+      email: "Fredjoaquimsocial@gmail.com",
       linkedin: "https://www.linkedin.com/in/fredjoaquim/",
       instagram: "https://www.instagram.com/fredjoaquim/",
       phones: ["(38) 9121-6266"],
@@ -60,8 +60,8 @@ export function Footer() {
               <a href="mailto:matheusantunesreis6@gmail.com">
                 matheusantunesreis6@gmail.com
               </a>
-              <a href="mailto:Fredjoaquimprogramador@gmail.com">
-                Fredjoaquimprogramador@gmail.com
+              <a href="mailto:Fredjoaquimsocial@gmail.com">
+                Fredjoaquimsocial@gmail.com
               </a>
             </div>
           </div>

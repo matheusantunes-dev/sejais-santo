@@ -106,15 +106,9 @@
   gap: 10px;
 }
 
+.footer-links a,
 .dev-links a,
 .dev-phones a {
-  color: var(--footer-muted);
-  text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.footer-links a {
-  font-size: 14px;
   color: var(--footer-muted);
   text-decoration: none;
   transition: color 0.2s ease, transform 0.2s ease;
