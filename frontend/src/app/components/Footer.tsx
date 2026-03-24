@@ -60,8 +60,8 @@ export function Footer() {
               <a href="mailto:matheusantunesreis6@gmail.com">
                 matheusantunesreis6@gmail.com
               </a>
-              <a href="mailto:Fredjoaquimsocial@gmail.com">
-                Fredjoaquimsocial@gmail.com
+              <a href="mailto:Fredjoaquimprogramador@gmail.com">
+                Fredjoaquimprogramador@gmail.com
               </a>
             </div>
           </div>
