@@ -1,0 +1,174 @@
+/* LiturgicalFooter.css - Estilos do footer litúrgico */
+
+.liturgical-footer {
+  width: 100%;
+  background-color: #f3f0e8;
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+.liturgical-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.liturgical-title-wrapper {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.liturgical-title {
+  color: #8B4513;
+  font-size: 1.25rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.liturgical-current-period {
+  color: #dc2f02;
+  margin-left: 0.5rem;
+}
+
+.liturgical-season-phrase {
+  font-size: 1.5rem;
+  opacity: 0.85;
+  margin-top: 6px;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.liturgical-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.liturgical-season-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  position: relative;
+  border: none;
+  transition: all 0.2s ease;
+  will-change: transform;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.liturgical-season-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.liturgical-season-card.active {
+    transform: scale(1.06);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+    z-index: 2;
+}
+
+.liturgical-season-card.active::before {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.liturgical-season-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  border-radius: 0 0 16px 16px;
+}
+
+.liturgical-season-card:hover img{
+  transform: scale(1.05);
+}
+
+.liturgical-season-card.active:hover img {
+  transform: scale(1.35);
+}
+
+.liturgical-season-card img {
+  transition: a11 0.3s ease;
+  filter: brightness(0.75);
+}
+
+.liturgical-season-card.active img {
+  filter: brightness(1.05) contrast(1.05);
+  transform: scale(1.1);
+}
+
+.advento::after {
+  background-color: #6b21a8;
+}
+
+.advento.active {
+  box-shadow: 0 0 20px rgba(107, 33, 168, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.quaresma::after {
+  background-color: #6b21a8;
+}
+
+.quaresma.active {
+  box-shadow: 0 0 20px rgba (107, 33, 168, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.tempo-comum::after {
+  background-color: #166534;
+}
+
+.tempo-comum.active {
+  box-shadow: 0 0 20px rgba(22, 101, 52, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.tempo-pascal::after {
+  background-color: #facc15;
+}
+
+.tempo-pascal.active {
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.7), 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.liturgical-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.liturgical-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* ou cover se quiser preencher */
+  filter: brightness(0.85);
+  transition: transform 0.3s ease;;
+}
+
+.liturgical-season-name {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+/* Tablet e Desktop */
+@media (min-width: 768px) {
+  .liturgical-title {
+    font-size: 1.5rem;
+  }
+
+  .liturgical-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

@@ -1,0 +1,143 @@
+/* EasterBanner.css - Estilos do banner de páscoa */
+
+.easter-banner {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin: 2rem 0;
+  background: linear-gradient(90deg, rgba(210, 105, 30, 0.9) 0%, rgba(184, 134, 11, 0.85) 50%, rgba(210, 105, 30, 0.9) 100%);
+  min-height: 200px;
+  border-radius: 20px;
+}
+
+.easter-background-pattern {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.3;
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.1) 75%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 60px 60px;
+  background-position: 0 0, 30px 30px;
+}
+
+.easter-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.easter-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.easter-text-wrapper {
+  flex: 1;
+  text-align: center;
+}
+
+.easter-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-style: italic;
+  color: #ffffff;
+  font-size: 56.25px;
+  line-height: 56.3px;
+  letter-spacing: 0;
+}
+
+.easter-subtitle {
+  color: white;
+  font-weight: 600;
+  font-size: 40px;
+  margin-bottom: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  list-style: disc;
+  /* garante bolinha padrão */
+  padding-left: 1.5rem;
+  /* espaço para a bolinha */
+  text-align: left;
+  /* alinhamento correto */
+  margin: 0 auto;
+  /* centraliza o bloco */
+  margin-top: 30px;
+  line-height: 33.8px;
+  letter-spacing: 0;
+}
+
+.easter-img-wrapper {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.easter-img {
+  width: 50%;
+  height: auto;
+  border-radius: 20px;
+}
+
+.easter-cross-icon {
+  font-size: 6rem;
+  filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.25));
+}
+
+.easter-flower-1 {
+  position: absolute;
+  bottom: -1rem;
+  right: -1rem;
+  font-size: 3rem;
+}
+
+.easter-flower-2 {
+  position: absolute;
+  bottom: -0.5rem;
+  right: 3rem;
+  font-size: 2.5rem;
+}
+
+.easter-flower-3 {
+  position: absolute;
+  top: 2rem;
+  left: -1.5rem;
+  font-size: 3rem;
+}
+
+@media (max-width: 767px) {
+  .easter-img {
+    width: 100%;
+  }
+}
+
+/* Tablet e Desktop */
+@media (min-width: 768px) {
+  .easter-content {
+    flex-direction: row;
+  }
+
+  .easter-text-wrapper {
+    text-align: left;
+  }
+
+  .easter-subtitle {
+    font-size: 1.875rem;
+  }
+
+  .easter-title {
+    font-size: 3.75rem;
+  }
+
+  .easter-cross-icon {
+    font-size: 8rem;
+  }
+
+}

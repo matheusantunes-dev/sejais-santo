@@ -1,0 +1,76 @@
+/* GospelCard.css - Estilos do card do evangelho */
+
+.gospel-card {
+  width: 100%;
+}
+
+.gospel-date-selector {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.gospel-calendar-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #374151;
+}
+
+.gospel-select {
+  background-color: transparent;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.gospel-iframe {
+  width: 100%;
+  height: 500px; /* altura controlada */
+  border: none;
+}
+
+
+.gospel-preview {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  height: 11rem;
+  overflow-y: auto;
+  border: 2px solid #d1d5db;
+}
+
+.gospel-content {
+  font-size: 2rem;
+  color: #374151;
+  line-height: 1.625;
+}
+
+.gospel-content > * {
+  margin-bottom: 0.5rem;
+}
+
+.gospel-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.gospel-title {
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #1f2937;
+  letter-spacing: 0.5px;
+}
+
+.gospel-text {
+  text-align: justify;
+}

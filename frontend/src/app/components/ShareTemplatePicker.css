@@ -1,0 +1,120 @@
+﻿.share-template-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.share-template-picker__text h4 {
+  margin: 0 0 6px;
+  color: #5b341d;
+  font-size: 1rem;
+}
+
+.share-template-picker__text p {
+  margin: 0;
+  color: #7a5d49;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.share-template-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 12px;
+}
+
+.share-template-picker__option {
+  border: 1px solid #d8c3a8;
+  border-radius: 16px;
+  background: #fffdf9;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.share-template-picker__option:hover {
+  transform: translateY(-2px);
+  border-color: #b57f4f;
+}
+
+.share-template-picker__option.is-selected {
+  border-color: #8b1a1a;
+  box-shadow: 0 0 0 3px rgba(139, 26, 26, 0.12);
+}
+
+.share-template-picker__thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  background-color: #e7dccd;
+}
+
+.share-template-picker__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #503321;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.share-template-picker__upload {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px dashed #cdb59a;
+  background: #fff9f2;
+}
+
+.share-template-picker__upload.is-active {
+  border-color: #8b1a1a;
+  background: #fff4f2;
+}
+
+.share-template-picker__upload-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.share-template-picker__upload-copy span {
+  font-weight: 700;
+  color: #5b341d;
+}
+
+.share-template-picker__upload-copy small {
+  color: #7d6455;
+}
+
+.share-template-picker__upload-button {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #8b1a1a;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.share-template-picker__input {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .share-template-picker__upload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .share-template-picker__upload-button {
+    width: 100%;
+    text-align: center;
+  }
+}
