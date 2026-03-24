@@ -114,7 +114,10 @@
 }
 
 .footer-links a {
-  font-size: 10px;
+  font-size: 20px;
+  color: var(--footer-muted);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .footer-links a:hover,
