@@ -202,7 +202,11 @@ bootstrapLiturgicalTheme();
  * Aplica paleta conforme estação
  */
 function applyPalette(season: LiturgicalSeason) {
-  const palette = palettes[season] ?? DEFAULT_PALETTE;
+  // 👇 mapeamento inteligente
+  const effectiveSeason =
+    season === "Triduo Pascal" ? "Tempo Pascal" : season;
+
+  const palette = palettes[effectiveSeason] ?? DEFAULT_PALETTE;
   const root = document.documentElement;
 
   root.style.setProperty("--liturgical-app-bg", palette.appBg);
