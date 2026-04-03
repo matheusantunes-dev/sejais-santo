@@ -1,4 +1,10 @@
-export type LiturgicalSeason = "Advento" | "Tempo do Natal" | "Quaresma" | "Tempo Pascal" | "Tempo Comum";
+export type LiturgicalSeason =
+  | "Advento"
+  | "Tempo do Natal"
+  | "Quaresma"
+  | "Triduo Pascal"
+  | "Tempo Pascal"
+  | "Tempo Comum";
 
 export function getLiturgicalSeason(date: Date): LiturgicalSeason {
   const year = date.getFullYear();
@@ -14,7 +20,7 @@ export function getLiturgicalSeason(date: Date): LiturgicalSeason {
     date.getDate()
   );
 
-  // 📅 Cálculo da Páscoa (Computus - válido para calendário gregoriano)
+  // 📅 Cálculo da Páscoa (Computus)
   function calculateEaster(year: number): Date {
     const a = year % 19;
     const b = Math.floor(year / 100);
@@ -36,15 +42,19 @@ export function getLiturgicalSeason(date: Date): LiturgicalSeason {
 
   const easter = calculateEaster(year);
 
-  // ✝️ Quaresma começa 46 dias antes da Páscoa (Quarta-feira de Cinzas)
+  // ✝️ Quaresma começa 46 dias antes da Páscoa
   const lentStart = new Date(easter);
   lentStart.setDate(lentStart.getDate() - 46);
+
+  // 🔥 Tríduo Pascal começa 3 dias antes da Páscoa (Quinta-feira Santa)
+  const triduumStart = new Date(easter);
+  triduumStart.setDate(triduumStart.getDate() - 3);
 
   // 🔥 Pentecostes (49 dias após Páscoa)
   const pentecost = new Date(easter);
   pentecost.setDate(pentecost.getDate() + 49);
 
-  // 🎄 Natal (25 de dezembro)
+  // 🎄 Natal
   const christmas = createDate(year, 11, 25);
 
   // 🌿 Advento (4 semanas antes do Natal)
@@ -58,14 +68,19 @@ export function getLiturgicalSeason(date: Date): LiturgicalSeason {
     return "Advento";
   }
 
-  // Tempo do Natal (simplificado: 25/12 até antes da Quaresma)
+  // Tempo do Natal (simplificado)
   if (today >= christmas && today < lentStart) {
     return "Tempo do Natal";
   }
 
-  // Quaresma
-  if (today >= lentStart && today < easter) {
+  // Quaresma (agora termina antes do Tríduo)
+  if (today >= lentStart && today < triduumStart) {
     return "Quaresma";
+  }
+
+  // 🔥 Tríduo Pascal (NOVO)
+  if (today >= triduumStart && today < easter) {
+    return "Triduo Pascal";
   }
 
   // Tempo Pascal
@@ -73,6 +88,6 @@ export function getLiturgicalSeason(date: Date): LiturgicalSeason {
     return "Tempo Pascal";
   }
 
-  // Tempo Comum (restante do ano)
+  // Tempo Comum
   return "Tempo Comum";
 }
