@@ -41,10 +41,10 @@ function buildChunks(text: string) {
   const sentences = splitSentences(text);
   const chunks: string[] = [];
   let current = "";
-  const MAX_CHARS = 900;
+  const MAX_CHARS = 1800;
 
   for (const sentence of sentences) {
-    if ((current + sentence).length > MAX_CHARS && current.length > 200) {
+    if ((current + sentence).length > MAX_CHARS && current.length > MAX_CHARS * 0.5) {
       chunks.push(current.trim());
       current = `${sentence} `;
     } else {
