@@ -27,12 +27,12 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
   }, []);
 
   const seasonPhrases: Record<LiturgicalSeason, string> = {
-    "Advento": "Preparai o caminho do Senhor",
-    "Quaresma": "Eis o tempo de conversão",
-    "Tempo Comum": "Caminhando com Cristo no cotidiano",
+    Advento: "Preparai o caminho do Senhor",
+    Quaresma: "Eis o tempo de conversão",
+    "Tempo Comum": "Caminhando com Cristo sempre",
     "Tempo Pascal": "Ele Ressuscitou, Aleluia!",
-    "Tempo do Natal": "O Verbo se fez carne, e habitou entre nós",
-    "Triduo Pascal": "Mistério da Paixão, Morte e Ressurreição de Nosso Senhor",
+    "Tempo do Natal": "O Verbo se fez carne",
+    "Triduo Pascal": "Mistério da Paixão, Morte e Ressurreição",
   };
 
   const activeSeason = currentPeriod ?? season;
