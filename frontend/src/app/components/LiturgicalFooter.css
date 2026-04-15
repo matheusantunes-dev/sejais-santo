@@ -69,7 +69,7 @@
 
 .liturgical-season-card.active {
     transform: scale(1.06);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5); /* Sombra mais escura */
     z-index: 2;
 }
 
