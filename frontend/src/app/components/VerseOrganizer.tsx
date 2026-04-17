@@ -188,7 +188,7 @@ export default function VerseOrganizer() {
         cardLabel="Organizador de Versiculos"
         text={selectedVerse?.text ?? ""}
         reference={selectedVerseReference}
-        fileName="versiculo-organizado.png"
+        fileName="versiculo-organizado.webp"
         shareTitle="Organizador de Versiculos"
       />
     </>

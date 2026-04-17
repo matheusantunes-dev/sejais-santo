@@ -1,4 +1,4 @@
-import carloAcutisImage from '@/assets/Carlos Acutis.png';
+import carloAcutisImage from "@/assets/Carlos Acutis.webp";
 import './HeroBanner.css';
 
 export function HeroBanner() {

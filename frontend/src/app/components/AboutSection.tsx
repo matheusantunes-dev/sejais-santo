@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import carloAcutisImage from "@/assets/Carlos Acutis sobre.png";
+import carloAcutisImage from "@/assets/Carlos Acutis sobre.webp";
 import "./AboutSection.css";
 
 export function AboutSection() {

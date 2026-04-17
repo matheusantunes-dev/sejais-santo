@@ -1,5 +1,5 @@
 import "./EasterBanner.css";
-import  cristoEucaristicoImage from "@/assets/cristo m.png";
+import  cristoEucaristicoImage from "@/assets/cristo m.webp";
 
 export function EasterBanner() {
   return (

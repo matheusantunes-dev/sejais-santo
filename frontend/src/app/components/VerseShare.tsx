@@ -51,7 +51,7 @@ export default function VerseShare() {
     const dataUrl = await htmlToImage.toPng(cardRef.current);
 
     const link = document.createElement("a");
-    link.download = "versiculo.png";
+    link.download = "versiculo.webp";
     link.href = dataUrl;
     link.click();
   }
