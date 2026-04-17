@@ -27,8 +27,8 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
   }, []);
 
   const seasonPhrases: Record<LiturgicalSeason, string> = {
-    Advento: "Preparai o caminho do Senhor",
-    Quaresma: "Eis o tempo de conversão",
+    "Advento": "Preparai o caminho do Senhor",
+    "Quaresma": "Eis o tempo de conversão",
     "Tempo Comum": "Caminhando com Cristo no cotidiano",
     "Tempo Pascal": "Ele Ressuscitou, Aleluia!",
     "Tempo do Natal": "O Verbo se fez carne, e habitou entre nós",

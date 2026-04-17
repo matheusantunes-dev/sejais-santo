@@ -113,12 +113,13 @@ a:focus-visible {
 
 /* Card hover effects */
 .feature-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.267);
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease-in-out;
 }
 
 /* Wave decoration animation */
