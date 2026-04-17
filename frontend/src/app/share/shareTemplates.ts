@@ -1,16 +1,16 @@
 ﻿/* Import do evanvelho */
-import biblePaperImage1 from "@/assets/templates/biblePaperImage1.jpeg";
-import biblePaperImage2 from "@/assets/templates/biblePaperImage2.jpg";
-import biblePaperImage3 from "@/assets/templates/biblePaperImage3.jpg";
-import biblePaperImage4 from "@/assets/templates/biblePaperImage4.jpg";
-import biblePaperImage5 from "@/assets/templates/biblePaperImage5.avif";
+import biblePaperImage1 from "@/assets/templates/biblePaperImage1.webp";
+import biblePaperImage2 from "@/assets/templates/biblePaperImage2.webp";
+import biblePaperImage3 from "@/assets/templates/biblePaperImage3.webp";
+import biblePaperImage4 from "@/assets/templates/biblePaperImage4.webp";
+import biblePaperImage5 from "@/assets/templates/biblePaperImage5.webp";
 
 /* Import do Versículo */
-import verseBackgroundImage from "@/assets/versiculobg.jpg";
-import Campos from "@/assets/templates/campos.avif";
-import Paisagem from "@/assets/templates/paisagem.avif";
-import PorDoSol from "@/assets/templates/por do sol.avif";
-import Montanhas from "@/assets/templates/montanhas.avif";
+import verseBackgroundImage from "@/assets/templates/versiculobg.webp";
+import Campos from "@/assets/templates/campos.webp";
+import Paisagem from "@/assets/templates/paisagem.webp";
+import PorDoSol from "@/assets/templates/por do sol.webp";
+import Montanhas from "@/assets/templates/montanhas.webp";
 
 
 

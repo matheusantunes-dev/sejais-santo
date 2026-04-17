@@ -1,7 +1,7 @@
 // src/app/components/Header.tsx
 import "./Header.css";
 import { useState, useEffect } from "react";
-import logo from "@/assets/logo.png?version=2";
+import logo from "@/assets/logo.webp?version=2";
 import { useAuth } from "../context/AuthContext";
 import googleLogo from "@/assets/google.svg";
 

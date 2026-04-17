@@ -3,8 +3,8 @@ import { GospelCard } from "./GospelCard";
 import { GospelShareModal } from "./GospelShareModal";
 import { useState } from "react";
 import "./FeatureCard.css";
-import recomendacao from "@/assets/recomendacao.png";
-import organizacao from "@/assets/organizacao.png";
+import recomendacao from "@/assets/recomendacao.webp";
+import organizacao from "@/assets/organizacao.webp";
 import { useAuth } from "../context/AuthContext";
 import { useGospel } from "../services/useGospel";
 

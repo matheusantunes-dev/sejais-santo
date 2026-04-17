@@ -15,7 +15,7 @@ import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
 import { fileToDataUrl, waitForNextPaint } from "../share/shareUtils";
-import "./ShareComposer.css";
+import "./ShareComposer.css"; 
 
 interface GospelData {
   referencia: string;

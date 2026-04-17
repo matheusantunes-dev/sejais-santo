@@ -1,8 +1,8 @@
 import "./LiturgicalFooter.css";
-import adventoImg from "@/assets/advento.png";
-import pascalImg from "@/assets/pascal.png";
-import quaresmaImg from "@/assets/quaresma.png";
-import comumImg from "@/assets/tempo comum.png";
+import adventoImg from "@/assets/advento.webp";
+import pascalImg from "@/assets/pascal.webp";
+import quaresmaImg from "@/assets/quaresma.webp";
+import comumImg from "@/assets/tempo comum.webp";
 import {
   getLiturgicalSeason,
   LiturgicalSeason,

@@ -69,7 +69,7 @@ export function VersododiaModal({ open, onClose }: Props) {
       cardLabel="Versiculo do Dia"
       text={verseText}
       reference={verseRef}
-      fileName="versiculo-do-dia.png"
+      fileName="versiculo-do-dia.webp"
       shareTitle="Versiculo do Dia"
       loading={loading}
     />
