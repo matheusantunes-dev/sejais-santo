@@ -19,18 +19,3 @@ backend/.env
 # Sistema
 # ---------------------
 .DS_Store
-
-# Exemplo para Python
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Exemplo para React / Node
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
