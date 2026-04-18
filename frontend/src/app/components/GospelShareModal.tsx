@@ -67,7 +67,7 @@ export function GospelShareModal({
   templatesHeading = null,
   layoutVariant = "evangelho",
 }: GospelShareModalProps) {
-  if (!open || gospel == null) return null;
+  const shouldRender = open && gospel != null;
 
   const availableTemplates = templates ?? gospelShareTemplates;
   const defaultTemplate =
@@ -214,6 +214,8 @@ export function GospelShareModal({
     }
   }
 
+  if (!shouldRender) return null;
+
   const modal = (
     <div className="share-composer-overlay" onClick={onClose}>
       <div className="share-composer-modal" onClick={(e) => e.stopPropagation()}>
@@ -237,17 +239,30 @@ export function GospelShareModal({
           <div className="share-composer-side">
             <ShareTemplatePicker
               heading={templatesHeading ?? "Fundos"}
+              helperText="Escolha um fundo pronto ou envie uma imagem da galeria do celular para personalizar o evangelho antes de compartilhar."
               templates={availableTemplates}
               selectedTemplateId={selectedTemplateId}
               customFileName={customFileName}
               onTemplateSelect={handleTemplateSelect}
               onFileChange={handleFileChange}
+              fileInputId="gospel-upload"
             />
 
             <div className="share-composer-actions">
-              <button onClick={onClose}>Fechar</button>
+              <button
+                type="button"
+                className="share-composer-button share-composer-button--secondary"
+                onClick={onClose}
+              >
+                Fechar
+              </button>
 
-              <button onClick={handleShare} disabled={isSharing}>
+              <button
+                type="button"
+                className="share-composer-button share-composer-button--primary"
+                onClick={handleShare}
+                disabled={isSharing}
+              >
                 <Share2 size={18} />
                 {isSharing
                   ? "Enviando..."
