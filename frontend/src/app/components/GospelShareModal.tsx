@@ -14,7 +14,7 @@ import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
 import { fileToDataUrl, waitForNextPaint } from "../share/shareUtils";
-import "./ShareComposer.css"; 
+import "./ShareComposer.css";
 
 interface GospelData {
   referencia: string;
@@ -25,6 +25,7 @@ interface GospelShareModalProps {
   open: boolean;
   onClose: () => void;
   gospel: GospelData | null;
+
   shareTitle?: string;
   templates?: ShareTemplate[];
   defaultBackgroundSrc?: string | null;
@@ -41,10 +42,10 @@ function buildChunks(text: string) {
   const sentences = splitSentences(text);
   const chunks: string[] = [];
   let current = "";
-  const MAX_CHARS = 1800;
+  const MAX_CHARS = 900;
 
   for (const sentence of sentences) {
-    if ((current + sentence).length > MAX_CHARS && current.length > MAX_CHARS * 0.5) {
+    if ((current + sentence).length > MAX_CHARS && current.length > 200) {
       chunks.push(current.trim());
       current = `${sentence} `;
     } else {
@@ -74,7 +75,6 @@ export function GospelShareModal({
     availableTemplates.find((t) => t.id === defaultTemplateId) ?? availableTemplates[0];
 
   const captureRef = useRef<HTMLDivElement>(null);
-
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     defaultTemplate?.id ?? null
   );
@@ -85,11 +85,6 @@ export function GospelShareModal({
   const [isSharing, setIsSharing] = useState(false);
   const [renderText, setRenderText] = useState("");
   const [generatedFiles, setGeneratedFiles] = useState<File[] | null>(null);
-  const [progress, setProgress] = useState({ done: 0, total: 0 });
-
-  // 👇 CONTROLE DE LOTES
-  const [currentChunk, setCurrentChunk] = useState(0);
-  const CHUNK_SIZE = 5;
 
   const previewText = useMemo(() => {
     const text = gospel?.texto ?? "";
@@ -104,10 +99,6 @@ export function GospelShareModal({
     setCustomFileName("");
     setRenderText(previewText);
     setGeneratedFiles(null);
-    setProgress({ done: 0, total: 0 });
-
-    // 👇 RESET DO LOTE
-    setCurrentChunk(0);
   }, [open, defaultTemplate?.id, defaultTemplate?.src, defaultBackgroundSrc, previewText]);
 
   function handleTemplateSelect(template: ShareTemplate) {
@@ -127,8 +118,6 @@ export function GospelShareModal({
       setBackgroundSrc(dataUrl);
       setCustomFileName(file.name);
       setGeneratedFiles(null);
-    } catch {
-      alert("Erro ao carregar imagem.");
     } finally {
       event.target.value = "";
     }
@@ -140,20 +129,14 @@ export function GospelShareModal({
     const chunks = buildChunks(gospel?.texto ?? "");
     const files: File[] = [];
 
-    for (let i = 0; i < chunks.length; i++) {
-      setRenderText(chunks[i]);
+    for (let index = 0; index < chunks.length; index++) {
+      setRenderText(chunks[index]);
       await waitForNextPaint();
 
-      const blob = await toBlob(captureRef.current, {
-        pixelRatio: 1,
-        skipFonts: true,
-        cacheBust: true,
-      });
-
+      const blob = await toBlob(captureRef.current);
       if (!blob) continue;
 
-      files.push(new File([blob], `share-${i + 1}.png`, { type: "image/png" }));
-      setProgress({ done: i + 1, total: chunks.length });
+      files.push(new File([blob], `share-${index + 1}.png`, { type: "image/png" }));
     }
 
     return files;
@@ -179,35 +162,24 @@ export function GospelShareModal({
 
   async function handleShare() {
     if (isSharing) return;
+
     setIsSharing(true);
 
     try {
       const files = generatedFiles ?? (await generateFiles());
-      if (!files?.length) {
-        alert("Nenhuma imagem.");
-        return;
-      }
 
-      const start = currentChunk * CHUNK_SIZE;
-      const chunk = files.slice(start, start + CHUNK_SIZE);
-
-      if (!chunk.length) {
-        alert("Todas as partes já foram compartilhadas 🙏");
+      if (!navigator.share || !(navigator as any).canShare?.({ files })) {
+        alert("Seu navegador não suporta compartilhamento.");
         return;
       }
 
       await navigator.share({
-        files: chunk,
+        files,
         title: shareTitle ?? "Compartilhar",
         text: gospel?.referencia ?? "",
       });
 
-      setCurrentChunk((prev) => prev + 1);
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
-        console.error(err);
-        alert("Erro ao compartilhar.");
-      }
+      onClose();
     } finally {
       setIsSharing(false);
       setRenderText(previewText);
@@ -226,11 +198,11 @@ export function GospelShareModal({
         <div className="share-composer-layout">
           <div className="share-composer-preview is-portrait">
             <GospelShareImage
-              referencia={gospel?.referencia ?? ""}
+              referencia={gospel.referencia}
               texto={previewText}
               backgroundSrc={backgroundSrc ?? undefined}
               width={252}
-              layoutVariant={layoutVariant ?? "evangelho"}
+              layoutVariant={layoutVariant}
             />
           </div>
 
@@ -245,15 +217,20 @@ export function GospelShareModal({
             />
 
             <div className="share-composer-actions">
-              <button onClick={onClose}>Fechar</button>
+              <button
+                className="share-composer-button share-composer-button--secondary"
+                onClick={onClose}
+              >
+                Fechar
+              </button>
 
-              <button onClick={handleShare} disabled={isSharing}>
+              <button
+                className="share-composer-button share-composer-button--primary"
+                onClick={handleShare}
+                disabled={isSharing}
+              >
                 <Share2 size={18} />
-                {isSharing
-                  ? "Enviando..."
-                  : generatedFiles
-                    ? `Parte ${currentChunk + 1} de ${Math.ceil(generatedFiles.length / CHUNK_SIZE)}`
-                    : "Gerando..."}
+                {isSharing ? "Gerando..." : "Compartilhar"}
               </button>
             </div>
           </div>
@@ -262,10 +239,10 @@ export function GospelShareModal({
         <div className="hidden-capture-root">
           <GospelShareImage
             ref={captureRef as any}
-            referencia={gospel?.referencia ?? ""}
+            referencia={gospel.referencia}
             texto={renderText || previewText}
             backgroundSrc={backgroundSrc ?? undefined}
-            layoutVariant={layoutVariant ?? "evangelho"}
+            layoutVariant={layoutVariant}
           />
         </div>
       </div>
