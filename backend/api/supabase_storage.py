@@ -2,15 +2,15 @@ from typing import List, Dict
 from datetime import datetime, timezone
 import uuid
 
-from api.supabase_client import get_supabase_client
+from api.supabase_client import get_service_client
 
 
 class SupabaseStorage:
     def __init__(self, table_name: str = "verses"):
         self.table = table_name
 
-    def list_verses_for(self, user_id: str, user_jwt: str) -> List[Dict]:
-        supabase = get_supabase_client(user_jwt)
+    def list_verses_for(self, user_id: str) -> List[Dict]:
+        supabase = get_service_client()
 
         response = (
             supabase
@@ -35,8 +35,8 @@ class SupabaseStorage:
             for r in rows
         ]
 
-    def create_verse(self, user_id: str, user_jwt: str, payload: Dict) -> Dict:
-        supabase = get_supabase_client(user_jwt)
+    def create_verse(self, user_id: str, payload: Dict) -> Dict:
+        supabase = get_service_client()
 
         new_id = str(uuid.uuid4())
         created_at_iso = datetime.now(timezone.utc).isoformat()
@@ -60,8 +60,8 @@ class SupabaseStorage:
             "scheduledAt": row["scheduled_at"],
         }
 
-    def delete_verse(self, user_id: str, user_jwt: str, verse_id: str):
-        supabase = get_supabase_client(user_jwt)
+    def delete_verse(self, user_id: str, verse_id: str):
+        supabase = get_service_client()
 
         (
             supabase

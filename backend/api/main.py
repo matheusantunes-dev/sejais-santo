@@ -113,39 +113,33 @@ def health():
 
 @app.get("/verses")
 def list_verses(
-    user=Depends(get_current_user),
-    authorization: str = Header(...)
+    user=Depends(get_current_user)
 ):
     storage = get_storage()
     user_id = user["sub"]
-    token = authorization.split(" ")[1]
-    return storage.list_verses_for(user_id, token)
+    return storage.list_verses_for(user_id)
 
 
 @app.post("/verses")
 def create_verse(
     payload: VerseCreate,
-    user=Depends(get_current_user),
-    authorization: str = Header(...)
+    user=Depends(get_current_user)
 ):
     storage = get_storage()
     user_id = user["sub"]
-    token = authorization.split(" ")[1]
-    return storage.create_verse(user_id, token, payload.dict())
+    return storage.create_verse(user_id, payload.dict())
 
 
 @app.delete("/verses")
 def delete_verse(
     data: dict,
-    user=Depends(get_current_user),
-    authorization: str = Header(...)
+    user=Depends(get_current_user)
 ):
     storage = get_storage()
     user_id = user["sub"]
-    token = authorization.split(" ")[1]
     verse_id = data.get("id")
 
-    storage.delete_verse(user_id, token, verse_id)
+    storage.delete_verse(user_id, verse_id)
     return {"status": "deleted"}
 
 
