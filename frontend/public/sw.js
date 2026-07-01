@@ -71,8 +71,9 @@ function cacheFirst(request, cacheName, maxAgeDays) {
     return fetch(request)
       .then(function (response) {
         if (response.ok) {
+          var cloned = response.clone();
           caches.open(cacheName).then(function (cache) {
-            cache.put(request, response.clone());
+            cache.put(request, cloned);
           });
         }
         return response;
@@ -88,8 +89,9 @@ function staleWhileRevalidate(request, cacheName, maxAgeDays) {
   var fetchPromise = fetch(request)
     .then(function (response) {
       if (response.ok) {
+        var cloned = response.clone();
         caches.open(cacheName).then(function (cache) {
-          cache.put(request, response.clone());
+          cache.put(request, cloned);
         });
       }
       return response;
@@ -111,8 +113,9 @@ function networkFirst(request) {
   return fetch(request)
     .then(function (response) {
       if (response.ok) {
+        var cloned = response.clone();
         caches.open(STATIC_CACHE).then(function (cache) {
-          cache.put(request, response.clone());
+          cache.put(request, cloned);
         });
       }
       return response;

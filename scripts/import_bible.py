@@ -20,7 +20,12 @@ import os
 import sys
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
+
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "backend", ".env")
+load_dotenv(dotenv_path)
 
 from api.supabase_client import get_supabase_client
 
@@ -106,6 +111,16 @@ BOOKS_DATA = [
 def import_bible():
     supabase = get_supabase_client()
 
+    # 0. Limpar dados de execuções anteriores via RPC SQL (TRUNCATE seguro)
+    print("🧹 Limpando dados existentes...")
+    try:
+        supabase.rpc("cleanup_import").execute()
+        print("✅ Limpeza concluída")
+    except Exception as e:
+        print(f"⚠️  Erro na limpeza via RPC: {e}")
+        print("   Execute sql/cleanup_function.sql no SQL Editor do Supabase primeiro")
+        return
+
     # 1. Criar versão padrão
     now = datetime.now(timezone.utc).isoformat()
     version = supabase.table("bible_versions").insert({
@@ -157,8 +172,12 @@ def import_bible():
     # Parse chapters
     print("📖 Importando capítulos...")
     chapter_count = 0
-    chapter_batch = []
-    chapter_map = {}
+    slug_by_position = {pos: slug for _, _, slug, _, pos, _ in BOOKS_DATA}
+
+    # dump_chapter_map: dump_chapter_id -> (slug, chapter_number)
+    dump_chapter_map = {}
+    chapter_records = []
+    chapter_id_map = {}
 
     with open(chapters_file, "r", encoding="utf-8") as f:
         for line in f:
@@ -169,42 +188,42 @@ def import_bible():
             parts = line.split("\t")
             if len(parts) >= 4:
                 try:
+                    dump_chapter_id = int(parts[0])
                     dump_book_id = int(parts[1])
                     ch_num = int(parts[2])
                     ch_verses = int(parts[3])
-                    chapter_batch.append((dump_book_id, ch_num, ch_verses))
                 except ValueError:
                     continue
 
-    # Chapters need book mapping. We have 73 books in order 1..73.
-    # Dump book IDs are sequential 1..73 matching our order.
-    # We use slug order to map: dump_book_id = position
-    slug_by_position = {pos: slug for _, _, slug, _, pos, _ in BOOKS_DATA}
-    for dump_bid, ch_num, ch_verses in chapter_batch:
-        slug = slug_by_position.get(dump_bid)
-        if not slug or slug not in book_ids:
-            continue
-        chapter_map[(slug, ch_num)] = {
-            "book_id": book_ids[slug],
-            "number": ch_num,
-            "verses_count": ch_verses,
-            "created_at": now,
-            "updated_at": now,
-        }
+                slug = slug_by_position.get(dump_book_id)
+                if not slug or slug not in book_ids:
+                    continue
 
-    # Batch insert chapters
-    chapter_items = list(chapter_map.values())
-    for i in range(0, len(chapter_items), 500):
-        batch = chapter_items[i:i + 500]
-        supabase.table("bible_chapters").insert(batch).execute()
+                dump_chapter_map[dump_chapter_id] = (slug, ch_num)
+                chapter_records.append({
+                    "book_id": book_ids[slug],
+                    "number": ch_num,
+                    "verses_count": ch_verses,
+                    "created_at": now,
+                    "updated_at": now,
+                })
+
+    # Deduplicate and batch insert chapters
+    seen = set()
+    unique_chapters = []
+    for rec in chapter_records:
+        key = (rec["book_id"], rec["number"])
+        if key not in seen:
+            seen.add(key)
+            unique_chapters.append(rec)
+
+    for i in range(0, len(unique_chapters), 500):
+        batch = unique_chapters[i:i + 500]
+        resp = supabase.table("bible_chapters").insert(batch).execute()
+        for c in (resp.data or []):
+            chapter_id_map[(c["book_id"], c["number"])] = c["id"]
         chapter_count += len(batch)
-        print(f"  Capítulos: {chapter_count}/{len(chapter_items)}")
-
-    # Get chapter IDs
-    chapters_db = supabase.table("bible_chapters").select("id, book_id, number").execute()
-    chapter_id_map = {}
-    for c in (chapters_db.data or []):
-        chapter_id_map[(c["book_id"], c["number"])] = c["id"]
+        print(f"  Capítulos: {chapter_count}/{len(unique_chapters)}")
 
     # 4. Parse verses
     print("📖 Importando versículos...")
@@ -220,18 +239,21 @@ def import_bible():
             parts = line.split("\t")
             if len(parts) >= 5:
                 try:
-                    dump_bid = int(parts[1])
-                    dump_cid = int(parts[2])
+                    dump_chapter_id = int(parts[2])
                     v_num = int(parts[3])
                     v_text = parts[4]
                 except (ValueError, IndexError):
                     continue
 
-                slug = slug_by_position.get(dump_bid)
-                if not slug or slug not in book_ids:
+                # Map dump_chapter_id -> (slug, chapter_number)
+                mapped = dump_chapter_map.get(dump_chapter_id)
+                if not mapped:
                     continue
-                bid = book_ids[slug]
-                cid = chapter_id_map.get((bid, dump_cid))
+                slug, ch_num = mapped
+                bid = book_ids.get(slug)
+                if not bid:
+                    continue
+                cid = chapter_id_map.get((bid, ch_num))
                 if not cid:
                     continue
 

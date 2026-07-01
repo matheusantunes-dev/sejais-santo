@@ -85,6 +85,7 @@ def get_current_user(authorization: str = Header(None)):
             secret,
             algorithms=["HS256"],
             audience="authenticated",
+            options={"leeway": 30},
         )
         user_id = payload.get("sub")
 
