@@ -247,7 +247,14 @@ def liturgical_saints():
 def get_gospel():
     t_start = time.monotonic()
     cached = get_today_gospel()
+    today_str = date.today().isoformat()
+
     if cached:
+        cache_date = cached.get("date", "unknown")
+        logger.warning("GOSPEL_FLOW: HIT date_match=%s rows=1 date=%s",
+                       cache_date == today_str, today_str)
+        logger.warning("GOSPEL_FLOW: returning cached gospel, NO external call")
+
         liturgical = None
         if cached.get("liturgical_key"):
             lectionary_entry = lectionary_lookup(cached["liturgical_key"])
@@ -274,6 +281,9 @@ def get_gospel():
             },
             "liturgical": liturgical,
         }
+
+    logger.warning("GOSPEL_FLOW: MISS rows=0 date=%s", today_str)
+    logger.warning("GOSPEL_FLOW: calling external API liturgia.up.railway.app")
 
     try:
         t_ext = time.monotonic()
