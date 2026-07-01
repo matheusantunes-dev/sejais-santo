@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import Optional
 import requests
-from jose import jwt, JWTError
+from jose import jwt, JWTError, jws
 import os
 from datetime import date
 
@@ -83,6 +83,14 @@ def get_current_user(authorization: str = Header(None)):
         if not secret:
             raise HTTPException(status_code=500, detail="JWT secret not configured")
 
+        try:
+            header = jws.get_unverified_header(token)
+            logger.info("JWT header: kid=%s alg=%s typ=%s",
+                        header.get("kid"), header.get("alg"), header.get("typ"))
+        except Exception as e:
+            logger.warning("Could not parse JWT header: %s", str(e))
+            header = {}
+
         payload = jwt.decode(
             token,
             secret,
@@ -98,7 +106,8 @@ def get_current_user(authorization: str = Header(None)):
         return {"sub": user_id}
 
     except JWTError as e:
-        logger.warning("JWT decode failed: %s", str(e))
+        logger.warning("JWT decode failed: alg=%s error=%s",
+                       header.get("alg", "unknown"), str(e))
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
