@@ -102,7 +102,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Autores
 
-**Matheus Antunes e Fred Joaquim**
+**Matheus Antunes, Fred Joaquim e Raimundo Barbosa**
 
 Desenvolvedores focados em frontend moderno, integração fullstack e organização de arquiteturas.
 
