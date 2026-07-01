@@ -19,27 +19,29 @@ export function Header() {
   const user = session?.user;
   
   return (
-    <header className="header">
+    <header className="header" role="banner">
       <div className="header-container">
         <div className="header-left">
           <div className="header-title-wrapper">
             <h1 className="header-title">Sejais Santo</h1>
             <p className="header-subtitle">Porque Deus é Santo</p>
           </div>
-          <img src={logo} alt="São Carlo Acutis" className="header-logo" />
+          <img src={logo} alt="Ícone de São Carlo Acutis" className="header-logo" width="64" height="64" />
         </div>
 
-        <div className="header-right">
+        <nav className="header-right" aria-label="Autenticação">
           {user ? (
             <div className="header-user">
               {user.user_metadata?.avatar_url ? (
                 <img
                   src={user.user_metadata.avatar_url}
-                  alt={user.email ?? "Usuário"}
+                  alt={`Avatar de ${user.email ?? "usuário"}`}
                   className="user-avatar"
+                  width="36"
+                  height="36"
                 />
               ) : (
-                <div className="user-avatar user-avatar-fallback">
+                <div className="user-avatar user-avatar-fallback" aria-hidden="true">
                   {user.email?.charAt(0).toUpperCase() ?? "U"}
                 </div>
               )}
@@ -47,13 +49,13 @@ export function Header() {
               <button
                 className="logout-button"
                 onClick={logout}
-                aria-label="Sair"
+                aria-label={`Sair da conta de ${user.email ?? "usuário"}`}
               >
                 Sair
               </button>
             </div>
           ) : (
-            <button className="login-button" onClick={login}>
+            <button className="login-button" onClick={login} aria-label="Entrar com Google">
               <span className="login-button__icon-wrapper">
                 <img src={googleLogo} alt="" aria-hidden="true" />
               </span>
@@ -62,7 +64,7 @@ export function Header() {
               <span className="login-text-short">Login</span>
             </button>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   );

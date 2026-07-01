@@ -9,6 +9,7 @@ import {
 import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
 import { toBlob } from "html-to-image";
+import { toast } from "sonner";
 
 import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
@@ -169,7 +170,7 @@ export function GospelShareModal({
       const files = generatedFiles ?? (await generateFiles());
 
       if (!navigator.share || !(navigator as any).canShare?.({ files })) {
-        alert("Seu navegador não suporta compartilhamento.");
+        toast.error("Seu navegador não suporta compartilhamento.");
         return;
       }
 

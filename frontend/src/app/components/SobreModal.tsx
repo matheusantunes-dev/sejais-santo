@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import "./SobreModal.css";
 
 interface SobreModalProps {
@@ -7,12 +7,32 @@ interface SobreModalProps {
 }
 
 export function SobreModal({ isOpen, onClose }: SobreModalProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || !contentRef.current) return;
+
+    const prevFocus = document.activeElement as HTMLElement | null;
+    const focusable = contentRef.current.querySelector<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+    focusable?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      prevFocus?.focus();
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="share-composer-close" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="Sobre o Projeto">
+      <div className="modal-content" ref={contentRef} onClick={(e) => e.stopPropagation()}>
+        <button className="share-composer-close" onClick={onClose} aria-label="Fechar modal Sobre o Projeto">
           ✕
         </button>
 
@@ -26,7 +46,7 @@ export function SobreModal({ isOpen, onClose }: SobreModalProps) {
           aprofundar sua caminhada com Deus.
         </p>
         <p>
-          &emsp;A iniciativa nasce da convicção de que a tecnologia pode ser um
+          A iniciativa nasce da convicção de que a tecnologia pode ser um
           instrumento de evangelização. Utilizando a web como meio de
           comunicação e formação, o projeto procura aproximar fé e tecnologia,
           tornando conteúdos católicos mais organizados, acessíveis e presentes
@@ -34,7 +54,7 @@ export function SobreModal({ isOpen, onClose }: SobreModalProps) {
         </p>
 
         <p>
-          &emsp;O projeto é desenvolvido por Matheus Antunes e Fred Joaquim,
+          O projeto é desenvolvido por Matheus Antunes e Fred Joaquim,
           unindo dedicação técnica, boas práticas de desenvolvimento e um
           propósito maior: colocar o conhecimento tecnológico a serviço da
           evangelização.

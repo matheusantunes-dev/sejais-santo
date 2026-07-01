@@ -1,0 +1,82 @@
+.bible-search {
+  margin: 0 0 1rem;
+}
+
+.bible-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bible-search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.bible-search-input:focus-visible {
+  border-color: #4b2e83;
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 1px;
+}
+
+.bible-search-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #d1d5db;
+  border-top-color: #4b2e83;
+  border-radius: 50%;
+  animation: bible-spin 0.6s linear infinite;
+}
+
+@keyframes bible-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bible-search-results {
+  margin-top: 0.6rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.bible-search-info {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.bible-search-empty {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.bible-search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.bible-search-result:hover {
+  background: #f3f4f6;
+}
+
+.bible-search-ref {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4b2e83;
+}
+
+.bible-search-text {
+  font-size: 0.85rem;
+  color: #374151;
+  line-height: 1.4;
+}

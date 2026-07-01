@@ -57,7 +57,7 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
     {
       name: "Tempo Pascal",
       image: pascalImg,
-      color: "#f5c500",
+      color: "#c8960f",
     },
   ];
 

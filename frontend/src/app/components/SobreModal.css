@@ -5,39 +5,49 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: var(--z-modal);
   backdrop-filter: blur(5px);
 }
 
 .modal-content {
   background: #121212;
   color: #fff;
-  padding: 40px;
-  border-radius: 12px;
+  padding: var(--space-10);
+  border-radius: var(--radius-xl);
   max-width: 600px;
   width: 90%;
   position: relative;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn var(--transition-modal);
 }
 
 .share-composer-close {
   position: absolute;
-  top: 14px;
-  right: 16px;
+  top: var(--space-3);
+  right: var(--space-4);
   border: none;
   background: transparent;
   color: #6f4b35;
-  font-size: 32px;
+  font-size: var(--text-3xl);
   cursor: pointer;
+  line-height: 1;
+  padding: var(--space-1);
+}
+
+.share-composer-close:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .modal-content h2 {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
+  font-family: var(--font-display);
 }
 
 .modal-content p {
-  line-height: 1.7;
+  line-height: var(--leading-relaxed);
   color: #cccccc;
+  margin-bottom: var(--space-4);
 }
 
 @keyframes fadeIn {

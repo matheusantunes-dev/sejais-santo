@@ -1,61 +1,59 @@
-/* LiturgicalFooter.css - Estilos do footer litúrgico */
-
 .liturgical-footer {
   width: 100%;
   background-color: #f3f0e8;
-  padding: 2rem 0;
-  margin-top: 3rem;
+  padding: var(--space-8) 0;
+  margin-top: var(--space-12);
 }
 
 .liturgical-container {
-  max-width: 1280px;
+  max-width: var(--container-max-xl);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--space-4);
 }
 
 .liturgical-title-wrapper {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .liturgical-title {
   color: #8B4513;
-  font-size: 1.25rem;
-  font-weight: 900 !important;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   margin: 0;
+  font-family: var(--font-display);
 }
 
 .liturgical-current-period {
-  color: #dc2f02;
-  margin-left: 0.5rem;
+  color: var(--color-liturgical-400);
+  margin-left: var(--space-2);
 }
 
 .liturgical-season-phrase {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   opacity: 0.85;
   margin-top: 6px;
   font-style: italic;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
 }
 
 .liturgical-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .liturgical-season-card {
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
   position: relative;
   border: none;
-  transition: all 0.2s ease;
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
   will-change: transform;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .liturgical-season-card::before {
@@ -64,30 +62,21 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.25);
   opacity: 0;
-  transition: 0.3s;
+  transition: opacity var(--transition-slow);
+  z-index: 1;
 }
 
 .liturgical-season-card.active {
-    transform: scale(1.06);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5); /* Sombra mais escura */
-    z-index: 2;
+  transform: scale(1.06);
+  box-shadow: var(--shadow-2xl);
+  z-index: var(--z-dropdown);
 }
 
 .liturgical-season-card.active::before {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.liturgical-season-card::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  border-radius: 0 0 16px 16px;
-}
-
-.liturgical-season-card:hover img{
+.liturgical-season-card:hover img {
   transform: scale(1.05);
 }
 
@@ -96,7 +85,7 @@
 }
 
 .liturgical-season-card img {
-  transition: all 0.3s ease;
+  transition: transform var(--transition-slow);
   filter: brightness(0.75);
 }
 
@@ -105,67 +94,32 @@
   transform: scale(1.1);
 }
 
-.advento::after {
-  background-color: #6b21a8;
-}
-
-.advento.active {
-  box-shadow: 0 0 20px rgba(107, 33, 168, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
-}
-
-.quaresma::after {
-  background-color: #6b21a8;
-}
-
-.quaresma.active {
-  box-shadow: 0 0 20px rgba (107, 33, 168, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
-}
-
-.tempo-comum::after {
-  background-color: #166534;
-}
-
-.tempo-comum.active {
-  box-shadow: 0 0 20px rgba(22, 101, 52, 0.6), 0 15px 35px rgba(0, 0, 0, 0.35);
-}
-
-.tempo-pascal::after {
-  background-color: #facc15;
-}
-
-.tempo-pascal.active {
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.7), 0 15px 35px rgba(0, 0, 0, 0.35);
-}
-
 .liturgical-image-wrapper {
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  transition: all 0.2s ease;
 }
 
 .liturgical-image-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* ou cover se quiser preencher */
   filter: brightness(0.85);
-  transition: transform 0.3s ease;;
+  transition: transform var(--transition-slow);
 }
 
 .liturgical-season-name {
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-align: center;
-  font-size: 1rem;
-  padding: 8px;
+  font-size: var(--text-base);
+  padding: var(--space-2);
   background: rgba(0, 0, 0, 0.6);
   color: white;
 }
 
-/* Tablet e Desktop */
 @media (min-width: 768px) {
   .liturgical-title {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
   }
 
   .liturgical-grid {

@@ -1,0 +1,27 @@
+{
+  "name": "Sejais Santo",
+  "short_name": "Sejais Santo",
+  "description": "Liturgia Diária Católica — Leituras, Santos e Orações",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1a5c2a",
+  "background_color": "#1a5c2a",
+  "lang": "pt-BR",
+  "categories": ["religion", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

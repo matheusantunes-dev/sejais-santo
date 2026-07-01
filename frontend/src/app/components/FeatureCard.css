@@ -1,29 +1,34 @@
-/* FeatureCard.css - Estilos dos cards de recursos */
-
 .feature-card {
   background: linear-gradient(to bottom, #d4c5a9, #e8dcc4);
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
-  border: 4px solid #8B6F47;
+  border: var(--border-width-thick) solid #8B6F47;
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-2xl);
 }
 
 .feature-card-header {
-  background-color: #8B1A1A;
+  background-color: var(--color-liturgical-500);
   color: white;
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-4);
   text-align: center;
 }
 
 .feature-card-title {
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
   font-style: italic;
   margin: 0;
+  font-family: var(--font-display);
 }
 
 .feature-card-content {
-  padding: 1.5rem;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,37 +38,42 @@
 
 .feature-card-description {
   text-align: center;
-  color: #1f2937;
-  font-weight: 600;
-  margin-top: 1rem;
-  font-size: 1.125rem;
+  color: var(--color-neutral-800);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-4);
+  font-size: var(--text-lg);
   font-style: italic;
 }
 
 .feature-card-footer {
-  padding: 1rem;
+  padding: var(--space-4);
   padding-top: 0;
 }
 
 .share-button {
   width: 100%;
-  background-color: #8B1A1A;
+  background-color: var(--color-liturgical-500);
   color: white;
-  font-weight: bold;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  gap: var(--space-2);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-md);
   border: none;
   cursor: pointer;
 }
 
 .share-button:hover {
-  background-color: #6B1414;
+  background-color: var(--color-liturgical-600);
+}
+
+.share-button:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
 }
 
 .share-icon {
@@ -71,14 +81,11 @@
   height: 1.25rem;
 }
 
-/* VersesImage component */
 .verses-image-container {
   position: relative;
   width: 100%;
-  height: 12rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   aspect-ratio: 1 / 1;
   overflow: hidden;
 }
@@ -87,34 +94,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* ou cover se quiser preencher */
 }
 
-.verses-image-background {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-.verses-image-icons {
-  text-align: center;
-  color: white;
-}
-
-.verses-icon-top {
-  font-size: 3.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.verses-icon-bottom {
-  font-size: 2.25rem;
-}
-
-/* Tablet */
 @media (min-width: 768px) {
   .feature-card-title {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
   }
 }

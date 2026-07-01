@@ -27,8 +27,13 @@
   font-weight: 600;
   font-size: 1rem;
   border: none;
-  outline: none;
   cursor: pointer;
+}
+
+.gospel-select:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .gospel-iframe {
@@ -73,4 +78,22 @@
 
 .gospel-text {
   text-align: justify;
+}
+
+.gospel-liturgical-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  justify-content: center;
+}
+
+.gospel-meta-tag {
+  background: rgba(255,255,255,0.85);
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }

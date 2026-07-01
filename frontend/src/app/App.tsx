@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Header } from "./components/Header";
 import { HeroBanner } from "./components/HeroBanner";
@@ -12,12 +13,18 @@ import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
 import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
+import { Toaster } from "./components/ui/sonner";
+import { BibleNavigation } from "./components/BibleNavigation";
+import { BibleSearch } from "./components/BibleSearch";
+import { SaintsWidget } from "./components/SaintsWidget";
+import { isEnabled } from "@/config/features";
 
 import "./App.css";
 
 export default function App() {
   const [showOrganizer, setShowOrganizer] = useState(false);
   const [showVerseModal, setShowVerseModal] = useState(false);
+  const [showBibleNav, setShowBibleNav] = useState(false);
 
   const handleShare = (feature: string) => {
     if (navigator.share) {
@@ -29,33 +36,14 @@ export default function App() {
         })
         .catch((err) => console.log("Erro ao compartilhar:", err));
     } else {
-      alert("Função de compartilhamento não disponível neste navegador");
+      toast.error("Compartilhamento não disponível neste navegador");
     }
   };
 
   return (
     <>
       <LiturgicalThemeManager />
-
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <filter id="velvet-filter">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.5"
-            numOctaves="4"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix
-            type="matrix"
-            values="
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 0 0.5
-              0 0 0 -0.4 1
-            "
-          />
-        </filter>
-      </svg>
+      <Toaster />
 
       <div className="app-container">
         <Header />
@@ -72,10 +60,16 @@ export default function App() {
               />
 
               <FeatureCard
-                title="Versículos para leitura"
-                description="Leitura diária"
+                title="Bíblia"
+                description="Navegue pelos livros da Bíblia"
                 type="verses"
-                onShare={() => setShowVerseModal(true)}
+                onShare={() => {
+                  if (isEnabled("BIBLE_NAVIGATION")) {
+                    setShowBibleNav(true);
+                  } else {
+                    setShowVerseModal(true);
+                  }
+                }}
               />
 
               <FeatureCard
@@ -86,6 +80,8 @@ export default function App() {
                 onEdit={() => setShowOrganizer(true)}
               />
             </div>
+
+            <SaintsWidget />
           </div>
         </main>
 
@@ -113,6 +109,26 @@ export default function App() {
             open={showVerseModal}
             onClose={() => setShowVerseModal(false)}
           />
+        )}
+
+        {showBibleNav && (
+          <div className="organizer-overlay" onClick={() => setShowBibleNav(false)}>
+            <div className="organizer-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="organizer-modal-header">
+                <h2>Bíblia</h2>
+                <button
+                  className="share-composer-close"
+                  onClick={() => setShowBibleNav(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <BibleSearch onNavigate={(slug, chapter) => {
+                console.log("Navegar para", slug, chapter);
+              }} />
+              <BibleNavigation />
+            </div>
+          </div>
         )}
 
         <EasterBanner />

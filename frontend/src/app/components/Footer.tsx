@@ -57,10 +57,10 @@ export function Footer() {
             <h3 className="footer-title">Contato</h3>
 
             <div className="footer-links">
-              <a href="mailto:matheusantunesreis6@gmail.com">
+              <a href="mailto:matheusantunesreis6@gmail.com" aria-label="Enviar email para Matheus Antunes">
                 matheusantunesreis6@gmail.com
               </a>
-              <a href="mailto:Fredjoaquimsocial@gmail.com">
+              <a href="mailto:Fredjoaquimsocial@gmail.com" aria-label="Enviar email para Fred Joaquim">
                 Fredjoaquimsocial@gmail.com
               </a>
             </div>

@@ -2,6 +2,7 @@
 import { GospelCard } from "./GospelCard";
 import { GospelShareModal } from "./GospelShareModal";
 import { useState } from "react";
+import { toast } from "sonner";
 import "./FeatureCard.css";
 import recomendacao from "@/assets/recomendacao.webp";
 import organizacao from "@/assets/organizacao.webp";
@@ -26,7 +27,7 @@ export function FeatureCard({
   const { session } = useAuth();
   const user = session?.user;
 
-  const { gospel, loading, error } = useGospel();
+  const { gospel, liturgical, loading, error } = useGospel();
   const [showGospelModal, setShowGospelModal] = useState(false);
 
   const isOrganizer = type === "organize";
@@ -41,7 +42,7 @@ export function FeatureCard({
   const buttonAction = () => {
     if (isOrganizer) {
       if (!user) {
-        alert("Faca login com Google para organizar versiculos.");
+        toast.error("Faça login com Google para organizar versículos.");
         return;
       }
 
@@ -51,7 +52,7 @@ export function FeatureCard({
 
     if (type === "gospel") {
       if (!gospel) {
-        alert("O evangelho ainda esta carregando.");
+        toast.error("O evangelho ainda está carregando.");
         return;
       }
 
@@ -64,25 +65,25 @@ export function FeatureCard({
 
   return (
     <>
-      <div className="feature-card">
+      <article className="feature-card">
         <div className="feature-card-header">
           <h3 className="feature-card-title">{title}</h3>
         </div>
 
         <div className="feature-card-content">
           {type === "gospel" && (
-            <GospelCard gospel={gospel} loading={loading} error={error} />
+            <GospelCard gospel={gospel} liturgical={liturgical} loading={loading} error={error} />
           )}
 
           {type === "verses" && (
             <div className="verses-image-container">
-              <img src={recomendacao} alt="Versiculos" />
+              <img src={recomendacao} alt="Ilustração de versículos bíblicos" />
             </div>
           )}
 
           {type === "organize" && (
             <div className="verses-image-container">
-              <img src={organizacao} alt="Organizar" />
+              <img src={organizacao} alt="Ilustração de organização de versículos" />
             </div>
           )}
 
@@ -92,19 +93,19 @@ export function FeatureCard({
         </div>
 
         <div className="feature-card-footer">
-          <button onClick={buttonAction} className="share-button">
+          <button onClick={buttonAction} className="share-button" aria-label={`${title}: ${buttonLabel}`}>
             <span>{buttonLabel}</span>
 
             {isOrganizer ? (
-              <Pencil className="share-icon" />
+              <Pencil className="share-icon" aria-hidden="true" />
             ) : type === "verses" ? (
-              <BookOpen className="share-icon" />
+              <BookOpen className="share-icon" aria-hidden="true" />
             ) : (
-              <Share2 className="share-icon" />
+              <Share2 className="share-icon" aria-hidden="true" />
             )}
           </button>
         </div>
-      </div>
+      </article>
 
       <GospelShareModal
         open={showGospelModal}

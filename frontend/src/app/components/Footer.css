@@ -4,23 +4,22 @@
   --footer-text: #e2e8f0;
   --footer-muted: #9aa6bb;
   --footer-highlight: #60a5fa;
-  --footer-highlight-soft: rgba(96, 165, 250, 0.16);
 
   position: relative;
   overflow: hidden;
   background: var(--footer-bg);
   color: var(--footer-text);
-  margin-top: 96px;
-  padding: 72px 20px 28px;
-  border-top: 1px solid var(--footer-border);
-  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  margin-top: var(--space-24);
+  padding: 72px var(--space-5) var(--space-7);
+  border-top: var(--border-width-thin) solid var(--footer-border);
+  font-family: var(--font-body);
 }
 
 .footer-glow {
   position: absolute;
   width: 260px;
   height: 260px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: radial-gradient(circle, rgba(96, 165, 250, 0.18) 0%, rgba(96, 165, 250, 0) 72%);
   pointer-events: none;
 }
@@ -37,54 +36,55 @@
 
 .footer-container {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-dropdown);
   max-width: 1180px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(260px, 1.2fr) minmax(220px, 0.8fr) minmax(320px, 1fr);
-  gap: 28px;
+  gap: var(--space-7);
 }
 
 .footer-brand-column,
 .footer-column {
   background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 20px;
-  padding: 24px;
+  border: var(--border-width-thin) solid rgba(148, 163, 184, 0.2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
   backdrop-filter: blur(3px);
 }
 
 .footer-kicker {
   margin: 0;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--footer-highlight);
 }
 
 .footer-brand-title {
-  margin: 12px 0 14px;
+  margin: var(--space-3) 0 var(--space-3);
   font-size: clamp(1.25rem, 1.9vw, 1.65rem);
-  line-height: 1.35;
+  line-height: var(--leading-tight);
+  font-family: var(--font-display);
 }
 
 .footer-description {
-  margin: 0 0 22px;
+  margin: 0 0 var(--space-5);
   color: var(--footer-muted);
-  line-height: 1.7;
+  line-height: var(--leading-relaxed);
   max-width: 42ch;
 }
 
 .footer-about-button {
-  border: 1px solid rgba(96, 165, 250, 0.5);
+  border: var(--border-width-thin) solid rgba(96, 165, 250, 0.5);
   background: linear-gradient(135deg, rgba(96, 165, 250, 0.2) 0%, rgba(30, 41, 59, 0.2) 100%);
   color: #dbeafe;
-  border-radius: 10px;
-  font-weight: 600;
-  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-2) var(--space-4);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .footer-about-button:hover {
@@ -93,8 +93,13 @@
   background: linear-gradient(135deg, rgba(147, 197, 253, 0.25) 0%, rgba(30, 41, 59, 0.28) 100%);
 }
 
+.footer-about-button:focus-visible {
+  outline: 2px solid var(--footer-highlight);
+  outline-offset: 2px;
+}
+
 .footer-title {
-  margin: 0 0 14px;
+  margin: 0 0 var(--space-3);
   font-size: 0.86rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -103,7 +108,7 @@
 
 .footer-links {
   display: grid;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .footer-links a,
@@ -111,7 +116,7 @@
 .dev-phones a {
   color: var(--footer-muted);
   text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color var(--transition-fast), transform var(--transition-fast);
 }
 
 .footer-links a:hover,
@@ -121,50 +126,58 @@
   transform: translateX(2px);
 }
 
+.footer-links a:focus-visible,
+.dev-links a:focus-visible,
+.dev-phones a:focus-visible {
+  outline: 2px solid var(--footer-highlight);
+  outline-offset: 2px;
+  color: #ffffff;
+}
+
 .developers-grid {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .developer-card {
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thin) solid rgba(148, 163, 184, 0.22);
   background: linear-gradient(150deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.45) 100%);
 }
 
 .dev-name {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2);
   color: #f8fafc;
 }
 
 .dev-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
   font-size: 0.9rem;
 }
 
 .dev-phones {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: 0.88rem;
 }
 
 .footer-bottom {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-dropdown);
   max-width: 1180px;
-  margin: 34px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  margin: var(--space-8) auto 0;
+  padding-top: var(--space-4);
+  border-top: var(--border-width-thin) solid rgba(148, 163, 184, 0.2);
   color: #94a3b8;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -175,7 +188,7 @@
 
   .footer-brand-column,
   .footer-column {
-    padding: 20px;
+    padding: var(--space-5);
   }
 
   .footer-bottom {

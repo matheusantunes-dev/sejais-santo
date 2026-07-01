@@ -5,8 +5,19 @@ interface Gospel {
   texto: string;
 }
 
+interface LiturgicalMeta {
+  season?: string;
+  cycle?: string;
+  ferial?: string;
+  week?: number;
+  pericope?: string;
+  book_abbrev?: string;
+  liturgical_key?: string;
+}
+
 export function useGospel() {
   const [gospel, setGospel] = useState<Gospel | null>(null);
+  const [liturgical, setLiturgical] = useState<LiturgicalMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,7 +25,7 @@ export function useGospel() {
     async function fetchGospel() {
       try {
         const API_URL = import.meta.env.VITE_API_URL;
-        
+
         const response = await fetch(`${API_URL}/gospel`);
 
         if (!response.ok) {
@@ -33,6 +44,10 @@ export function useGospel() {
           referencia: evangelho.referencia,
           texto: evangelho.texto,
         });
+
+        if (json.liturgical) {
+          setLiturgical(json.liturgical);
+        }
       } catch (err) {
         console.error(err);
         setError("Não foi possível carregar o evangelho.");
@@ -44,5 +59,5 @@ export function useGospel() {
     fetchGospel();
   }, []);
 
-  return { gospel, loading, error };
+  return { gospel, liturgical, loading, error };
 }

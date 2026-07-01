@@ -43,130 +43,46 @@ O projeto nasceu da combinação entre:
 
 ---
 
-## 🏗 Arquitetura
+## 📚 Documentação
 
-O projeto está organizado em uma arquitetura fullstack com separação clara de responsabilidades:
-
-```
-sejais-santo/
-│
-├── backend/
-│   └── api/
-│       ├── main.py
-│       ├── supabase_client.py
-│       └── supabase_storage.py
-│
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   ├── context/
-│   │   ├── services/
-│   │   ├── lib/
-│   │   ├── utils/
-│   │   └── styles/
-│
-├── sql/
-│   └── create_verses_table.sql
-```
-
-Separação por domínio, contexto e responsabilidade.
+| Documento | Descrição |
+|-----------|-----------|
+| `docs/SETUP.md` | Guia de configuração do ambiente |
+| `docs/ARCHITECTURE.md` | Arquitetura, fluxo de dados e stack |
+| `docs/FUNCTIONAL_MAP.md` | Mapeamento de todas as funcionalidades |
+| `docs/file-inventory.md` | Inventário completo de arquivos |
+| `docs/backlog-sprint1.md` | Planejamento da Sprint 1 |
 
 ---
 
-## 🧩 Tecnologias Utilizadas
+## 🧩 Stack
 
-### Frontend
-
-* React
-* TypeScript
-* Vite
-* PostCSS
-* Componentização modular
-* Context API
-* Supabase Client
-
-### Backend
-
-* Python
-* Integração com Supabase
-* Manipulação de Storage
-* Estrutura modular (`api/`)
-
-### Banco de Dados
-
-* Supabase
-* Script SQL próprio para criação da tabela de versículos
+| Camada | Tecnologia |
+|--------|-----------|
+| Frontend | React 18 + TypeScript + Vite 6 |
+| Estilos | Pure CSS + shadcn/ui (Radix) |
+| Ícones | Lucide React |
+| Backend | Python + FastAPI |
+| Banco | Supabase (PostgreSQL) |
+| Auth | Supabase Auth (Google OAuth) |
 
 ---
 
-## 🔐 Autenticação
-
-A autenticação é gerenciada via Supabase:
-
-* Cliente configurado em `frontend/src/lib/`
-* Contexto global em `AuthContext.tsx`
-* Estrutura pronta para expansão de regras de acesso
-
----
-
-## 🛠 Configuração do Projeto
-
-### Backend
+## 🛠 Configuração Rápida
 
 ```bash
-cd backend
-pip install -r requirements.txt
-```
-
-Criar `.env` com base em `.env.sample`.
-
----
-
-### Frontend
-
-```bash
+# Frontend
 cd frontend
 npm install
-npm run dev
+npm run dev          # http://localhost:5173
+
+# Backend (outro terminal)
+cd backend
+pip install -r requirements.txt
+python -m uvicorn api.main:app --port 8000
 ```
 
-Criar `.env` com base em `.env.sample`.
-
----
-
-## 🗄 Banco de Dados
-
-Executar o script:
-
-```
-sql/create_verses_table.sql
-```
-
-no Supabase para criar a tabela necessária.
-
----
-
-## 🎯 Objetivo Técnico
-
-Este projeto foi desenvolvido com foco em:
-
-* Evolução de arquitetura fullstack
-* Separação de responsabilidades
-* Organização de componentes reutilizáveis
-* Integração entre frontend e backend
-* Controle de estado via Context
-* Integração com banco gerenciado
-
----
-
-## 🚀 Roadmap (Possíveis Evoluções)
-
-* Testes automatizados
-* Dockerização
-* CI/CD
-* Deploy público
-* Documentação formal de API
-* Melhorias de arquitetura no backend
+Ambiente funciona com mock Supabase para desenvolvimento (auth e persistência precisam de `.env`).
 
 ---
 

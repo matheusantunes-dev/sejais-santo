@@ -1,62 +1,43 @@
-/* Header.css - Estilos do cabeçalho */
-
 .header {
   position: relative;
-  background-color: #8B1A1A;
+  background-color: var(--color-liturgical-500);
   overflow: hidden;
-  padding: 1rem 0;
+  padding: var(--space-4) 0;
 }
-
-.header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background-color: #8B1A1A;
-  /* mesma cor */
-
-  filter: url(#velvet-filter);
-  mix-blend-mode: overlay;
-
-  pointer-events: none;
-  z-index: 0;
-}
-
-.header>* {
-  position: relative;
-  z-index: 1;
-}
-
-
 
 .header-container {
-  max-width: 1280px;
+  max-width: var(--container-max-xl);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
 .header-title-wrapper {
   display: flex;
   flex-direction: column;
-  margin: 0;
 }
 
 .header-title {
   color: white;
-  font-size: 1.875rem;
-  font-weight: bold;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
   font-style: italic;
   margin: 0;
   letter-spacing: -0.5px;
   text-shadow: 2px 6px 2px rgba(60, 64, 67, 0.15);
+  font-family: var(--font-display);
 }
 
 .header-subtitle {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-style: italic;
   margin: 0;
   text-shadow: 2px 6px 2px rgba(60, 64, 67, 0.15);
@@ -65,37 +46,38 @@
 .header-logo {
   height: clamp(3rem, 5vw, 4rem);
   width: auto;
-  margin-left: -0.5rem;
+  margin-left: calc(-1 * var(--space-2));
 }
 
-.header-left {
+.header-right {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: var(--space-3);
 }
 
 .login-button {
   display: inline-flex;
-  /* mantém comportamento natural */
   align-items: center;
-  /* centraliza verticalmente */
   justify-content: center;
-  gap: 0.75rem;
-  /* espaço entre ícone e texto */
+  gap: var(--space-3);
   padding: 0.6rem 1.2rem;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   border: 1px solid #dadce0;
-  /* padrão Google */
   background-color: #fff;
   color: #3c4043;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .login-button:hover {
   background-color: #f7f8f8;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15);
+  box-shadow: var(--shadow-md);
+}
+
+.login-button:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
 }
 
 .login-button__icon-wrapper {
@@ -108,7 +90,6 @@
   width: 18px;
   height: 18px;
   display: block;
-  /* remove espaçamento fantasma */
 }
 
 .login-text-full {
@@ -119,7 +100,53 @@
   display: inline;
 }
 
-/* Mobile */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  display: block;
+}
+
+.user-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-base);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.header-user button {
+  background: rgba(255, 0, 0, 0.5);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background var(--transition-fast);
+}
+
+.header-user button:hover {
+  background: rgba(255, 0, 0, 0.28);
+}
+
+.header-user button:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
 @media (max-width: 639px) {
   .login-button {
     padding: 0.5rem 0.75rem;
@@ -130,14 +157,13 @@
   }
 }
 
-/* Tablet e Desktop */
 @media (min-width: 640px) {
   .header-title {
-    font-size: 2.25rem;
+    font-size: var(--text-4xl);
   }
 
   .header-subtitle {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 
   .login-button {
@@ -151,69 +177,4 @@
   .login-text-short {
     display: none;
   }
-}
-
-/* Adicione ao Header.css */
-.header-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* Logout button (pequeno e discreto) */
-.header-user button {
-  background: rgba(255, 0, 0, 0.507);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.4rem 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
-}
-
-.header-user button:hover {
-  background: rgba(255, 0, 0, 0.281);
-  transition: all 0.2s ease;
-}
-
-.user-avatar {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  min-height: 42px;
-  max-width: 42px;
-  max-height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ffffff;
-  display: block;
-}
-
-.user-avatar-fallback {
-  font-size: 16px;
-}
-
-.header-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 0 0 auto;
-}
-
-.header-user img {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
 }

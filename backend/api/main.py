@@ -3,9 +3,18 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import Optional
 import requests
-from jose import jwt
+from jose import jwt, JWTError
+import os
+from datetime import date
 
 from api.supabase_storage import SupabaseStorage
+from api.gospel_cache import get_today_gospel, save_today_gospel
+from api.bible import router as bible_router
+from api.liturgical_lib import (
+    liturgical_color, color_label, get_today_liturgical, resolve_date,
+)
+from api.saints_calendar import today_saint, upcoming_saints
+from api.lectionary_data import lookup as lectionary_lookup
 
 
 # =========================
@@ -14,17 +23,26 @@ from api.supabase_storage import SupabaseStorage
 
 app = FastAPI(title="Sejais Santo Backend")
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "https://sejais-santo.vercel.app",
+    "https://sejais-santo.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # depois você restringe
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+app.include_router(bible_router)
+
 # =========================
-# STORAGE FACTORY (IMPORTANTE)
+# STORAGE FACTORY
 # =========================
 
 def get_storage():
@@ -58,7 +76,16 @@ def get_current_user(authorization: str = Header(None)):
 
     try:
         token = authorization.split(" ")[1]
-        payload = jwt.get_unverified_claims(token)
+        secret = os.getenv("SUPABASE_JWT_SECRET")
+        if not secret:
+            raise HTTPException(status_code=500, detail="JWT secret not configured")
+
+        payload = jwt.decode(
+            token,
+            secret,
+            algorithms=["HS256"],
+            audience="authenticated",
+        )
         user_id = payload.get("sub")
 
         if not user_id:
@@ -66,8 +93,8 @@ def get_current_user(authorization: str = Header(None)):
 
         return {"sub": user_id}
 
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 # =========================
@@ -122,11 +149,88 @@ def delete_verse(
 
 
 # =========================
+# LITURGICAL ENDPOINTS
+# =========================
+
+@app.get("/liturgical/today")
+def liturgical_today():
+    today = date.today()
+    resolved = resolve_date(today)
+    color = liturgical_color(today)
+    saint = today_saint()
+    lectionary_entry = None
+    if resolved.get("key"):
+        lectionary_entry = lectionary_lookup(resolved["key"])
+
+    response = {
+        "date": today.isoformat(),
+        "season": resolved["season"],
+        "cycle": resolved["cycle"],
+        "ferial": resolved["ferial"],
+        "week": resolved["week"],
+        "liturgical_key": resolved.get("key"),
+        "color": color,
+        "color_label": color_label(color),
+        "saint": saint,
+    }
+    if lectionary_entry:
+        response["pericope"] = lectionary_entry[0]
+        response["book_abbrev"] = lectionary_entry[1]
+
+    return response
+
+
+@app.get("/liturgical/color")
+def liturgical_color_endpoint():
+    today = date.today()
+    color = liturgical_color(today)
+    return {
+        "theme": color,
+        "label": color_label(color),
+        "date": today.isoformat(),
+    }
+
+
+@app.get("/liturgical/saints")
+def liturgical_saints():
+    return {
+        "today": today_saint(),
+        "upcoming": upcoming_saints(5),
+    }
+
+
+# =========================
 # GOSPEL ENDPOINT
 # =========================
 
 @app.get("/gospel")
 def get_gospel():
+    cached = get_today_gospel()
+    if cached:
+        liturgical = None
+        if cached.get("liturgical_key"):
+            lectionary_entry = lectionary_lookup(cached["liturgical_key"])
+            liturgical = {
+                "season": cached.get("liturgical_season"),
+                "cycle": cached.get("sunday_cycle"),
+                "ferial": cached.get("ferial_cycle"),
+                "week": cached.get("week_number"),
+                "pericope": cached.get("pericope") or (lectionary_entry[0] if lectionary_entry else None),
+                "book_abbrev": cached.get("book_abbrev") or (lectionary_entry[1] if lectionary_entry else None),
+                "liturgical_key": cached.get("liturgical_key"),
+            }
+
+        return {
+            "cached": True,
+            "leituras": {
+                "evangelho": [{
+                    "referencia": cached["referencia"],
+                    "texto": cached["texto"],
+                }]
+            },
+            "liturgical": liturgical,
+        }
+
     try:
         response = requests.get(
             "https://liturgia.up.railway.app/v2",
@@ -140,7 +244,24 @@ def get_gospel():
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Erro na API externa")
 
-        return response.json()
+        data = response.json()
+        evangelho = (data or {}).get("leituras", {}).get("evangelho", [])
+        if evangelho:
+            today = date.today()
+            resolved = resolve_date(today)
+            ref = evangelho[0].get("referencia", "")
+            txt = evangelho[0].get("texto", "")
+            save_today_gospel(
+                referencia=ref,
+                texto=txt,
+                liturgical_season=resolved.get("season"),
+                sunday_cycle=resolved.get("cycle"),
+                ferial_cycle=resolved.get("ferial"),
+                week_number=resolved.get("week"),
+                liturgical_key=resolved.get("key"),
+            )
+
+        return data
 
     except requests.RequestException:
         raise HTTPException(status_code=500, detail="Erro ao buscar evangelho")
