@@ -114,7 +114,7 @@ def get_current_user(authorization: str = Header(None)):
         payload = pyjwt.decode(
             token,
             signing_key.key,
-            algorithms=[signing_key.algorithm],
+            algorithms=[signing_key.algorithm_name],
             audience="authenticated",
             leeway=300,
         )
