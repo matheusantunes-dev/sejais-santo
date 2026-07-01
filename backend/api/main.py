@@ -89,6 +89,7 @@ def _get_jwks():
 
 
 def get_current_user(authorization: str = Header(None)):
+    logger.warning("AUTH VERSION: JWKS V2")
     if not authorization:
         raise HTTPException(status_code=401, detail="No auth header")
 
