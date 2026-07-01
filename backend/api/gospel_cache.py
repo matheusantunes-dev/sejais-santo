@@ -1,17 +1,14 @@
+import time
+import logging
 from datetime import timezone, datetime
 from typing import Optional
-import os
-
 from api.supabase_client import get_supabase_client, get_service_client
+
+logger = logging.getLogger(__name__)
 
 
 def get_today_gospel() -> Optional[dict]:
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_anon_key = os.getenv("SUPABASE_ANON_KEY")
-
-    if not supabase_url or not supabase_anon_key:
-        return None
-
+    t0 = time.monotonic()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     supabase = get_supabase_client()
 
@@ -24,7 +21,11 @@ def get_today_gospel() -> Optional[dict]:
         .execute()
     )
 
+    t1 = time.monotonic()
     rows = result.data or []
+    hit = len(rows) > 0
+    logger.warning("GOSPEL_CACHE query=%.0fms hit=%s date=%s",
+                   (t1 - t0) * 1000, hit, today)
     return rows[0] if rows else None
 
 
@@ -39,12 +40,7 @@ def save_today_gospel(
     book_abbrev: Optional[str] = None,
     liturgical_key: Optional[str] = None,
 ):
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_anon_key = os.getenv("SUPABASE_ANON_KEY")
-
-    if not supabase_url or not supabase_anon_key:
-        return
-
+    t0 = time.monotonic()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     supabase = get_service_client()
 
@@ -70,3 +66,7 @@ def save_today_gospel(
         record["liturgical_key"] = liturgical_key
 
     supabase.table("daily_gospel").upsert(record, on_conflict="date").execute()
+
+    t1 = time.monotonic()
+    logger.warning("GOSPEL_CACHE save=%.0fms date=%s",
+                   (t1 - t0) * 1000, today)

@@ -1,3 +1,4 @@
+import time
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends, Header
@@ -244,6 +245,7 @@ def liturgical_saints():
 
 @app.get("/gospel")
 def get_gospel():
+    t_start = time.monotonic()
     cached = get_today_gospel()
     if cached:
         liturgical = None
@@ -259,6 +261,9 @@ def get_gospel():
                 "liturgical_key": cached.get("liturgical_key"),
             }
 
+        t_total = (time.monotonic() - t_start) * 1000
+        logger.warning("GOSPEL_ENDPOINT total=%.0fms source=cache", t_total)
+
         return {
             "cached": True,
             "leituras": {
@@ -271,6 +276,7 @@ def get_gospel():
         }
 
     try:
+        t_ext = time.monotonic()
         response = requests.get(
             "https://liturgia.up.railway.app/v2",
             headers={
@@ -280,10 +286,13 @@ def get_gospel():
             timeout=10
         )
 
+        t_ext_done = time.monotonic()
+
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Erro na API externa")
 
         data = response.json()
+        t_parse = time.monotonic()
         evangelho = (data or {}).get("leituras", {}).get("evangelho", [])
         if evangelho:
             today = date.today()
@@ -299,6 +308,15 @@ def get_gospel():
                 week_number=resolved.get("week"),
                 liturgical_key=resolved.get("key"),
             )
+
+        t_save_done = time.monotonic()
+        t_total = (t_save_done - t_start) * 1000
+        t_api = (t_ext_done - t_ext) * 1000
+        t_parse_ms = (t_parse - t_ext_done) * 1000
+        t_save_ms = (t_save_done - t_parse) * 1000
+        logger.warning(
+            "GOSPEL_ENDPOINT total=%.0fms source=fetch api=%.0fms parse=%.0fms save=%.0fms",
+            t_total, t_api, t_parse_ms, t_save_ms)
 
         return data
 
