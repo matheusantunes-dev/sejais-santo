@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { isEnabled } from "@/config/features";
+import { apiUrl } from "@/lib/api";
 import "./BibleSearch.css";
 
 interface SearchResult {
@@ -21,8 +22,6 @@ interface SearchResponse {
   slug?: string;
 }
 
-const BACKEND_BASE = "http://localhost:8000";
-
 export function BibleSearch({ onNavigate }: { onNavigate?: (slug: string, chapter: number) => void }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse | null>(null);
@@ -36,7 +35,7 @@ export function BibleSearch({ onNavigate }: { onNavigate?: (slug: string, chapte
     }
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_BASE}/api/bible/search?q=${encodeURIComponent(q)}&limit=30`);
+      const res = await fetch(apiUrl(`/api/bible/search?q=${encodeURIComponent(q)}&limit=30`));
       if (!res.ok) throw new Error("Erro na busca");
       const data = await res.json();
       setResults(data);

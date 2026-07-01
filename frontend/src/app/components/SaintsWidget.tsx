@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { isEnabled } from "@/config/features";
+import { apiUrl } from "@/lib/api";
 import "./SaintsWidget.css";
 
 interface Saint {
@@ -18,7 +19,7 @@ export function SaintsWidget() {
       return;
     }
 
-    fetch("http://localhost:8000/liturgical/saints")
+    fetch(apiUrl("/liturgical/saints"))
       .then((res) => res.json())
       .then((json) => setData(json))
       .catch(() => setData({ today: null, upcoming: [] }))

@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
 import { BOOKS, type Book } from "@/utils/books";
+import { apiUrl } from "@/lib/api";
 import "./BibleNavigation.css";
 
 type Step = "book" | "chapter" | "verses";
-
-const BACKEND = "http://localhost:8000/api/bible";
 
 interface VerseData {
   text: string;
@@ -39,7 +38,7 @@ export function BibleNavigation() {
     setError(null);
 
     try {
-      const res = await fetch(`${BACKEND}/${selectedBook!.slug}/${chapter}`);
+      const res = await fetch(apiUrl(`/api/bible/${selectedBook!.slug}/${chapter}`));
       if (!res.ok) throw new Error("Erro ao buscar capítulo");
       const data = await res.json();
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 interface Gospel {
   referencia: string;
@@ -24,9 +25,7 @@ export function useGospel() {
   useEffect(() => {
     async function fetchGospel() {
       try {
-        const API_URL = import.meta.env.VITE_API_URL;
-
-        const response = await fetch(`${API_URL}/gospel`);
+        const response = await fetch(apiUrl("/gospel"));
 
         if (!response.ok) {
           throw new Error("Erro ao buscar evangelho");

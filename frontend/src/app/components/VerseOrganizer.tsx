@@ -2,10 +2,9 @@
 import VerseItem from "./VerseItem";
 import VerseOrganizerIcon from "./VerseOrganizerIcon";
 import { VerseImageShareModal } from "./VerseImageShareModal";
+import { apiUrl } from "@/lib/api";
 import "./VerseOrganizer.css";
 import { useAuth } from "../context/AuthContext";
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 type Verse = {
   id: string;
@@ -45,7 +44,7 @@ export default function VerseOrganizer() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/verses`, {
+      const res = await fetch(apiUrl("/verses"), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,7 +76,7 @@ export default function VerseOrganizer() {
     if (!newText.trim() || !token) return;
 
     try {
-      const res = await fetch(`${API_URL}/verses`, {
+      const res = await fetch(apiUrl("/verses"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +106,7 @@ export default function VerseOrganizer() {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_URL}/verses`, {
+      const res = await fetch(apiUrl("/verses"), {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

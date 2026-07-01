@@ -1,6 +1,7 @@
 import { useLayoutEffect } from "react";
 import { getLiturgicalSeason } from "@/utils/LiturgicalCalendar";
 import { isEnabled } from "@/config/features";
+import { apiUrl } from "@/lib/api";
 import type { LiturgicalSeason } from "@/utils/LiturgicalCalendar";
 
 type LiturgicalPalette = {
@@ -163,7 +164,7 @@ function applyPalette(season: LiturgicalSeason) {
 export function LiturgicalThemeManager() {
   useLayoutEffect(() => {
     if (isEnabled("ADVANCED_LITURGICAL_CALENDAR")) {
-      fetch("http://localhost:8000/liturgical/color")
+      fetch(apiUrl("/liturgical/color"))
         .then((res) => res.json())
         .then((data) => {
           const season = COLOR_TO_SEASON[data.theme] ?? getLiturgicalSeason(new Date());
