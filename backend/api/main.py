@@ -4,7 +4,9 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import Optional
 import requests
-from jose import jwt, JWTError, jws
+from jose import JWTError, jws
+import jwt as pyjwt
+from jwt import PyJWKClient, PyJWTError
 import os
 from datetime import date
 
@@ -73,39 +75,56 @@ class VerseUpdate(BaseModel):
 # AUTH
 # =========================
 
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+_jwks_client = None
+
+
+def _get_jwks():
+    global _jwks_client
+    if _jwks_client is None:
+        jwks_url = f"{SUPABASE_URL}/auth/v1/.well-known/jwks.json"
+        logger.info("Initializing PyJWKClient for %s", jwks_url)
+        _jwks_client = PyJWKClient(jwks_url, cache_keys=True)
+    return _jwks_client
+
+
 def get_current_user(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="No auth header")
 
+    header = {}
+
     try:
         token = authorization.split(" ")[1]
-        secret = os.getenv("SUPABASE_JWT_SECRET")
-        if not secret:
-            raise HTTPException(status_code=500, detail="JWT secret not configured")
 
         try:
-            header = jws.get_unverified_header(token)
-            logger.info("JWT header: kid=%s alg=%s typ=%s",
-                        header.get("kid"), header.get("alg"), header.get("typ"))
+            h = jws.get_unverified_header(token)
+            logger.warning("JWT header: kid=%s alg=%s typ=%s",
+                           h.get("kid"), h.get("alg"), h.get("typ"))
+            header = h
         except Exception as e:
             logger.warning("Could not parse JWT header: %s", str(e))
-            header = {}
 
-        payload = jwt.decode(
+        if not SUPABASE_URL:
+            raise HTTPException(status_code=500, detail="SUPABASE_URL not configured")
+
+        signing_key = _get_jwks().get_signing_key_from_jwt(token)
+
+        payload = pyjwt.decode(
             token,
-            secret,
-            algorithms=["HS256"],
+            signing_key.key,
+            algorithms=[signing_key.algorithm],
             audience="authenticated",
-            options={"leeway": 300},
+            leeway=300,
         )
         user_id = payload.get("sub")
 
         if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(status_code=401, detail="Invalid token: no sub")
 
         return {"sub": user_id}
 
-    except JWTError as e:
+    except PyJWTError as e:
         logger.warning("JWT decode failed: alg=%s error=%s",
                        header.get("alg", "unknown"), str(e))
         raise HTTPException(status_code=401, detail="Invalid or expired token")
