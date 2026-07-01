@@ -1,3 +1,4 @@
+import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
@@ -6,6 +7,8 @@ import requests
 from jose import jwt, JWTError
 import os
 from datetime import date
+
+logger = logging.getLogger(__name__)
 
 from api.supabase_storage import SupabaseStorage
 from api.gospel_cache import get_today_gospel, save_today_gospel
@@ -115,9 +118,13 @@ def health():
 def list_verses(
     user=Depends(get_current_user)
 ):
-    storage = get_storage()
-    user_id = user["sub"]
-    return storage.list_verses_for(user_id)
+    try:
+        storage = get_storage()
+        user_id = user["sub"]
+        return storage.list_verses_for(user_id)
+    except Exception as e:
+        logger.exception("list_verses failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/verses")
@@ -125,9 +132,13 @@ def create_verse(
     payload: VerseCreate,
     user=Depends(get_current_user)
 ):
-    storage = get_storage()
-    user_id = user["sub"]
-    return storage.create_verse(user_id, payload.dict())
+    try:
+        storage = get_storage()
+        user_id = user["sub"]
+        return storage.create_verse(user_id, payload.dict())
+    except Exception as e:
+        logger.exception("create_verse failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.delete("/verses")
@@ -135,12 +146,15 @@ def delete_verse(
     data: dict,
     user=Depends(get_current_user)
 ):
-    storage = get_storage()
-    user_id = user["sub"]
-    verse_id = data.get("id")
-
-    storage.delete_verse(user_id, verse_id)
-    return {"status": "deleted"}
+    try:
+        storage = get_storage()
+        user_id = user["sub"]
+        verse_id = data.get("id")
+        storage.delete_verse(user_id, verse_id)
+        return {"status": "deleted"}
+    except Exception as e:
+        logger.exception("delete_verse failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # =========================
