@@ -7,10 +7,35 @@ from api.supabase_client import get_supabase_client, get_service_client
 logger = logging.getLogger(__name__)
 
 
+_supabase_client_instance = None
+_table_row_count = None
+
+
+def _get_cached_client():
+    global _supabase_client_instance, _table_row_count
+    if _supabase_client_instance is None:
+        t_init = time.monotonic()
+        _supabase_client_instance = get_supabase_client()
+        dt_init = (time.monotonic() - t_init) * 1000
+
+        try:
+            count_res = _supabase_client_instance.table("daily_gospel").select("*", count="exact").execute()
+            _table_row_count = len(count_res.data) if count_res.data else 0
+        except Exception:
+            _table_row_count = "unknown"
+        logger.warning(
+            "GOSPEL_CACHE client_init=%.0fms table_rows=%s",
+            dt_init, _table_row_count,
+        )
+    return _supabase_client_instance
+
+
 def get_today_gospel() -> Optional[dict]:
     t0 = time.monotonic()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    supabase = get_supabase_client()
+
+    supabase = _get_cached_client()
+    t_client = time.monotonic()
 
     result = (
         supabase
@@ -21,11 +46,20 @@ def get_today_gospel() -> Optional[dict]:
         .execute()
     )
 
-    t1 = time.monotonic()
+    t_sql = time.monotonic()
     rows = result.data or []
+    t_serialize = time.monotonic()
     hit = len(rows) > 0
-    logger.warning("GOSPEL_CACHE query=%.0fms hit=%s date=%s",
-                   (t1 - t0) * 1000, hit, today)
+
+    dt_client = (t_client - t0) * 1000
+    dt_sql = (t_sql - t_client) * 1000
+    dt_serialize = (t_serialize - t_sql) * 1000
+    dt_total = (t_serialize - t0) * 1000
+
+    logger.warning(
+        "GOSPEL_CACHE connection=%.0fms sql=%.0fms serialize=%.0fms total=%.0fms hit=%s rows=%d date=%s",
+        dt_client, dt_sql, dt_serialize, dt_total, hit, len(rows), today,
+    )
     return rows[0] if rows else None
 
 
@@ -42,7 +76,7 @@ def save_today_gospel(
 ):
     t0 = time.monotonic()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    supabase = get_service_client()
+    supabase = _get_cached_client()
 
     record = {
         "date": today,
