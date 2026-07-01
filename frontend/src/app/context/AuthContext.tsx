@@ -23,11 +23,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
-    setSession(data.session ?? null);
+    const s = data.session;
+    if (s?.access_token) {
+      try {
+        const p = JSON.parse(atob(s.access_token.split('.')[1]));
+        console.log('[Auth] getSession token exp:', new Date(p.exp * 1000).toISOString(), 'now:', new Date().toISOString(), 'expired:', p.exp < Math.floor(Date.now() / 1000));
+      } catch (_) {}
+    }
+    setSession(s ?? null);
   });
 
   const { data: listener } = supabase.auth.onAuthStateChange(
-    (_, session) => {
+    (event, session) => {
+      console.log('[Auth] event:', event, 'hasSession:', !!session, 'tokenExp:', session?.expires_at ? new Date(session.expires_at * 1000).toISOString() : 'N/A');
       setSession(session);
     }
   );

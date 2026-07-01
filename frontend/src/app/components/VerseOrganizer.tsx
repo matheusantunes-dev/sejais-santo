@@ -37,7 +37,14 @@ export default function VerseOrganizer() {
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
 
   useEffect(() => {
-    if (token) fetchVerses();
+    if (token) {
+      try {
+        const p = JSON.parse(atob(token.split('.')[1]));
+        const nowSec = Math.floor(Date.now() / 1000);
+        console.log('[VerseOrganizer] token exp:', new Date(p.exp * 1000).toISOString(), 'now:', new Date().toISOString(), 'expired:', p.exp < nowSec, 'expiresInMin:', ((p.exp - nowSec) / 60).toFixed(1));
+      } catch (_) {}
+      fetchVerses();
+    }
   }, [token]);
 
   async function fetchVerses() {
