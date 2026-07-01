@@ -88,7 +88,7 @@ def get_current_user(authorization: str = Header(None)):
             secret,
             algorithms=["HS256"],
             audience="authenticated",
-            options={"leeway": 30},
+            options={"leeway": 300},
         )
         user_id = payload.get("sub")
 
@@ -97,7 +97,8 @@ def get_current_user(authorization: str = Header(None)):
 
         return {"sub": user_id}
 
-    except JWTError:
+    except JWTError as e:
+        logger.warning("JWT decode failed: %s", str(e))
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
