@@ -163,23 +163,18 @@ function applyPalette(season: LiturgicalSeason) {
 
 export function LiturgicalThemeManager() {
   useLayoutEffect(() => {
+    const defaultSeason = getLiturgicalSeason(new Date());
+    ensureThemeStyleTag(DEFAULT_PALETTE);
+    applyPalette(defaultSeason);
+
     if (isEnabled("ADVANCED_LITURGICAL_CALENDAR")) {
       fetch(apiUrl("/liturgical/color"))
         .then((res) => res.json())
         .then((data) => {
           const season = COLOR_TO_SEASON[data.theme] ?? getLiturgicalSeason(new Date());
-          ensureThemeStyleTag(palettes[season] ?? DEFAULT_PALETTE);
           applyPalette(season);
         })
-        .catch(() => {
-          const season = getLiturgicalSeason(new Date());
-          ensureThemeStyleTag(palettes[season] ?? DEFAULT_PALETTE);
-          applyPalette(season);
-        });
-    } else {
-      const season = getLiturgicalSeason(new Date());
-      ensureThemeStyleTag(palettes[season] ?? DEFAULT_PALETTE);
-      applyPalette(season);
+        .catch(() => {});
     }
   }, []);
 
