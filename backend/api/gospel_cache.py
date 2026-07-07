@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 _supabase_client_instance = None
 _table_row_count = None
+_memory_cache: dict[str, dict] = {}
 
 
 def _get_cached_client():
@@ -34,6 +35,18 @@ def get_today_gospel() -> Optional[dict]:
     t0 = time.monotonic()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    # 1. Memory cache check
+    if today in _memory_cache:
+        dt_mem = (time.monotonic() - t0) * 1000
+        logger.warning(
+            "GOSPEL_CACHE source=memory hit=true dt=%.0fms date=%s",
+            dt_mem, today,
+        )
+        return _memory_cache[today]
+
+    dt_mem_miss = (time.monotonic() - t0) * 1000
+
+    # 2. Supabase query
     supabase = _get_cached_client()
     t_client = time.monotonic()
 
@@ -57,9 +70,12 @@ def get_today_gospel() -> Optional[dict]:
     dt_total = (t_serialize - t0) * 1000
 
     logger.warning(
-        "GOSPEL_CACHE connection=%.0fms sql=%.0fms serialize=%.0fms total=%.0fms hit=%s rows=%d date=%s",
-        dt_client, dt_sql, dt_serialize, dt_total, hit, len(rows), today,
+        "GOSPEL_CACHE source=supabase mem=%.0fms connection=%.0fms sql=%.0fms serialize=%.0fms total=%.0fms hit=%s rows=%d date=%s",
+        dt_mem_miss, dt_client, dt_sql, dt_serialize, dt_total, hit, len(rows), today,
     )
+
+    if rows:
+        _memory_cache[today] = rows[0]
     return rows[0] if rows else None
 
 
@@ -99,8 +115,10 @@ def save_today_gospel(
     if liturgical_key is not None:
         record["liturgical_key"] = liturgical_key
 
+    _memory_cache[today] = record
+
     supabase.table("daily_gospel").upsert(record, on_conflict="date").execute()
 
     t1 = time.monotonic()
-    logger.warning("GOSPEL_CACHE save=%.0fms date=%s",
+    logger.warning("GOSPEL_CACHE save=%.0fms date=%s mem_stored=true",
                    (t1 - t0) * 1000, today)

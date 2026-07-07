@@ -246,15 +246,19 @@ def liturgical_saints():
 @app.get("/gospel")
 def get_gospel():
     t_start = time.monotonic()
-    cached = get_today_gospel()
     today_str = date.today().isoformat()
+
+    # --- CACHE CHECK ---
+    t_cache_start = time.monotonic()
+    cached = get_today_gospel()
+    t_cache_done = time.monotonic()
+    dt_cache = (t_cache_done - t_cache_start) * 1000
 
     if cached:
         cache_date = cached.get("date", "unknown")
-        logger.warning("GOSPEL_FLOW: HIT date_match=%s rows=1 date=%s",
-                       cache_date == today_str, today_str)
-        logger.warning("GOSPEL_FLOW: returning cached gospel, NO external call")
 
+        # --- BUILD LITURGICAL META ---
+        t_lit_start = time.monotonic()
         liturgical = None
         if cached.get("liturgical_key"):
             lectionary_entry = lectionary_lookup(cached["liturgical_key"])
@@ -267,9 +271,14 @@ def get_gospel():
                 "book_abbrev": cached.get("book_abbrev") or (lectionary_entry[1] if lectionary_entry else None),
                 "liturgical_key": cached.get("liturgical_key"),
             }
+        t_lit_done = time.monotonic()
+        dt_lit = (t_lit_done - t_lit_start) * 1000
 
-        t_total = (time.monotonic() - t_start) * 1000
-        logger.warning("GOSPEL_ENDPOINT total=%.0fms source=cache", t_total)
+        t_total = (t_lit_done - t_start) * 1000
+        logger.warning(
+            "GOSPEL_ENDPOINT source=cache cache=%.0fms liturgical=%.0fms total=%.0fms date=%s",
+            dt_cache, dt_lit, t_total, today_str,
+        )
 
         return {
             "cached": True,
@@ -282,8 +291,8 @@ def get_gospel():
             "liturgical": liturgical,
         }
 
-    logger.warning("GOSPEL_FLOW: MISS rows=0 date=%s", today_str)
-    logger.warning("GOSPEL_FLOW: calling external API liturgia.up.railway.app")
+    # --- EXTERNAL API (MISS) ---
+    logger.warning("GOSPEL_ENDPOINT source=fetch cache=%.0fms date=%s", dt_cache, today_str)
 
     try:
         t_ext = time.monotonic()
@@ -295,20 +304,34 @@ def get_gospel():
             },
             timeout=10
         )
-
         t_ext_done = time.monotonic()
+        dt_ext_api = (t_ext_done - t_ext) * 1000
 
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Erro na API externa")
 
         data = response.json()
         t_parse = time.monotonic()
+        dt_parse = (t_parse - t_ext_done) * 1000
+
         evangelho = (data or {}).get("leituras", {}).get("evangelho", [])
+        liturgical = None
+
         if evangelho:
-            today = date.today()
-            resolved = resolve_date(today)
+            resolved = resolve_date(date.today())
             ref = evangelho[0].get("referencia", "")
             txt = evangelho[0].get("texto", "")
+
+            liturgical = {
+                "season": resolved.get("season"),
+                "cycle": resolved.get("cycle"),
+                "ferial": resolved.get("ferial"),
+                "week": resolved.get("week"),
+                "pericope": resolved.get("key"),
+                "book_abbrev": None,
+                "liturgical_key": resolved.get("key"),
+            }
+
             save_today_gospel(
                 referencia=ref,
                 texto=txt,
@@ -320,15 +343,24 @@ def get_gospel():
             )
 
         t_save_done = time.monotonic()
-        t_total = (t_save_done - t_start) * 1000
-        t_api = (t_ext_done - t_ext) * 1000
-        t_parse_ms = (t_parse - t_ext_done) * 1000
-        t_save_ms = (t_save_done - t_parse) * 1000
-        logger.warning(
-            "GOSPEL_ENDPOINT total=%.0fms source=fetch api=%.0fms parse=%.0fms save=%.0fms",
-            t_total, t_api, t_parse_ms, t_save_ms)
+        dt_save = (t_save_done - t_parse) * 1000
 
-        return data
+        t_total = (t_save_done - t_start) * 1000
+        logger.warning(
+            "GOSPEL_ENDPOINT source=fetch cache=%.0fms api=%.0fms parse=%.0fms save=%.0fms total=%.0fms date=%s",
+            dt_cache, dt_ext_api, dt_parse, dt_save, t_total, today_str,
+        )
+
+        return {
+            "cached": False,
+            "leituras": {
+                "evangelho": [{
+                    "referencia": evangelho[0]["referencia"],
+                    "texto": evangelho[0]["texto"],
+                }] if evangelho else []
+            },
+            "liturgical": liturgical,
+        }
 
     except requests.RequestException:
         raise HTTPException(status_code=500, detail="Erro ao buscar evangelho")
