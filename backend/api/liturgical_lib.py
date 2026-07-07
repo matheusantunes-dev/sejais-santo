@@ -162,9 +162,13 @@ def _build_liturgical_days() -> dict[str, dict]:
     add("JOHN_BAPTIST_BIRTH",   BRANCO,    "solemnity", "comum",    "Natividade de São João Batista")
     add("PETER_PAUL",           BRANCO,    "solemnity", "comum",    "Santos Pedro e Paulo")
     add("ALL_SOULS",            ROXO,      "feast",     "comum",    "Finados")
+    add("GOOD_FRIDAY",          VERMELHO,  "solemnity", "quaresma", "Sexta-feira da Paixão")
     add("EASTER_SUNDAY",        BRANCO,    "solemnity", "pascal",   "Domingo de Páscoa")
     add("ASH_WEDNESDAY",        ROXO,      "feast",     "quaresma", "Quarta-feira de Cinzas")
     add("PENTECOST",            VERMELHO,  "solemnity", "pascal",   "Pentecostes")
+    add("CORPUS_CHRISTI",       BRANCO,    "solemnity", "comum",    "Corpus Christi")
+    add("EXALTATION_CROSS",     VERMELHO,  "feast",     "comum",    "Exaltação da Santa Cruz")
+    add("OUR_LADY_APARECIDA",   BRANCO,    "solemnity", "comum",    "Nossa Senhora Aparecida")
     add("CHRISTMAS_2ND",        BRANCO,    "feast",     "natal",    "2º Domingo do Natal")
 
     # ── Cycle-based entries (A, B, C) ──
@@ -172,7 +176,7 @@ def _build_liturgical_days() -> dict[str, dict]:
         sfx = f"_{cycle}"
 
         add(f"BAPTISM{sfx}",      BRANCO,   "feast",     "natal",    "Batismo do Senhor")
-        add(f"PALM{sfx}",         ROXO,     "solemnity", "quaresma", "Domingo de Ramos")
+        add(f"PALM{sfx}",         VERMELHO, "solemnity", "quaresma", "Domingo de Ramos")
         add(f"ASCENSION{sfx}",    BRANCO,   "solemnity", "pascal",   "Ascensão do Senhor")
         add(f"TRINITY{sfx}",      VERDE,    "solemnity", "comum",    "Santíssima Trindade")
         add(f"CHRIST_KING{sfx}",  VERDE,    "solemnity", "comum",    "Cristo Rei")
@@ -215,12 +219,14 @@ def _identify_celebration(d: date, start_year: int, cal_year: int, cycle: str) -
     baptism = baptism_of_lord(cal_year)
     ash = ash_wednesday(cal_year)
     easter_date_val = easter(cal_year)
+    good_friday = easter_date_val - timedelta(days=2)
     ascension = easter_date_val + timedelta(days=42)
     pentecost_date_val = pentecost(cal_year)
     next_advent = first_sunday_of_advent(cal_year)
     trinity = pentecost_date_val + timedelta(days=7)
     christ_king = next_advent - timedelta(days=7)
     palm_sunday = easter_date_val - timedelta(days=7)
+    corpus_christi = trinity + timedelta(days=4)
 
     is_sunday = d.weekday() == 6
 
@@ -243,6 +249,10 @@ def _identify_celebration(d: date, start_year: int, cal_year: int, cycle: str) -
         return ("PETER_PAUL", "comum", None)
     if d.month == 11 and d.day == 2:
         return ("ALL_SOULS", "comum", None)
+    if d.month == 9 and d.day == 14:
+        return ("EXALTATION_CROSS", "comum", None)
+    if d.month == 10 and d.day == 12:
+        return ("OUR_LADY_APARECIDA", "comum", None)
 
     # Relative-to-Easter
     if d == easter_date_val:
@@ -253,6 +263,10 @@ def _identify_celebration(d: date, start_year: int, cal_year: int, cycle: str) -
         return ("PENTECOST", "pascal", None)
     if d == baptism:
         return (f"BAPTISM_{cycle}", "natal", None)
+    if d == good_friday:
+        return ("GOOD_FRIDAY", "quaresma", None)
+    if d == corpus_christi:
+        return ("CORPUS_CHRISTI", "comum", None)
 
     if is_sunday:
         if d == palm_sunday:
