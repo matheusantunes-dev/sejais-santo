@@ -9,7 +9,16 @@ import "./FeatureCard.css";
 import recomendacao from "@/assets/recomendacao.webp";
 import organizacao from "@/assets/organizacao.webp";
 import { useAuth } from "../context/AuthContext";
-import { useGospel } from "../services/useGospel";
+
+interface LiturgicalMeta {
+  season?: string;
+  cycle?: string;
+  ferial?: string;
+  week?: number;
+  pericope?: string;
+  book_abbrev?: string;
+  liturgical_key?: string;
+}
 
 interface FeatureCardProps {
   title: string;
@@ -17,6 +26,10 @@ interface FeatureCardProps {
   type: "gospel" | "verses" | "organize";
   onShare: () => void;
   onEdit?: () => void;
+  gospel?: { referencia: string; texto: string } | null;
+  liturgical?: LiturgicalMeta | null;
+  loading?: boolean;
+  error?: string | null;
 }
 
 export function FeatureCard({
@@ -25,11 +38,13 @@ export function FeatureCard({
   type,
   onShare,
   onEdit,
+  gospel = null,
+  liturgical = null,
+  loading = false,
+  error = null,
 }: FeatureCardProps) {
   const { session } = useAuth();
   const user = session?.user;
-
-  const { gospel, liturgical, loading, error } = useGospel();
   const [showGospelModal, setShowGospelModal] = useState(false);
 
   const isOrganizer = type === "organize";

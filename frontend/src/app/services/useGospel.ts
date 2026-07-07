@@ -60,10 +60,10 @@ export function useGospel() {
     const t0 = performance.now();
     let cancelled = false;
 
-    // Try localStorage first
     const local = loadLocalCache();
     if (local) {
-      console.log("[GOSPEL_HOOK] localStorage HIT date=%s dt=%.0fms", local.date, performance.now() - t0);
+      const dt = (performance.now() - t0).toFixed(0);
+      console.log(`[GOSPEL_HOOK] localStorage HIT date=${local.date} dt=${dt}ms`);
       setGospel(local.gospel);
       setLiturgical(local.liturgical);
       setLoading(false);
@@ -74,7 +74,7 @@ export function useGospel() {
       try {
         const response = await fetch(apiUrl("/gospel"));
         const t_resp = performance.now();
-        const dt_network = t_resp - t_fetch;
+        const dt_network = (t_resp - t_fetch).toFixed(0);
 
         if (!response.ok) {
           throw new Error("Erro ao buscar evangelho");
@@ -82,7 +82,7 @@ export function useGospel() {
 
         const json = await response.json();
         const t_json = performance.now();
-        const dt_parse = t_json - t_resp;
+        const dt_parse = (t_json - t_resp).toFixed(0);
 
         const evangelho = json?.leituras?.evangelho?.[0];
 
@@ -96,11 +96,10 @@ export function useGospel() {
         };
         const liturgicalData: LiturgicalMeta | null = json.liturgical ?? null;
 
-        const dt_total = performance.now() - t0;
+        const dt_total = (performance.now() - t0).toFixed(0);
 
         console.log(
-          "[GOSPEL_HOOK] fetch done network=%.0fms parse=%.0fms total=%.0fms cached=%s date=%s",
-          dt_network, dt_parse, dt_total, json.cached ?? "?", getToday(),
+          `[GOSPEL_HOOK] fetch done network=${dt_network}ms parse=${dt_parse}ms total=${dt_total}ms cached=${json.cached ?? "?"} date=${getToday()}`,
         );
 
         if (!cancelled) {
@@ -120,11 +119,9 @@ export function useGospel() {
       }
     }
 
-    // Only fetch if no local cache OR always for background refresh
     if (!local) {
       fetchGospel();
     } else {
-      // Background refresh: update cache silently
       fetchGospel();
     }
 

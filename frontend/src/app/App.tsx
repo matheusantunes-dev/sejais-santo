@@ -21,10 +21,12 @@ import { BibleSearch } from "./components/BibleSearch";
 import { SaintsWidget } from "./components/SaintsWidget";
 import { Container } from "./components/ui/Container";
 import { isEnabled } from "@/config/features";
+import { useGospel } from "./services/useGospel";
 
 import "./App.css";
 
 export default function App() {
+  const gospelState = useGospel();
   const [showOrganizer, setShowOrganizer] = useState(false);
   const [showVerseModal, setShowVerseModal] = useState(false);
   const [showBibleNav, setShowBibleNav] = useState(false);
@@ -61,6 +63,10 @@ export default function App() {
                 title="Evangelho do Dia"
                 type="gospel"
                 onShare={() => handleShare("Evangelho do Dia")}
+                gospel={gospelState.gospel}
+                liturgical={gospelState.liturgical}
+                loading={gospelState.loading}
+                error={gospelState.error}
               />
 
               <FeatureCard
