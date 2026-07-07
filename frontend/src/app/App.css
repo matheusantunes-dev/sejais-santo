@@ -1,7 +1,14 @@
 .app-container {
   position: relative;
-  background-color: #ebeba4;
+  background-color: var(--liturgical-app-bg, #ebeba4);
+  padding-bottom: 4rem;
   overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .app-container {
+    padding-bottom: 0;
+  }
 }
 
 .app-container > * {
@@ -14,9 +21,16 @@
   padding: var(--space-8) 0;
 }
 
-.content-wrapper {
-  max-width: var(--container-max-xl);
-  margin: 0 auto;
+#evangelho,
+#organizador,
+#santos,
+#pilares,
+#sobre,
+#inicio {
+  scroll-margin-top: 80px;
+}
+
+.content-wrapper-pad {
   padding: 0 var(--space-4);
 }
 

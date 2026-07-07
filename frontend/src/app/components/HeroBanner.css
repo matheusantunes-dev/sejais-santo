@@ -1,11 +1,9 @@
-/* HeroBanner.css - Estilos do banner hero */
-
 .hero-banner {
   width: 100%;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(90deg, rgba(139,69,19,0.95) 0%, rgba(160,82,45,0.9) 50%, rgba(139,69,19,0.95) 100%);
-  min-height: 240px;
+  background: linear-gradient(90deg, var(--liturgical-hero-start, rgba(46,125,50,0.92)) 0%, var(--liturgical-hero-mid, rgba(56,142,60,0.88)) 50%, var(--liturgical-hero-start, rgba(46,125,50,0.92)) 100%);
+  min-height: 200px;
 }
 
 .hero-background-texture {
@@ -14,16 +12,16 @@
   right: 0;
   bottom: 0;
   left: 0;
-  opacity: 0.25;
+  opacity: 0.12;
   background-size: cover;
   background-position: center;
-  filter: blur(4px);
+  filter: blur(6px);
 }
 
 .hero-container {
-  max-width: 1280px;
+  max-width: var(--container-max-xl);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--space-6) var(--space-4);
   position: relative;
   z-index: 10;
 }
@@ -33,7 +31,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .hero-image-wrapper {
@@ -43,9 +41,9 @@
 .hero-image-container {
   width: 10rem;
   height: 10rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xl);
   border: 4px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -62,38 +60,35 @@
 
 .hero-title {
   color: white;
-  font-size: 1.875rem;
-  font-weight: bold;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
   filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.25));
   margin: 0;
-  text-shadow: 2px 6px 2px rgba(60, 64, 67, 0.15);
 }
 
 .hero-subtitle-container {
   display: flex;
   justify-content: center;
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 
 .hero-subtitle {
   color: rgba(255, 255, 255, 0.95);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   font-style: italic;
   border-top: 2px solid rgba(255, 255, 255, 0.6);
   display: inline-block;
-  padding-top: 0.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-top: var(--space-2);
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.25));
   margin: 0;
-  text-shadow: 2px 6px 2px rgba(60, 64, 67, 0.15);
 }
 
 
-/* Tablet */
 @media (min-width: 768px) {
   .hero-container {
-    padding: 3rem 1rem;
+    padding: var(--space-10) var(--space-4);
   }
 
   .hero-content {
@@ -110,11 +105,11 @@
   }
 
   .hero-title {
-    font-size: 3rem;
+    font-size: var(--text-4xl);
   }
 
   .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
   }
 
   .hero-subtitle-container {
@@ -122,7 +117,7 @@
   }
 }
 
-/* Desktop */
+
 @media (min-width: 1024px) {
   .hero-image-container {
     width: 16rem;
@@ -130,10 +125,10 @@
   }
 
   .hero-title {
-    font-size: 3.75rem;
+    font-size: var(--text-5xl);
   }
 
   .hero-subtitle {
-    font-size: 1.875rem;
+    font-size: var(--text-3xl);
   }
 }

@@ -11,12 +11,15 @@ import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
 import { Footer } from "./components/Footer";
+import { BottomNav } from "./components/BottomNav";
+import { BackToTop } from "./components/BackToTop";
 import { VersododiaModal } from "./components/VersododiaModal";
 import { LiturgicalThemeManager } from "./LiturgicalThemeManager";
 import { Toaster } from "./components/ui/sonner";
 import { BibleNavigation } from "./components/BibleNavigation";
 import { BibleSearch } from "./components/BibleSearch";
 import { SaintsWidget } from "./components/SaintsWidget";
+import { Container } from "./components/ui/Container";
 import { isEnabled } from "@/config/features";
 
 import "./App.css";
@@ -51,7 +54,8 @@ export default function App() {
         <HeroBanner />
 
         <main className="main-content">
-          <div className="content-wrapper">
+          <section id="evangelho">
+            <Container size="xl" className="content-wrapper-pad">
             <div className="cards-grid">
               <FeatureCard
                 title="Evangelho do Dia"
@@ -72,17 +76,22 @@ export default function App() {
                 }}
               />
 
-              <FeatureCard
-                title="Organize Seus Versículos"
-                description="Crie e organize seus versículos favoritos."
-                type="organize"
-                onShare={() => handleShare("Organize Seus Versículos")}
-                onEdit={() => setShowOrganizer(true)}
-              />
+              <section id="organizador">
+                <FeatureCard
+                  title="Organize Seus Versículos"
+                  description="Crie e organize seus versículos favoritos."
+                  type="organize"
+                  onShare={() => handleShare("Organize Seus Versículos")}
+                  onEdit={() => setShowOrganizer(true)}
+                />
+              </section>
             </div>
 
-            <SaintsWidget />
-          </div>
+            <section id="santos">
+              <SaintsWidget />
+            </section>
+          </Container>
+          </section>
         </main>
 
         {showOrganizer && (
@@ -139,6 +148,9 @@ export default function App() {
 
         <Footer />
       </div>
+
+      <BottomNav />
+      <BackToTop />
     </>
   );
 }

@@ -3,6 +3,8 @@ import { GospelCard } from "./GospelCard";
 import { GospelShareModal } from "./GospelShareModal";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "./ui/Button";
+import { Card } from "./ui/Card";
 import "./FeatureCard.css";
 import recomendacao from "@/assets/recomendacao.webp";
 import organizacao from "@/assets/organizacao.webp";
@@ -65,12 +67,12 @@ export function FeatureCard({
 
   return (
     <>
-      <article className="feature-card">
-        <div className="feature-card-header">
+      <Card interactive>
+        <Card.Icon>
           <h3 className="feature-card-title">{title}</h3>
-        </div>
+        </Card.Icon>
 
-        <div className="feature-card-content">
+        <Card.Content className="feature-card-content">
           {type === "gospel" && (
             <GospelCard gospel={gospel} liturgical={liturgical} loading={loading} error={error} />
           )}
@@ -90,22 +92,20 @@ export function FeatureCard({
           {description && (
             <p className="feature-card-description">{description}</p>
           )}
-        </div>
+        </Card.Content>
 
-        <div className="feature-card-footer">
-          <button onClick={buttonAction} className="share-button" aria-label={`${title}: ${buttonLabel}`}>
-            <span>{buttonLabel}</span>
-
-            {isOrganizer ? (
-              <Pencil className="share-icon" aria-hidden="true" />
-            ) : type === "verses" ? (
-              <BookOpen className="share-icon" aria-hidden="true" />
-            ) : (
-              <Share2 className="share-icon" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </article>
+        <Card.Actions>
+          <Button
+            variant="primary"
+            onClick={buttonAction}
+            aria-label={`${title}: ${buttonLabel}`}
+            endIcon={isOrganizer ? Pencil : type === "verses" ? BookOpen : Share2}
+            fullWidth
+          >
+            {buttonLabel}
+          </Button>
+        </Card.Actions>
+      </Card>
 
       <GospelShareModal
         open={showGospelModal}

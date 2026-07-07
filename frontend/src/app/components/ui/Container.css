@@ -1,0 +1,25 @@
+.cnt {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cnt--sm {
+  max-width: var(--container-max-sm);
+}
+
+.cnt--md {
+  max-width: var(--container-max-md);
+}
+
+.cnt--lg {
+  max-width: var(--container-max-lg);
+}
+
+.cnt--xl {
+  max-width: var(--container-max-xl);
+}
+
+.cnt--full {
+  max-width: none;
+}

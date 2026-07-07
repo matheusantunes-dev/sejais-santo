@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { shareFiles } from "../share/shareUtils";
+import { Button } from "./ui/Button";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { verseShareTemplates } from "../share/shareTemplates";
 import "./VersododiaModal.css";
@@ -150,9 +151,9 @@ export function VerseImageShareModal({
 
         <div className="modal-actions">
 
-          <button className="btn-share" onClick={handleShare}>
+          <Button variant="primary" onClick={handleShare}>
             Compartilhar
-          </button>
+          </Button>
 
         </div>
 

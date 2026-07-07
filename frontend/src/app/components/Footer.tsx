@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button } from "./ui/Button";
 import "./Footer.css";
 import { SobreModal } from "./SobreModal";
 
@@ -45,12 +46,12 @@ export function Footer() {
               Reflexões, liturgia e recursos católicos para acompanhar sua caminhada espiritual com simplicidade.
             </p>
 
-            <button
-              className="footer-about-button"
+            <Button
+              variant="primary"
               onClick={() => setIsSobreOpen(true)}
             >
               Conheça o projeto
-            </button>
+            </Button>
           </div>
 
           <div className="footer-column">
@@ -81,6 +82,7 @@ export function Footer() {
                       href={dev.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`LinkedIn de ${dev.name} (abre em nova janela)`}
                     >
                       LinkedIn
                     </a>
@@ -89,6 +91,7 @@ export function Footer() {
                       href={dev.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`Instagram de ${dev.name} (abre em nova janela)`}
                     >
                       Instagram
                     </a>

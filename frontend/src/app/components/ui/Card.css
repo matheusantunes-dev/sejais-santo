@@ -1,0 +1,33 @@
+.card {
+  background: linear-gradient(
+    to bottom,
+    var(--liturgical-card-top, #d4c5a9),
+    var(--liturgical-card-bottom, #e8dcc4)
+  );
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  border: var(--border-width-thick) solid var(--liturgical-border, #8b6f47);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+}
+
+.card--interactive:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-2xl);
+}
+
+.card__icon {
+  background-color: var(--color-liturgical-500);
+  color: white;
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+}
+
+.card__content {
+  padding: var(--space-6);
+}
+
+.card__actions {
+  padding: var(--space-4);
+  padding-top: 0;
+}

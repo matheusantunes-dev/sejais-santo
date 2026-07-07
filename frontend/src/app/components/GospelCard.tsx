@@ -32,11 +32,27 @@ export function GospelCard({ gospel, liturgical, loading, error }: GospelCardPro
   return (
     <div className="gospel-card">
       <div className="gospel-date-selector">
-        <Calendar />
+        <Calendar aria-hidden="true" />
         <span>Evangelho de Hoje</span>
       </div>
 
-      {liturgical && (
+      {loading && (
+        <div className="gospel-skeleton" aria-label="Carregando evangelho">
+          <div className="gospel-skeleton-meta">
+            <span className="skeleton-tag" />
+            <span className="skeleton-tag" />
+            <span className="skeleton-tag" />
+          </div>
+          <div className="gospel-skeleton-preview">
+            <div className="skeleton-line skeleton-line--title" />
+            <div className="skeleton-line skeleton-line--text" />
+            <div className="skeleton-line skeleton-line--text skeleton-line--short" />
+            <div className="skeleton-line skeleton-line--text" />
+          </div>
+        </div>
+      )}
+
+      {!loading && liturgical && (
         <div className="gospel-liturgical-meta">
           {liturgical.season && <span className="gospel-meta-tag">{liturgical.season}</span>}
           {liturgical.cycle && <span className="gospel-meta-tag">{cycleLabel(liturgical.cycle)}</span>}
@@ -46,9 +62,8 @@ export function GospelCard({ gospel, liturgical, loading, error }: GospelCardPro
       )}
 
       <div className="gospel-preview">
-        {loading && <p>Carregando...</p>}
-        {error && <p>{error}</p>}
-        {gospel && (
+        {!loading && error && <p className="gospel-error">{error}</p>}
+        {!loading && !error && gospel && (
           <div className="gospel-content">
             <h4 className="gospel-title">{gospel.referencia}</h4>
             <p className="gospel-text">{gospel.texto}</p>

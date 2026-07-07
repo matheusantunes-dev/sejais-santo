@@ -1,28 +1,26 @@
 import { ChevronRight } from "lucide-react";
+import { Button } from "./ui/Button";
+import { Container } from "./ui/Container";
 import carloAcutisImage from "@/assets/Carlos Acutis sobre.webp";
 import "./AboutSection.css";
 
 export function AboutSection() {
   return (
-    <div className="about-section">
-      <div className="about-container">
-        {/* Title */}
+    <section className="about-section" id="sobre">
+      <Container size="xl">
         <div className="about-title-wrapper">
           <div className="about-title-container">
-            <div className="about-title-line" />
+            <div className="about-title-line" aria-hidden="true" />
             <h2 className="about-title">Quem Foi São Carlo Acutis?</h2>
-            <div className="about-title-line" />
+            <div className="about-title-line" aria-hidden="true" />
           </div>
         </div>
 
-        {/* Content Card */}
         <div className="about-card">
           <div className="about-content">
-            {/* Image with background */}
             <div className="about-image-wrapper">
               <div className="about-image-container">
-                {/* Background effect */}
-                <div className="about-image-background" />
+                <div className="about-image-background" aria-hidden="true" />
                 <div className="about-image-frame">
                   <img
                     src={carloAcutisImage}
@@ -47,20 +45,21 @@ export function AboutSection() {
                 por unir fé e tecnologia, inspirando jovens com sua devoção e
                 simplicidade.
               </p>
-              <a href="https://www.vaticannews.va/pt/papa/news/2025-09/papa-leao-xiv-missa-canonizacao-biografia-acutis.html" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="about-button-link">
-                
-                 <button className="about-button">
-                              Saiba Mais
-                          <ChevronRight className="about-button-icon" />
-                 </button>
-              </a>
+              <Button
+                as="a"
+                href="https://www.vaticannews.va/pt/papa/news/2025-09/papa-leao-xiv-missa-canonizacao-biografia-acutis.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Saiba mais sobre São Carlo Acutis (abre em nova janela)"
+                endIcon={ChevronRight}
+                size="lg"
+              >
+                Saiba Mais
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </Container>
+    </section>
   );
 }

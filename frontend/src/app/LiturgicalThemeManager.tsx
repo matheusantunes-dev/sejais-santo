@@ -116,12 +116,11 @@ function ensureThemeStyleTag(initialPalette: LiturgicalPalette = DEFAULT_PALETTE
     .easter-banner {
       background: linear-gradient(90deg, var(--liturgical-banner-start) 0%, var(--liturgical-banner-mid) 50%, var(--liturgical-banner-start) 100%);
     }
-    .feature-card {
+    .card {
       background: linear-gradient(to bottom, var(--liturgical-card-top), var(--liturgical-card-bottom));
       border-color: var(--liturgical-border);
     }
-    .feature-card-header, .share-button, .about-button { background-color: var(--liturgical-accent); }
-    .share-button:hover, .about-button:hover { background-color: var(--liturgical-accent-hover); }
+    .card__icon { background-color: var(--liturgical-accent); }
     .about-title { color: var(--liturgical-section-title); }
     .about-subtitle { color: var(--liturgical-section-subtitle); }
     .about-card, .organizer-modal { border-color: var(--liturgical-border); }

@@ -1,3 +1,4 @@
+import { Container } from "./ui/Container";
 import "./LiturgicalFooter.css";
 import adventoImg from "@/assets/advento.webp";
 import pascalImg from "@/assets/pascal.webp";
@@ -63,7 +64,7 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
 
   return (
     <footer className="liturgical-footer">
-      <div className="liturgical-container">
+      <Container size="xl" className="liturgical-container">
         {/* Title */}
         <div className="liturgical-title-wrapper">
           <h3 className="liturgical-title">
@@ -106,7 +107,7 @@ export function LiturgicalFooter({ currentPeriod }: LiturgicalFooterProps) {
             );
           })}
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

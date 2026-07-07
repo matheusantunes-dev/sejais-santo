@@ -11,6 +11,7 @@ import { Share2 } from "lucide-react";
 import { toBlob } from "html-to-image";
 import { toast } from "sonner";
 
+import { Button } from "./ui/Button";
 import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
@@ -130,16 +131,24 @@ export function GospelShareModal({
     const chunks = buildChunks(gospel?.texto ?? "");
     const files: File[] = [];
 
+    const el = captureRef.current;
+
+    console.log("[GOSPEL_SHARE] chunks build:", chunks.length, chunks.map(c => c.length + "chars"));
+    console.log("[GOSPEL_SHARE] captureRect:", el.getBoundingClientRect());
+
     for (let index = 0; index < chunks.length; index++) {
       setRenderText(chunks[index]);
       await waitForNextPaint();
 
-      const blob = await toBlob(captureRef.current);
+      const blob = await toBlob(el);
+      console.log("[GOSPEL_SHARE] toBlob result:", blob ? `OK ${blob.size}bytes` : "NULL", "chunk", index + 1);
+
       if (!blob) continue;
 
       files.push(new File([blob], `share-${index + 1}.png`, { type: "image/png" }));
     }
 
+    console.log("[GOSPEL_SHARE] files generated:", files.length, files.map(f => f.size + "bytes"));
     return files;
   }
 
@@ -148,8 +157,11 @@ export function GospelShareModal({
 
     let cancelled = false;
 
+    console.log("[GOSPEL_SHARE] useEffect triggered: open=true, backgroundSrc hash:", backgroundSrc?.slice(-20));
     async function preGenerate() {
+      console.log("[GOSPEL_SHARE] preGenerate started");
       const files = await generateFiles();
+      console.log("[GOSPEL_SHARE] preGenerate finished, storing", files.length, "files");
       if (!cancelled) setGeneratedFiles(files);
     }
 
@@ -168,6 +180,7 @@ export function GospelShareModal({
 
     try {
       const files = generatedFiles ?? (await generateFiles());
+      console.log("[GOSPEL_SHARE] handleShare files:", files.length, "from", generatedFiles ? "preGenerated" : "fresh", "sizes:", files.map(f => f.size + "bytes"));
 
       if (!navigator.share || !(navigator as any).canShare?.({ files })) {
         toast.error("Seu navegador não suporta compartilhamento.");
@@ -218,21 +231,21 @@ export function GospelShareModal({
             />
 
             <div className="share-composer-actions">
-              <button
-                className="share-composer-button share-composer-button--secondary"
+              <Button
+                variant="secondary"
                 onClick={onClose}
               >
                 Fechar
-              </button>
+              </Button>
 
-              <button
-                className="share-composer-button share-composer-button--primary"
+              <Button
+                variant="primary"
                 onClick={handleShare}
-                disabled={isSharing}
+                isLoading={isSharing}
+                startIcon={Share2}
               >
-                <Share2 size={18} />
                 {isSharing ? "Gerando..." : "Compartilhar"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

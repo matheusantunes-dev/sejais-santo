@@ -6,8 +6,6 @@
 }
 
 .liturgical-container {
-  max-width: var(--container-max-xl);
-  margin: 0 auto;
   padding: 0 var(--space-4);
 }
 

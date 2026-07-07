@@ -1,24 +1,3 @@
-.feature-card {
-  background: linear-gradient(to bottom, #d4c5a9, #e8dcc4);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
-  overflow: hidden;
-  border: var(--border-width-thick) solid #8B6F47;
-  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-2xl);
-}
-
-.feature-card-header {
-  background-color: var(--color-liturgical-500);
-  color: white;
-  padding: var(--space-3) var(--space-4);
-  text-align: center;
-}
-
 .feature-card-title {
   font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
@@ -43,42 +22,6 @@
   margin-top: var(--space-4);
   font-size: var(--text-lg);
   font-style: italic;
-}
-
-.feature-card-footer {
-  padding: var(--space-4);
-  padding-top: 0;
-}
-
-.share-button {
-  width: 100%;
-  background-color: var(--color-liturgical-500);
-  color: white;
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  transition: background var(--transition-fast), transform var(--transition-fast);
-  box-shadow: var(--shadow-md);
-  border: none;
-  cursor: pointer;
-}
-
-.share-button:hover {
-  background-color: var(--color-liturgical-600);
-}
-
-.share-button:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
-.share-icon {
-  width: 1.25rem;
-  height: 1.25rem;
 }
 
 .verses-image-container {

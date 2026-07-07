@@ -40,7 +40,7 @@ export function SaintsWidget() {
     <div className="saints-widget">
       {data.today && (
         <div className="saint-today">
-          <span className="saint-icon">✝</span>
+          <span className="saint-icon" aria-hidden="true">✝</span>
           <div>
             <strong>{data.today.name}</strong>
             <p className="saint-desc">{data.today.description}</p>

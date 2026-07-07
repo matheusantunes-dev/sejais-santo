@@ -3,13 +3,14 @@ import './HeroBanner.css';
 
 export function HeroBanner() {
   return (
-    <div className="hero-banner">
+    <section className="hero-banner" id="inicio">
       {/* Background texture */}
-      <div 
+      <div
         className="hero-background-texture"
         style={{
           backgroundImage: `url(${carloAcutisImage})`,
         }}
+        aria-hidden="true"
       />
       
       <div className="hero-container">
@@ -21,6 +22,7 @@ export function HeroBanner() {
                 src={carloAcutisImage}
                 alt="São Carlo Acutis"
                 className="hero-image"
+                fetchpriority="high"
               />
             </div>
           </div>
@@ -38,6 +40,6 @@ export function HeroBanner() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
