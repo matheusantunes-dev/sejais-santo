@@ -104,148 +104,225 @@ def _weeks_between(d1: date, d2: date) -> int:
     return int(round((d2 - d1).days / 7))
 
 
-def resolve_date(d: date) -> dict:
-    """Main resolver — port of LiturgicalCalendar::resolve()
-    Returns {key, season, week, cycle, ferial, color}
-    """
-    d_start = d
-    start_year = liturgical_start_year(d)
-    cal_year = start_year + 1
-    cycle = sunday_cycle(start_year)
-    ferial = ferial_cycle(start_year)
+# =====================================================================
+# NEW ARCHITECTURE — Single source of truth
+# =====================================================================
 
+# ── Color constants ──
+
+VERDE = "verde"
+ROXO = "roxo"
+BRANCO = "branco"
+VERMELHO = "vermelho"
+ROSA = "rosa"
+PRETO = "preto"
+
+_COLOR_LABELS = {
+    VERDE: "Verde – Tempo Comum",
+    ROXO: "Roxo – Advento/Quaresma",
+    BRANCO: "Branco/Dourado – Festa",
+    VERMELHO: "Vermelho – Pentecostes/Mártir",
+    ROSA: "Rosa – Gaudete/Laetare",
+    PRETO: "Preto – Finados",
+}
+
+SEASON_COLOR = {
+    "advento": ROXO,
+    "quaresma": ROXO,
+    "pascal": BRANCO,
+    "natal": BRANCO,
+    "comum": VERDE,
+}
+
+
+def _build_liturgical_days() -> dict[str, dict]:
+    days: dict[str, dict] = {}
+
+    def add(key, color, rank, season, celebration):
+        days[key] = {
+            "color": color,
+            "rank": rank,
+            "season": season,
+            "celebration": celebration,
+            "slug": None,
+            "icon": None,
+            "banner": None,
+            "priority": None,
+            "scope": None,
+            "movable": None,
+        }
+
+    # ── Fixed solemnities ──
+    add("CHRISTMAS",            BRANCO,    "solemnity", "natal",    "Natal do Senhor")
+    add("EPIPHANY",             BRANCO,    "solemnity", "natal",    "Epifania do Senhor")
+    add("MARY_MOTHER_GOD",      BRANCO,    "solemnity", "natal",    "Santa Mãe de Deus")
+    add("ASSUMPTION",           BRANCO,    "solemnity", "comum",    "Assunção de Nossa Senhora")
+    add("ALL_SAINTS",           BRANCO,    "solemnity", "comum",    "Todos os Santos")
+    add("IMMACULATE_CONCEPTION", ROXO,     "solemnity", "natal",    "Imaculada Conceição")
+    add("JOHN_BAPTIST_BIRTH",   BRANCO,    "solemnity", "comum",    "Natividade de São João Batista")
+    add("PETER_PAUL",           BRANCO,    "solemnity", "comum",    "Santos Pedro e Paulo")
+    add("ALL_SOULS",            ROXO,      "feast",     "comum",    "Finados")
+    add("EASTER_SUNDAY",        BRANCO,    "solemnity", "pascal",   "Domingo de Páscoa")
+    add("ASH_WEDNESDAY",        ROXO,      "feast",     "quaresma", "Quarta-feira de Cinzas")
+    add("PENTECOST",            VERMELHO,  "solemnity", "pascal",   "Pentecostes")
+    add("CHRISTMAS_2ND",        BRANCO,    "feast",     "natal",    "2º Domingo do Natal")
+
+    # ── Cycle-based entries (A, B, C) ──
+    for cycle in ("A", "B", "C"):
+        sfx = f"_{cycle}"
+
+        add(f"BAPTISM{sfx}",      BRANCO,   "feast",     "natal",    "Batismo do Senhor")
+        add(f"PALM{sfx}",         ROXO,     "solemnity", "quaresma", "Domingo de Ramos")
+        add(f"ASCENSION{sfx}",    BRANCO,   "solemnity", "pascal",   "Ascensão do Senhor")
+        add(f"TRINITY{sfx}",      VERDE,    "solemnity", "comum",    "Santíssima Trindade")
+        add(f"CHRIST_KING{sfx}",  VERDE,    "solemnity", "comum",    "Cristo Rei")
+        add(f"HOLY_FAMILY{sfx}",  BRANCO,   "feast",     "natal",    "Sagrada Família")
+
+        for w in range(1, 5):
+            season = "advento"
+            color = SEASON_COLOR[season]
+            add(f"ADVENT_{w}{sfx}", color, "sunday", season, f"{w}º Domingo do Advento")
+
+        for w in range(1, 6):
+            season = "quaresma"
+            color = SEASON_COLOR[season]
+            add(f"LENT_{w}{sfx}", color, "sunday", season, f"{w}º Domingo da Quaresma")
+
+        for w in range(2, 7):
+            season = "pascal"
+            color = SEASON_COLOR[season]
+            add(f"EASTER_{w}{sfx}", color, "sunday", season, f"{w}º Domingo da Páscoa")
+
+        for w in range(2, 34):
+            season = "comum"
+            color = SEASON_COLOR[season]
+            add(f"OT_{w}{sfx}", color, "sunday", season, f"{w}º Domingo do Tempo Comum")
+
+    return days
+
+
+LITURGICAL_DAYS = _build_liturgical_days()
+
+
+def _identify_celebration(d: date, start_year: int, cal_year: int, cycle: str) -> tuple:
+    """Identify liturgical celebration for a given date.
+    Returns (key, season, week) — same logic as the original resolve_date().
+    """
     advent0 = first_sunday_of_advent(start_year)
     xmas = date(start_year, 12, 25)
     new_year = date(cal_year, 1, 1)
     epiphany = date(cal_year, 1, 6)
     baptism = baptism_of_lord(cal_year)
     ash = ash_wednesday(cal_year)
-    easter_date = easter(cal_year)
-    ascension = easter_date + timedelta(days=42)
-    pentecost_date = pentecost(cal_year)
+    easter_date_val = easter(cal_year)
+    ascension = easter_date_val + timedelta(days=42)
+    pentecost_date_val = pentecost(cal_year)
     next_advent = first_sunday_of_advent(cal_year)
-    trinity = pentecost_date + timedelta(days=7)
+    trinity = pentecost_date_val + timedelta(days=7)
     christ_king = next_advent - timedelta(days=7)
-    palm_sunday = easter_date - timedelta(days=7)
+    palm_sunday = easter_date_val - timedelta(days=7)
 
-    is_sunday = d_start.weekday() == 6
-
-    def r(key, season, week_val):
-        color = liturgical_color(d_start, season, is_fixed_solemnity=key is not None and key in (
-            "CHRISTMAS", "EPIPHANY", "MARY_MOTHER_GOD",
-            "ASSUMPTION", "ALL_SAINTS", "IMMACULATE_CONCEPTION",
-            "JOHN_BAPTIST_BIRTH", "PETER_PAUL", "EASTER_SUNDAY",
-            "PENTECOST", "ALL_SOULS",
-        ))
-        return {
-            "key": key,
-            "season": season,
-            "week": week_val,
-            "cycle": cycle,
-            "ferial": ferial,
-            "color": color,
-        }
+    is_sunday = d.weekday() == 6
 
     # Fixed-date solemnities
-    if d_start == xmas:
-        return r("CHRISTMAS", "natal", None)
-    if d_start == epiphany:
-        return r("EPIPHANY", "natal", None)
-    if d_start == new_year:
-        return r("MARY_MOTHER_GOD", "natal", None)
+    if d == xmas:
+        return ("CHRISTMAS", "natal", None)
+    if d == epiphany:
+        return ("EPIPHANY", "natal", None)
+    if d == new_year:
+        return ("MARY_MOTHER_GOD", "natal", None)
+    if d.month == 8 and d.day == 15:
+        return ("ASSUMPTION", "comum", None)
+    if d.month == 11 and d.day == 1:
+        return ("ALL_SAINTS", "comum", None)
+    if d.month == 12 and d.day == 8:
+        return ("IMMACULATE_CONCEPTION", "natal", None)
+    if d.month == 6 and d.day == 24:
+        return ("JOHN_BAPTIST_BIRTH", "comum", None)
+    if d.month == 6 and d.day == 29:
+        return ("PETER_PAUL", "comum", None)
+    if d.month == 11 and d.day == 2:
+        return ("ALL_SOULS", "comum", None)
 
-    if d_start.month == 8 and d_start.day == 15:
-        return r("ASSUMPTION", "comum", None)
-    if d_start.month == 11 and d_start.day == 1:
-        return r("ALL_SAINTS", "comum", None)
-    if d_start.month == 12 and d_start.day == 8:
-        return r("IMMACULATE_CONCEPTION", "natal", None)
-    if d_start.month == 6 and d_start.day == 24:
-        return r("JOHN_BAPTIST_BIRTH", "comum", None)
-    if d_start.month == 6 and d_start.day == 29:
-        return r("PETER_PAUL", "comum", None)
-    if d_start.month == 11 and d_start.day == 2:
-        return r("ALL_SOULS", "comum", None)
-
-    # Relative-to-Easter solemnities
-    if d_start == easter_date:
-        return r("EASTER_SUNDAY", "pascal", 1)
-    if d_start == ash:
-        return r("ASH_WEDNESDAY", "quaresma", None)
-    if d_start == pentecost_date:
-        return r("PENTECOST", "pascal", None)
-    if d_start == baptism:
-        return r(f"BAPTISM_{cycle}", "natal", None)
+    # Relative-to-Easter
+    if d == easter_date_val:
+        return ("EASTER_SUNDAY", "pascal", 1)
+    if d == ash:
+        return ("ASH_WEDNESDAY", "quaresma", None)
+    if d == pentecost_date_val:
+        return ("PENTECOST", "pascal", None)
+    if d == baptism:
+        return (f"BAPTISM_{cycle}", "natal", None)
 
     if is_sunday:
-        if d_start == palm_sunday:
-            return r(f"PALM_{cycle}", "quaresma", 6)
-        if d_start == ascension:
-            return r(f"ASCENSION_{cycle}", "pascal", 7)
-        if d_start == trinity:
-            return r(f"TRINITY_{cycle}", "comum", None)
-        if d_start == christ_king:
-            return r(f"CHRIST_KING_{cycle}", "comum", 34)
+        if d == palm_sunday:
+            return (f"PALM_{cycle}", "quaresma", 6)
+        if d == ascension:
+            return (f"ASCENSION_{cycle}", "pascal", 7)
+        if d == trinity:
+            return (f"TRINITY_{cycle}", "comum", None)
+        if d == christ_king:
+            return (f"CHRIST_KING_{cycle}", "comum", 34)
 
     # Advent
-    if advent0 <= d_start < xmas:
+    if advent0 <= d < xmas:
         if is_sunday:
-            week = min(_weeks_between(advent0, d_start) + 1, 4)
-            return r(f"ADVENT_{week}_{cycle}", "advento", week)
-        return r(None, "advento", None)
+            week = min(_weeks_between(advent0, d) + 1, 4)
+            return (f"ADVENT_{week}_{cycle}", "advento", week)
+        return (None, "advento", None)
 
     # Christmas season (Dec 26 → Baptism of the Lord)
-    is_christmas = (xmas < d_start <= epiphany) or (d_start.year == cal_year and d_start < baptism and d_start > epiphany)
-    if is_christmas or (d_start.year == cal_year and d_start < baptism):
+    is_christmas = (xmas < d <= epiphany) or (d.year == cal_year and d < baptism and d > epiphany)
+    if is_christmas or (d.year == cal_year and d < baptism):
         if is_sunday:
             octave_start = xmas + timedelta(days=1)
             octave_end = new_year
-            if octave_start <= d_start <= octave_end:
-                return r(f"HOLY_FAMILY_{cycle}", "natal", None)
-            if d_start.month == 1 and 2 <= d_start.day <= 5:
-                return r("CHRISTMAS_2ND", "natal", None)
-        return r(None, "natal", None)
+            if octave_start <= d <= octave_end:
+                return (f"HOLY_FAMILY_{cycle}", "natal", None)
+            if d.month == 1 and 2 <= d.day <= 5:
+                return ("CHRISTMAS_2ND", "natal", None)
+        return (None, "natal", None)
 
     # Lent
-    if ash < d_start < easter_date:
+    if ash < d < easter_date_val:
         if is_sunday:
             first_lent_sun = ash + timedelta(days=(6 - ash.weekday()) % 7)
-            week = min(_weeks_between(first_lent_sun, d_start) + 1, 5)
-            return r(f"LENT_{week}_{cycle}", "quaresma", week)
-        return r(None, "quaresma", None)
+            week = min(_weeks_between(first_lent_sun, d) + 1, 5)
+            return (f"LENT_{week}_{cycle}", "quaresma", week)
+        return (None, "quaresma", None)
 
-    # Easter season (2nd – 6th Sundays)
-    if easter_date < d_start < pentecost_date and is_sunday:
-        week = _weeks_between(easter_date, d_start) + 1
+    # Easter season (2nd–6th Sundays)
+    if easter_date_val < d < pentecost_date_val and is_sunday:
+        week = _weeks_between(easter_date_val, d) + 1
         if 2 <= week <= 6:
-            return r(f"EASTER_{week}_{cycle}", "pascal", week)
+            return (f"EASTER_{week}_{cycle}", "pascal", week)
 
-    # Ordinary Time I: Baptism+1 → Ash Wednesday
-    if baptism < d_start < ash and is_sunday:
-        week = _ot_week(d_start, start_year, pentecost_date, christ_king, baptism)
-        return r(f"OT_{week}_{cycle}", "comum", week)
+    # Ordinary Time I
+    if baptism < d < ash and is_sunday:
+        week = _ot_week_legacy(d, start_year, pentecost_date_val, christ_king, baptism)
+        return (f"OT_{week}_{cycle}", "comum", week)
 
-    # Ordinary Time II: after Pentecost → before Advent
-    if pentecost_date < d_start < next_advent and is_sunday:
-        week = _ot_week(d_start, start_year, pentecost_date, christ_king, baptism)
-        return r(f"OT_{week}_{cycle}", "comum", week)
+    # Ordinary Time II
+    if pentecost_date_val < d < next_advent and is_sunday:
+        week = _ot_week_legacy(d, start_year, pentecost_date_val, christ_king, baptism)
+        return (f"OT_{week}_{cycle}", "comum", week)
 
     # Season for non-Sunday weekdays
-    if advent0 <= d_start < xmas:
+    if advent0 <= d < xmas:
         season = "advento"
-    elif xmas < d_start < baptism:
+    elif xmas < d < baptism:
         season = "natal"
-    elif ash <= d_start < easter_date:
+    elif ash <= d < easter_date_val:
         season = "quaresma"
-    elif easter_date <= d_start <= pentecost_date:
+    elif easter_date_val <= d <= pentecost_date_val:
         season = "pascal"
     else:
         season = "comum"
 
-    return r(None, season, None)
+    return (None, season, None)
 
 
-def _ot_week(sunday: date, start_year: int, pentecost_date: date, christ_king: date, baptism: date) -> int:
+def _ot_week_legacy(sunday: date, start_year: int, pentecost_date: date, christ_king: date, baptism: date) -> int:
     """Ordinary Time week computation — port of LiturgicalCalendar::otWeek()"""
     if sunday <= pentecost_date:
         first_ot_sunday = baptism + timedelta(days=(6 - baptism.weekday()) % 7)
@@ -255,65 +332,94 @@ def _ot_week(sunday: date, start_year: int, pentecost_date: date, christ_king: d
     return max(2, 34 - weeks)
 
 
-# =====================================================================
-# LITURGICAL COLOR SERVICE — port of LiturgicalColorService.php
-# =====================================================================
+def _color_for_key(key: str | None, d: date, season: str) -> str:
+    """Determine color: lookup in LITURGICAL_DAYS first, then legacy fallback."""
+    if key and key in LITURGICAL_DAYS:
+        return LITURGICAL_DAYS[key]["color"]
 
-VERDE = "verde"
-ROXO = "roxo"
-BRANCO = "branco"
-VERMELHO = "vermelho"
-
-COLOR_LABELS = {
-    VERDE: "Verde – Tempo Comum",
-    ROXO: "Roxo – Advento/Quaresma",
-    BRANCO: "Branco/Dourado – Festa",
-    VERMELHO: "Vermelho – Pentecostes/Mártir",
-}
-
-
-def liturgical_color(d: date, season_override: Optional[str] = None, is_fixed_solemnity: bool = False) -> str:
-    """Determine liturgical color — faithful to LiturgicalColorService::forDate()"""
+    # Legacy fallback for non-keyed days (matches old liturgical_color())
     year = d.year
-
-    easter_date = easter(year)
+    easter_date_val = easter(year)
     christmas = date(year, 12, 25)
+    ash_wed = easter_date_val - timedelta(days=46)
+    holy_sat = easter_date_val - timedelta(days=1)
 
-    # Quaresma: Quarta-Feira de Cinzas até Sábado Santo
-    ash_wed = easter_date - timedelta(days=46)
-    holy_sat = easter_date - timedelta(days=1)
     if ash_wed <= d <= holy_sat:
         return ROXO
-
-    # Tríduo Pascal + Tempo Pascal: Páscoa até dia antes de Pentecostes
-    pent = easter_date + timedelta(days=49)
-    if easter_date <= d < pent:
+    pent = easter_date_val + timedelta(days=49)
+    if easter_date_val <= d < pent:
         return BRANCO
-
-    # Pentecostes
     if d == pent:
         return VERMELHO
-
-    # Advento: 1º domingo do Advento até 24/12
     advent_start_date = first_sunday_of_advent(year)
     if advent_start_date <= d < christmas:
         return ROXO
-
-    # Natal: 25 dez até Batismo do Senhor (color boundary follows LiturgicalColorService)
     if (date(year, 12, 25) <= d <= date(year, 12, 31)) or (date(year, 1, 1) <= d <= baptism_of_lord_color(year)):
         return BRANCO
-
-    # Festas principais: branco
     if _is_major_feast(d.month, d.day):
         return BRANCO
-
-    # All Saints / All Souls
     if d.month == 11 and d.day == 1:
         return BRANCO
     if d.month == 11 and d.day == 2:
         return ROXO
 
-    return VERDE
+    return SEASON_COLOR.get(season, VERDE)
+
+
+def resolve_liturgical_day(d: date) -> dict:
+    """Single source of truth for liturgical data.
+    Returns {
+        key, season, color, week, cycle, ferial,
+        rank, celebration, slug, icon, banner,
+        priority, scope, movable
+    }
+    """
+    start_year = liturgical_start_year(d)
+    cal_year = start_year + 1
+    cycle = sunday_cycle(start_year)
+    ferial = ferial_cycle(start_year)
+
+    key, season, week = _identify_celebration(d, start_year, cal_year, cycle)
+    color = _color_for_key(key, d, season)
+
+    entry = LITURGICAL_DAYS.get(key) if key else None
+
+    result = {
+        "key": key,
+        "season": season,
+        "color": color,
+        "rank": entry["rank"] if entry else None,
+        "celebration": entry["celebration"] if entry else None,
+        "week": week,
+        "cycle": cycle,
+        "ferial": ferial,
+        "slug": entry["slug"] if entry else None,
+        "icon": entry["icon"] if entry else None,
+        "banner": entry["banner"] if entry else None,
+        "priority": entry["priority"] if entry else None,
+        "scope": entry["scope"] if entry else None,
+        "movable": entry["movable"] if entry else None,
+    }
+    return result
+
+
+# =====================================================================
+# Public API — thin wrappers (preserve exact signatures)
+# =====================================================================
+
+def resolve_date(d: date) -> dict:
+    """Wrapper — delegates to resolve_liturgical_day.
+    Returns {key, season, week, cycle, ferial, color}
+    """
+    info = resolve_liturgical_day(d)
+    return {
+        "key": info["key"],
+        "season": info["season"],
+        "week": info["week"],
+        "cycle": info["cycle"],
+        "ferial": info["ferial"],
+        "color": info["color"],
+    }
 
 
 def _is_major_feast(month: int, day: int) -> bool:
@@ -330,26 +436,28 @@ def _is_major_feast(month: int, day: int) -> bool:
     )
 
 
+def liturgical_color(d: date, season_override: Optional[str] = None, is_fixed_solemnity: bool = False) -> str:
+    """Wrapper — delegates to resolve_liturgical_day.
+    Parameters season_override and is_fixed_solemnity kept for API compatibility.
+    """
+    return resolve_liturgical_day(d)["color"]
+
+
 def color_label(theme: str) -> str:
-    return COLOR_LABELS.get(theme, COLOR_LABELS[VERDE])
+    return _COLOR_LABELS.get(theme, _COLOR_LABELS[VERDE])
 
-
-# =====================================================================
-# TODAY helper
-# =====================================================================
 
 def get_today_liturgical() -> dict:
-    """Returns full liturgical data for today."""
+    """Returns full liturgical data for today (single call to resolve_liturgical_day)."""
     today = date.today()
-    resolved = resolve_date(today)
-    color = liturgical_color(today)
+    info = resolve_liturgical_day(today)
 
     return {
-        "season": resolved["season"],
-        "cycle": resolved["cycle"],
-        "ferial": resolved["ferial"],
-        "week": resolved["week"],
-        "key": resolved["key"],
-        "color": color,
-        "color_label": color_label(color),
+        "season": info["season"],
+        "cycle": info["cycle"],
+        "ferial": info["ferial"],
+        "week": info["week"],
+        "key": info["key"],
+        "color": info["color"],
+        "color_label": color_label(info["color"]),
     }

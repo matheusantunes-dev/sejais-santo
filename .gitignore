@@ -11,7 +11,7 @@ package-lock.json
 # Backend
 # ---------------------
 backend/.venv/
-backend/__pycache__/
+**/__pycache__/
 backend/*.pyc
 backend/.env
 
