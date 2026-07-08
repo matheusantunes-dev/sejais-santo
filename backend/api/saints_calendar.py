@@ -4,9 +4,30 @@ from typing import List, Optional
 # =====================================================================
 # SAINTS CALENDAR — port of Laravel SaintsCalendar.php
 #
-# 90+ saint entries organized by month-day (MM-DD).
-# Each entry has name, icon (emoji), and description.
+# 100+ saint entries organized by month-day (MM-DD).
+# Each entry has name, icon (emoji), description, plus liturgical
+# metadata for automatic color resolution and future precedence.
 # =====================================================================
+
+# ── Color constants (mirrors liturgical_lib.py — avoids circular import) ──
+VERDE = "verde"
+BRANCO = "branco"
+VERMELHO = "vermelho"
+
+# ── Type-to-color mapping ──
+_SAINT_TYPE_COLOR = {
+    "martyr": VERMELHO,
+    "apostle": VERMELHO,
+    "evangelist": VERMELHO,
+    "saint": BRANCO,
+}
+
+def _saint_color(saint_type: str, color_override: Optional[str]) -> str:
+    if color_override:
+        return color_override
+    return _SAINT_TYPE_COLOR.get(saint_type, BRANCO)
+
+# ── Base display calendar (name, icon, desc) ──
 
 CALENDAR: dict[str, dict] = {
     # Janeiro
@@ -131,9 +152,171 @@ CALENDAR: dict[str, dict] = {
 }
 
 
+# ── Liturgical metadata ──
+#
+# Only stores non-default values. Defaults:
+#   type="saint", rank="memoria", scope="universal",
+#   color_override=None, rank_override=None, metadata={}
+#
+# `color_override` overrides the automatic type→color mapping.
+# `rank_override` (future) overrides the automatic rank deduction.
+
+SAINT_METADATA: dict[str, dict] = {
+    # ── Solemnities of the Lord / Mary (type=mary, rank=solemnity) ──
+    "01-01": {"type": "mary", "rank": "solemnity"},
+    "01-06": {"type": "saint", "rank": "solemnity"},
+    "12-25": {"type": "saint", "rank": "solemnity"},
+
+    # ── Feasts of the Lord (in LITURGICAL_DAYS, metadata for completeness) ──
+    "01-13": {"type": "saint", "rank": "feast"},
+    "02-02": {"type": "saint", "rank": "feast"},
+    "03-19": {"type": "saint", "rank": "solemnity"},
+    "03-25": {"type": "saint", "rank": "solemnity"},
+    "08-06": {"type": "saint", "rank": "feast"},
+    "09-14": {"type": "saint", "rank": "feast"},
+    "11-09": {"type": "saint", "rank": "feast"},
+    "12-08": {"type": "mary", "rank": "solemnity"},
+
+    # ── Marian memorials / feasts ──
+    "02-11": {"type": "mary"},
+    "05-13": {"type": "mary"},
+    "05-31": {"type": "mary", "rank": "feast"},
+    "06-27": {"type": "mary"},
+    "07-16": {"type": "mary"},
+    "08-15": {"type": "mary", "rank": "solemnity"},
+    "08-22": {"type": "mary"},
+    "09-08": {"type": "mary", "rank": "feast"},
+    "09-12": {"type": "mary"},
+    "09-15": {"type": "mary"},
+    "10-07": {"type": "mary"},
+    "10-12": {"type": "mary", "rank": "solemnity"},
+    "11-21": {"type": "mary"},
+    "12-12": {"type": "mary"},
+
+    # ── Apostles (type=apostle, rank=feast) ──
+    #
+    # color_override="branco" for celebrations that are NOT martyrdom-themed:
+    #   Conversion of St. Paul (25/01) — feast of the conversion, not martyrdom
+    #   Chair of St. Peter (22/02) — feast of the Petrine ministry, not martyrdom
+    #   St. John the Evangelist (27/12) — apostle/evangelist who died naturally,
+    #   not a martyr (unlike all other apostles)
+    #
+    "01-25": {"type": "apostle", "rank": "feast", "color_override": BRANCO},
+    "02-22": {"type": "apostle", "rank": "feast", "color_override": BRANCO},
+    "05-03": {"type": "apostle", "rank": "feast"},
+    "05-14": {"type": "apostle", "rank": "feast"},
+    "06-11": {"type": "apostle", "rank": "feast"},
+    "06-29": {"type": "apostle", "rank": "solemnity"},
+    "07-03": {"type": "apostle", "rank": "feast"},
+    "07-25": {"type": "apostle", "rank": "feast"},
+    "08-24": {"type": "apostle", "rank": "feast"},
+    "09-21": {"type": "apostle", "rank": "feast"},
+    "10-28": {"type": "apostle", "rank": "feast"},
+    "11-30": {"type": "apostle", "rank": "feast"},
+    # St. John the Evangelist (27/12): apóstolo e evangelista, mas não mártir.
+    # Diferente dos demais apóstolos, morreu de causas naturais em Éfeso.
+    # Cor litúrgica: BRANCO (festa de não mártir).
+    # Fonte: Calendário Romano Geral.
+    "12-27": {"type": "apostle", "rank": "feast", "color_override": BRANCO},
+
+    # ── Evangelists (type=evangelist, rank=feast) ──
+    "04-25": {"type": "evangelist", "rank": "feast"},
+    "10-18": {"type": "evangelist", "rank": "feast"},
+
+    # ── Martyrs ──
+    "01-21": {"type": "martyr"},
+    "02-05": {"type": "martyr"},
+    "03-07": {"type": "martyr"},
+    "04-23": {"type": "martyr"},
+    "06-01": {"type": "martyr"},
+    "06-05": {"type": "martyr"},
+    "08-09": {"type": "martyr"},
+    "08-10": {"type": "martyr"},
+    "08-14": {"type": "martyr"},
+    "08-29": {"type": "martyr", "rank": "memoria"},
+    "11-22": {"type": "martyr"},
+    "11-25": {"type": "martyr"},
+    "12-13": {"type": "martyr"},
+    "12-26": {"type": "martyr", "rank": "feast"},
+    "12-28": {"type": "martyr", "rank": "feast"},
+
+    # ── Angels ──
+    "09-29": {"type": "saint", "rank": "feast"},
+    "10-02": {"type": "saint"},
+
+    # ── Precursor (Saint John the Baptist) ──
+    "06-24": {"type": "saint", "rank": "solemnity"},
+
+    # ── Optional memorials (do NOT override ferial liturgy) ──
+    "01-17": {"type": "saint", "rank": "optional_memoria"},
+    "03-04": {"type": "saint", "rank": "optional_memoria"},
+    "03-17": {"type": "saint", "rank": "optional_memoria"},
+    "04-23": {"type": "saint", "rank": "optional_memoria"},
+    "04-30": {"type": "saint", "rank": "optional_memoria"},
+    "05-01": {"type": "saint", "rank": "optional_memoria"},
+    "07-04": {"type": "saint", "rank": "optional_memoria"},
+    "10-22": {"type": "saint", "rank": "optional_memoria"},
+    "11-16": {"type": "saint", "rank": "optional_memoria"},
+    "11-17": {"type": "saint", "rank": "optional_memoria"},
+    "12-06": {"type": "saint", "rank": "optional_memoria"},
+    "12-31": {"type": "saint", "rank": "optional_memoria"},
+
+    # ── Saints elevated/updated in recent pontifical reforms ──
+    #
+    # St. Mary Magdalene (22/07)
+    #   Elevada a FESTA no Calendário Romano Geral pela Carta Apostólica
+    #   "Apostolorum Apostola" do Papa Francisco (2016).
+    #   Fonte: Congregatio de Cultu Divino, Prot. N. 190/16.
+    #   Cor: branco (festa de não mártir).
+    #
+    # Saints Martha, Mary and Lazarus (29/07)
+    #   Decreto Prot. N. 35/21 (26 Jan 2021) da Congregação para o Culto
+    #   Divino e Disciplina dos Sacramentos. A celebração foi expandida
+    #   de "Santa Marta" para "Santos Marta, Maria e Lázaro".
+    #   O rank permanece MEMORIAL OBRIGATÓRIO (não festa).
+    #   Fonte: https://www.vatican.va/roman_curia/congregations/ccdds/...
+    #   ...documents/rc_con_ccdds_doc_20210126_decreto-santi_en.html
+    #   Cor: branco (memorial de não mártires). Rank default "memoria" está correto.
+    #
+    "07-22": {"type": "saint", "rank": "feast"},
+}
+
+
+def get_saint_for_date(d: date) -> Optional[dict]:
+    """Return enriched saint object for *d*, or None if none.
+
+    The returned dict contains both display fields (name, icon, desc) and
+    liturgical metadata (type, rank, scope, color, color_override,
+    rank_override, metadata).  The ``color`` field is already resolved
+    (type→color mapping with color_override applied).
+
+    Saints whose ``rank`` is lower than ``"memoria"``
+    (e.g. ``"optional_memoria"``) do **not** replace the ferial liturgy.
+    """
+    key = d.strftime("%m-%d")
+    entry = CALENDAR.get(key)
+    if not entry:
+        return None
+
+    meta = SAINT_METADATA.get(key, {})
+    saint_type = meta.get("type", "saint")
+    color_override = meta.get("color_override")
+    rank_override = meta.get("rank_override")
+
+    return {
+        "name": entry["name"],
+        "type": saint_type,
+        "rank": meta.get("rank", "memoria"),
+        "scope": meta.get("scope", "universal"),
+        "color": _saint_color(saint_type, color_override),
+        "color_override": color_override,
+        "rank_override": rank_override,
+        "metadata": meta.get("metadata", {}),
+    }
+
+
 def today_saint() -> dict:
     """Return today's saint entry (timezone: America/Sao_Paulo)."""
-    from datetime import date
     key = date.today().strftime("%m-%d")
     return CALENDAR.get(key, {
         "name": "Santos do Calendário Romano",
@@ -144,7 +327,6 @@ def today_saint() -> dict:
 
 def upcoming_saints(count: int = 3) -> List[dict]:
     """Return next N upcoming saint days (scans up to 90 days ahead)."""
-    from datetime import date, timedelta
     today = date.today()
     result = []
     for i in range(1, 91):

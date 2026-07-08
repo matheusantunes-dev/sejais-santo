@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from api.supabase_client import get_supabase_client
+from api.saints_calendar import get_saint_for_date
 import os
 
 
@@ -134,6 +135,19 @@ SEASON_COLOR = {
     "comum": VERDE,
 }
 
+# ── Precedence hierarchy (IGMR-aligned) ──
+# Higher number = higher rank. A celebration only overrides a lower-ranked
+# day. Used to decide whether a saint's memorial replaces the ferial liturgy.
+
+_RANK_ORDER = {
+    "solemnity": 6,
+    "sunday": 5,
+    "feast": 4,
+    "memoria": 3,
+    "optional_memoria": 2,
+    "ferial": 1,
+}
+
 
 def _build_liturgical_days() -> dict[str, dict]:
     days: dict[str, dict] = {}
@@ -184,12 +198,12 @@ def _build_liturgical_days() -> dict[str, dict]:
 
         for w in range(1, 5):
             season = "advento"
-            color = SEASON_COLOR[season]
+            color = ROSA if w == 3 else SEASON_COLOR[season]
             add(f"ADVENT_{w}{sfx}", color, "sunday", season, f"{w}º Domingo do Advento")
 
         for w in range(1, 6):
             season = "quaresma"
-            color = SEASON_COLOR[season]
+            color = ROSA if w == 4 else SEASON_COLOR[season]
             add(f"LENT_{w}{sfx}", color, "sunday", season, f"{w}º Domingo da Quaresma")
 
         for w in range(2, 7):
@@ -387,6 +401,12 @@ def resolve_liturgical_day(d: date) -> dict:
         rank, celebration, slug, icon, banner,
         priority, scope, movable
     }
+
+    **Saint integration (rank-based)**
+    If the day's rank is ``"ferial"`` or ``"optional_memoria"`` (rank < 3)
+    AND a saint with rank ≥ ``"memoria"`` (3) exists on this date, the
+    saint's colour overrides the season colour. This is future-proof for
+    the full IGMR precedence table (Fase 4).
     """
     start_year = liturgical_start_year(d)
     cal_year = start_year + 1
@@ -397,12 +417,20 @@ def resolve_liturgical_day(d: date) -> dict:
     color = _color_for_key(key, d, season)
 
     entry = LITURGICAL_DAYS.get(key) if key else None
+    rank = entry["rank"] if entry else "ferial"
+
+    # Saint colour override: only when the day's rank is low enough
+    # (ferial or optional_memoria) that a saint's memoria/feast may replace it.
+    if _RANK_ORDER.get(rank, 1) < _RANK_ORDER["memoria"]:
+        saint = get_saint_for_date(d)
+        if saint and _RANK_ORDER.get(saint["rank"], 1) >= _RANK_ORDER["memoria"]:
+            color = saint["color"]
 
     result = {
         "key": key,
         "season": season,
         "color": color,
-        "rank": entry["rank"] if entry else None,
+        "rank": rank,
         "celebration": entry["celebration"] if entry else None,
         "week": week,
         "cycle": cycle,
