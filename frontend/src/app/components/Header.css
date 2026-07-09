@@ -157,7 +157,7 @@ header.header {
 /* Mobile menu */
 .header-mobile-menu {
   padding: var(--space-3) var(--space-4);
-  background: var(--liturgical-header-bg, var(--color-liturgical-600));
+  background: var(--liturgical-header-bg, var(--color-liturgical-500));
 }
 
 .header-mobile-menu .header-nav {
