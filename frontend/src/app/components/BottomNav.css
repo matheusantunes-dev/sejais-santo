@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--color-liturgical-500);
+  background: var(--liturgical-header-bg, var(--color-liturgical-500));
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: var(--space-2) 0;
   padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));

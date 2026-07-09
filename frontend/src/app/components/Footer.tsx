@@ -59,7 +59,7 @@ export function Footer() {
           </div>
 
           <div className="footer-column">
-            <h3 className="footer-title">Contato</h3>
+            <h3 className="footer-title">Email para Contato</h3>
 
             <div className="footer-links">
               <a href="mailto:matheusantunesreis6@gmail.com" aria-label="Enviar email para Matheus Antunes">
