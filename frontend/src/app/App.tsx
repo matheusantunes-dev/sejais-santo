@@ -4,9 +4,7 @@ import { toast } from "sonner";
 import { Header } from "./components/Header";
 import { HeroBanner } from "./components/HeroBanner";
 import { FeatureCard } from "./components/FeatureCard";
-import { GospelCard } from "./components/GospelCard";
 import VerseOrganizer from "./components/VerseOrganizer";
-import { VerseOrganizerIcon } from "./components/VerseOrganizerIcon";
 import { EasterBanner } from "./components/EasterBanner";
 import { AboutSection } from "./components/AboutSection";
 import { LiturgicalFooter } from "./components/LiturgicalFooter";
@@ -107,7 +105,7 @@ export default function App() {
                 <h2>Organizador de Versículos</h2>
 
                 <button
-                  className="share-composer-close"
+                  className="modal-close"
                   onClick={() => setShowOrganizer(false)}
                 >
                   ✕
@@ -132,7 +130,7 @@ export default function App() {
               <div className="organizer-modal-header">
                 <h2>Bíblia</h2>
                 <button
-                  className="share-composer-close"
+                  className="modal-close"
                   onClick={() => setShowBibleNav(false)}
                 >
                   ✕

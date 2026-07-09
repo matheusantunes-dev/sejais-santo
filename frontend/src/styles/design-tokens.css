@@ -17,6 +17,18 @@
   --color-brand-800: #0b3016;
   --color-brand-900: #062010;
 
+  /* Brand — marrom (share UI, modais) */
+  --color-brand-brown-400: #7d6455;
+  --color-brand-brown-500: #6f4b35;
+  --color-brand-brown-600: #5b341d;
+  --color-brand-brown-700: #503321;
+
+  /* Brand — roxo (bíblia) */
+  --color-brand-purple: #4b2e83;
+
+  /* Brand — bege (litúrgico, fundos) */
+  --color-brand-beige: #f3f0e8;
+
   /* Litúrgico — vermelho (paixão, mártires) */
   --color-liturgical-50: #fce4e4;
   --color-liturgical-100: #f8baba;
@@ -45,11 +57,14 @@
   --color-neutral-700: #404040;
   --color-neutral-800: #262626;
   --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
 
   /* Semântico */
   --color-success: #16a34a;
+  --color-success-hover: #15803d;
   --color-warning: #ca8a04;
   --color-error: #dc2626;
+  --color-error-hover: #b91c1c;
   --color-info: #2563eb;
 }
 

@@ -5,9 +5,9 @@ import { SobreModal } from "./SobreModal";
 
 type Developer = {
   name: string;
-  email: string;
+  email?: string;
   linkedin: string;
-  instagram: string;
+  instagram?: string;
   phones: string[];
 };
 
@@ -20,7 +20,6 @@ export function Footer() {
       name: "Matheus Antunes",
       email: "matheusantunesreis6@gmail.com",
       linkedin: "https://www.linkedin.com/in/matheusantunes-dev",
-      instagram: "https://www.instagram.com/matheusantunesreis/",
       phones: ["(38) 98806-4942"],
     },
     {
@@ -29,6 +28,11 @@ export function Footer() {
       linkedin: "https://www.linkedin.com/in/fredjoaquim/",
       instagram: "https://www.instagram.com/fredjoaquim/",
       phones: ["(38) 9121-6266"],
+    },
+    {
+      name: "Raimundo Barbosa",
+      linkedin: "https://www.linkedin.com/in/raimundo-barbosa-ferreira-66330339/",
+      phones: ["+553888459319"],
     },
   ];
 
@@ -76,7 +80,9 @@ export function Footer() {
                   <strong className="dev-name">{dev.name}</strong>
 
                   <div className="dev-links">
-                    <a href={`mailto:${dev.email}`}>Email</a>
+                    {dev.email && (
+                      <a href={`mailto:${dev.email}`}>Email</a>
+                    )}
 
                     <a
                       href={dev.linkedin}
@@ -87,14 +93,16 @@ export function Footer() {
                       LinkedIn
                     </a>
 
-                    <a
-                      href={dev.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Instagram de ${dev.name} (abre em nova janela)`}
-                    >
-                      Instagram
-                    </a>
+                    {dev.instagram && (
+                      <a
+                        href={dev.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Instagram de ${dev.name} (abre em nova janela)`}
+                      >
+                        Instagram
+                      </a>
+                    )}
                   </div>
 
                   <div className="dev-phones">

@@ -6,15 +6,15 @@
 
 .share-template-picker__text h4 {
   margin: 0 0 6px;
-  color: #5b341d;
-  font-size: 1rem;
+  color: var(--color-brand-brown-600);
+  font-size: var(--text-base);
 }
 
 .share-template-picker__text p {
   margin: 0;
-  color: #7a5d49;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  color: var(--color-brand-brown-400);
+  line-height: var(--leading-normal);
+  font-size: var(--text-sm);
 }
 
 .share-template-picker__grid {
@@ -55,9 +55,9 @@
 }
 
 .share-template-picker__name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #503321;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-brown-700);
   text-align: center;
   line-height: 1.35;
 }
@@ -85,12 +85,12 @@
 }
 
 .share-template-picker__upload-copy span {
-  font-weight: 700;
-  color: #5b341d;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-brand-brown-600);
 }
 
 .share-template-picker__upload-copy small {
-  color: #7d6455;
+  color: var(--color-brand-brown-400);
 }
 
 .share-template-picker__upload-button {

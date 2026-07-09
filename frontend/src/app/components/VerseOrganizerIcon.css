@@ -1,5 +1,5 @@
 .verse-organizer-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-neutral-700);
 }

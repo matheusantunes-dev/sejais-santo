@@ -2,9 +2,9 @@ header.header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background-color: var(--color-liturgical-500);
+  background-color: var(--liturgical-header-bg, var(--color-liturgical-500));
   padding: var(--space-3) 0;
-  transition: box-shadow var(--transition-base);
+  transition: box-shadow var(--transition-base), background-color var(--transition-base);
 }
 
 .header--scrolled {
@@ -157,7 +157,7 @@ header.header {
 /* Mobile menu */
 .header-mobile-menu {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-liturgical-600);
+  background: var(--liturgical-header-bg, var(--color-liturgical-600));
 }
 
 .header-mobile-menu .header-nav {

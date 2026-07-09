@@ -23,22 +23,6 @@ html {
   background: #8b1515;
 }
 
-/* Animation for cards */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
-}
-
 /* Prevent text selection on buttons */
 button {
   user-select: none;
@@ -54,21 +38,6 @@ img {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* Line clamp utility if needed */
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-6 {
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 /* Focus visible styles for accessibility */
 button:focus-visible,
 a:focus-visible {
@@ -79,57 +48,6 @@ a:focus-visible {
 /* Prevent layout shift */
 * {
   box-sizing: border-box;
-}
-
-/* Responsive font scaling */
-@media (max-width: 375px) {
-  :root {
-    --font-size: 13px;
-  }
-}
-
-@media (min-width: 376px) and (max-width: 640px) {
-  :root {
-    --font-size: 14px;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1023px) {
-  :root {
-    --font-size: 15px;
-  }
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --font-size: 16px;
-  }
-}
-
-/* Liturgical season transitions */
-.liturgical-transition {
-  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
-}
-
-/* Card hover effects */
-.feature-card {
-  transition: all 0.2s ease-in-out;
-  box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.267);
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  transition: all 0.2s ease-in-out;
-}
-
-/* Wave decoration animation */
-@keyframes wave {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-10px);
-  }
 }
 
 /* Print styles */

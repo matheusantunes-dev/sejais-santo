@@ -102,7 +102,7 @@
 }
 
 .about-description {
-  color: #1f2937;
+  color: var(--color-neutral-800);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   margin-bottom: var(--space-6);

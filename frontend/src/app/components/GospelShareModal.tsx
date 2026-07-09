@@ -6,12 +6,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 import { Share2 } from "lucide-react";
 import { toBlob } from "html-to-image";
 import { toast } from "sonner";
 
 import { Button } from "./ui/Button";
+import { Modal } from "./ui/Modal";
 import { GospelShareImage } from "./GospelShareImage";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { gospelShareTemplates, type ShareTemplate } from "../share/shareTemplates";
@@ -201,67 +201,71 @@ export function GospelShareModal({
   }
 
   const modal = (
-    <div className="share-composer-overlay" onClick={onClose}>
-      <div className="share-composer-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="share-composer-close" onClick={onClose}>×</button>
+    <Modal
+      open={open}
+      onClose={onClose}
+      className="share-composer-modal"
+      overlayClassName="share-composer-overlay"
+      labelledBy="share-composer-title"
+    >
+      <button className="modal-close" onClick={onClose}>×</button>
 
-        <div className="share-composer-header">
-          <h3>{shareTitle ?? "Compartilhar"}</h3>
-        </div>
+      <div className="share-composer-header">
+        <h3 id="share-composer-title">{shareTitle ?? "Compartilhar"}</h3>
+      </div>
 
-        <div className="share-composer-layout">
-          <div className="share-composer-preview is-portrait">
-            <GospelShareImage
-              referencia={gospel.referencia}
-              texto={previewText}
-              backgroundSrc={backgroundSrc ?? undefined}
-              width={252}
-              layoutVariant={layoutVariant}
-            />
-          </div>
-
-          <div className="share-composer-side">
-            <ShareTemplatePicker
-              heading={templatesHeading ?? "Fundos"}
-              templates={availableTemplates}
-              selectedTemplateId={selectedTemplateId}
-              customFileName={customFileName}
-              onTemplateSelect={handleTemplateSelect}
-              onFileChange={handleFileChange}
-            />
-
-            <div className="share-composer-actions">
-              <Button
-                variant="secondary"
-                onClick={onClose}
-              >
-                Fechar
-              </Button>
-
-              <Button
-                variant="primary"
-                onClick={handleShare}
-                isLoading={isSharing}
-                startIcon={Share2}
-              >
-                {isSharing ? "Gerando..." : "Compartilhar"}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="hidden-capture-root">
+      <div className="share-composer-layout">
+        <div className="share-composer-preview is-portrait">
           <GospelShareImage
-            ref={captureRef as any}
             referencia={gospel.referencia}
-            texto={renderText || previewText}
+            texto={previewText}
             backgroundSrc={backgroundSrc ?? undefined}
+            width={252}
             layoutVariant={layoutVariant}
           />
         </div>
+
+        <div className="share-composer-side">
+          <ShareTemplatePicker
+            heading={templatesHeading ?? "Fundos"}
+            templates={availableTemplates}
+            selectedTemplateId={selectedTemplateId}
+            customFileName={customFileName}
+            onTemplateSelect={handleTemplateSelect}
+            onFileChange={handleFileChange}
+          />
+
+          <div className="share-composer-actions">
+            <Button
+              variant="secondary"
+              onClick={onClose}
+            >
+              Fechar
+            </Button>
+
+            <Button
+              variant="primary"
+              onClick={handleShare}
+              isLoading={isSharing}
+              startIcon={Share2}
+            >
+              {isSharing ? "Gerando..." : "Compartilhar"}
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="hidden-capture-root">
+        <GospelShareImage
+          ref={captureRef as any}
+          referencia={gospel.referencia}
+          texto={renderText || previewText}
+          backgroundSrc={backgroundSrc ?? undefined}
+          layoutVariant={layoutVariant}
+        />
+      </div>
+    </Modal>
   );
 
-  return createPortal(modal, document.body);
+  return modal;
 }

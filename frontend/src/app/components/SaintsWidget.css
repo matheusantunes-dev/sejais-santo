@@ -3,12 +3,12 @@
   background: white;
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--color-neutral-300);
 }
 
 .saints-loading {
   text-align: center;
-  color: #4b5563;
+  color: var(--color-neutral-600);
   font-size: var(--text-sm);
 }
 
@@ -25,20 +25,20 @@
 
 .saint-desc {
   font-size: var(--text-sm);
-  color: #4b5563;
+  color: var(--color-neutral-600);
   margin: var(--space-1) 0 0;
 }
 
 .saints-upcoming {
   margin-top: var(--space-3);
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-neutral-200);
   padding-top: var(--space-2);
 }
 
 .saints-upcoming h4 {
   font-size: var(--text-sm);
   margin: 0 0 var(--space-2);
-  color: #374151;
+  color: var(--color-neutral-700);
 }
 
 .saint-item {
@@ -49,6 +49,6 @@
 }
 
 .saint-date {
-  color: #4b5563;
+  color: var(--color-neutral-600);
   min-width: 7rem;
 }

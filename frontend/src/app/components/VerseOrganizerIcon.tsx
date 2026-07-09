@@ -1,5 +1,6 @@
 // src/app/components/VerseOrganizerIcon.tsx
 import React from "react";
+import "./VerseOrganizerIcon.css";
 
 /**
  * VerseOrganizerIcon

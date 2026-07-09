@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { shareFiles } from "../share/shareUtils";
 import { Button } from "./ui/Button";
+import { Modal } from "./ui/Modal";
 import { ShareTemplatePicker } from "./ShareTemplatePicker";
 import { verseShareTemplates } from "../share/shareTemplates";
 import "./VersododiaModal.css";
@@ -93,72 +94,72 @@ export function VerseImageShareModal({
   }
 
   return (
-    <div className="modal-overlay">
+    <Modal
+      open={open}
+      onClose={onClose}
+      overlayClassName="verse-overlay"
+      className="verse-container"
+      labelledBy="verse-modal-title"
+    >
+      <button className="modal-close" onClick={onClose}>×</button>
 
+      <h2 id="verse-modal-title">{modalTitle}</h2>
 
-      <div className="modal-container">
+      <p>{helperText}</p>
 
-        <button className="share-composer-close" onClick={onClose}>×</button>
+      {/* CARD DO VERSÍCULO */}
 
-        <h2>{modalTitle}</h2>
+      <div
+        ref={captureRef}
+        className="verse-card"
+        style={{ backgroundImage: `url(${background})` }}
+      >
 
-        <p>{helperText}</p>
+        <div className="verse-overlay">
 
-        {/* CARD DO VERSÍCULO */}
+          <div className="verse-content">
 
-        <div
-          ref={captureRef}
-          className="verse-card"
-          style={{ backgroundImage: `url(${background})` }}
-        >
+            <div className="verse-text">
+              {loading ? "Carregando..." : text}
+            </div>
 
-          <div className="verse-overlay">
+            <div className="verse-ref">
+              {reference}
+            </div>
 
-            <div className="verse-content">
-
-              <div className="verse-text">
-                {loading ? "Carregando..." : text}
-              </div>
-
-              <div className="verse-ref">
-                {reference}
-              </div>
-
-              <div style={{ marginTop: 20, fontSize: 12 }}>
-                SEJAIS SANTO
-              </div>
-
+            <div style={{ marginTop: 20, fontSize: 12 }}>
+              SEJAIS SANTO
             </div>
 
           </div>
 
         </div>
 
-        {/* TEMPLATES */}
+      </div>
 
-        <ShareTemplatePicker
-          heading="Fundos prontos para versiculo"
-          helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma foto da galeria."
-          templates={verseShareTemplates}
-          selectedTemplateId={selectedTemplateId}
-          customFileName={customFileName}
-          onTemplateSelect={handleTemplateSelect}
-          onFileChange={handleFileChange}
-          fileInputId="verse-upload"
-        />
+      {/* TEMPLATES */}
 
-        {/* BOTÕES */}
+      <ShareTemplatePicker
+        heading="Fundos prontos para versiculo"
+        helperText="Escolha um dos 5 templates com paisagens e biblia aberta ou use uma foto da galeria."
+        templates={verseShareTemplates}
+        selectedTemplateId={selectedTemplateId}
+        customFileName={customFileName}
+        onTemplateSelect={handleTemplateSelect}
+        onFileChange={handleFileChange}
+        fileInputId="verse-upload"
+      />
 
-        <div className="modal-actions">
+      {/* BOTÕES */}
 
-          <Button variant="primary" onClick={handleShare}>
-            Compartilhar
-          </Button>
+      <div className="modal-actions">
 
-        </div>
+        <Button variant="primary" onClick={handleShare}>
+          Compartilhar
+        </Button>
 
       </div>
 
-    </div>
+    </Modal>
   );
 }

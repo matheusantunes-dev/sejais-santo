@@ -37,7 +37,6 @@ export function Button({
     `btn--${variant}`,
     `btn--${size}`,
     fullWidth ? "btn--full" : "",
-    isLoading ? "btn--loading" : "",
     className,
   ]
     .filter(Boolean)

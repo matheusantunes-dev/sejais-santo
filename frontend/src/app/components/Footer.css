@@ -78,7 +78,7 @@
 
 .footer-title {
   margin: 0 0 var(--space-3);
-  font-size: 0.86rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #f8fafc;
@@ -135,13 +135,13 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-bottom: var(--space-2);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .dev-phones {
   display: grid;
   gap: var(--space-1);
-  font-size: 0.88rem;
+  font-size: var(--text-sm);
 }
 
 .footer-bottom {
@@ -151,7 +151,7 @@
   margin: var(--space-8) auto 0;
   padding-top: var(--space-4);
   border-top: var(--border-width-thin) solid rgba(148, 163, 184, 0.2);
-  color: #94a3b8;
+  color: var(--color-neutral-400);
   font-size: var(--text-sm);
   display: flex;
   justify-content: space-between;
