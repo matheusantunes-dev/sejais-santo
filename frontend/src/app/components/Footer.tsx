@@ -17,7 +17,7 @@ export function Footer() {
 
   const developers: Developer[] = [
     {
-      name: "Matheus Antunes",
+      name: "Matheus Antunes Reis",
       email: "matheusantunesreis6@gmail.com",
       linkedin: "https://www.linkedin.com/in/matheusantunes-dev",
       phones: ["(38) 98806-4942"],
@@ -30,7 +30,7 @@ export function Footer() {
       phones: ["(38) 9121-6266"],
     },
     {
-      name: "Raimundo Barbosa",
+      name: "Raimundo Barbosa Ferreira",
       linkedin: "https://www.linkedin.com/in/raimundo-barbosa-ferreira-66330339/",
       phones: ["+553888459319"],
     },

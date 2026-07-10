@@ -22,6 +22,9 @@ export function BibleNavigation() {
   const [testament, setTestament] = useState<"AT" | "NT" | null>(null);
   const [shareVerse, setShareVerse] = useState<VerseData | null>(null);
   const [chapterInput, setChapterInput] = useState("");
+  const [directInput, setDirectInput] = useState("");
+  const [directError, setDirectError] = useState<string | null>(null);
+  const [chapterError, setChapterError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const filteredBooks = testament
@@ -35,19 +38,21 @@ export function BibleNavigation() {
     setError(null);
   };
 
-  const handleSelectChapter = async (chapter: number) => {
+  const handleNavigateToBookChapter = async (book: Book, chapter: number) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
+    setSelectedBook(book);
     setSelectedChapter(chapter);
     setStep("verses");
     setVerses([]);
     setLoading(true);
     setError(null);
+    setDirectError(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/bible/${selectedBook!.slug}/${chapter}`), {
+      const res = await fetch(apiUrl(`/api/bible/${book.slug}/${chapter}`), {
         signal: controller.signal,
       });
       if (!res.ok) throw new Error("Erro ao buscar capítulo");
@@ -58,7 +63,7 @@ export function BibleNavigation() {
         (data.verses || []).map((v: any) => ({
           text: v.text,
           number: v.number,
-          reference: `${selectedBook!.name} ${chapter}:${v.number}`,
+          reference: `${book.name} ${chapter}:${v.number}`,
         }))
       );
     } catch (err) {
@@ -67,6 +72,11 @@ export function BibleNavigation() {
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
+  };
+
+  const handleSelectChapter = async (chapter: number) => {
+    if (!selectedBook) return;
+    await handleNavigateToBookChapter(selectedBook, chapter);
   };
 
   const handleBack = () => {
@@ -87,14 +97,70 @@ export function BibleNavigation() {
 
   const handleChapterInput = () => {
     const ch = Number(chapterInput);
-    if (ch >= 1 && ch <= (selectedBook?.chapters ?? 0)) {
-      handleSelectChapter(ch);
-      setChapterInput("");
+    if (!selectedBook) {
+      setChapterError("Selecione um livro primeiro");
+      return;
     }
+    if (ch < 1 || ch > selectedBook.chapters) {
+      setChapterError(`Capítulo inválido (1-${selectedBook.chapters})`);
+      return;
+    }
+    setChapterError(null);
+    handleSelectChapter(ch);
+    setChapterInput("");
+  };
+
+  const handleDirectSearch = () => {
+    const trimmed = directInput.trim();
+    if (!trimmed) return;
+
+    const match = trimmed.match(/^(.+?)\s+(\d+)$/);
+    if (!match) {
+      setDirectError("Digite livro + capítulo (ex: Êxodo 22)");
+      return;
+    }
+
+    const bookQuery = match[1].trim().toLowerCase();
+    const chapterNum = parseInt(match[2], 10);
+
+    const book = BOOKS.find(
+      (b) =>
+        b.name.toLowerCase() === bookQuery ||
+        b.id === bookQuery ||
+        b.slug === bookQuery ||
+        b.name.toLowerCase().startsWith(bookQuery) ||
+        b.slug.startsWith(bookQuery)
+    );
+
+    if (!book) {
+      setDirectError("Livro não encontrado");
+      return;
+    }
+
+    if (chapterNum < 1 || chapterNum > book.chapters) {
+      setDirectError(`${book.name} tem apenas ${book.chapters} capítulos`);
+      return;
+    }
+
+    setDirectInput("");
+    setDirectError(null);
+    handleNavigateToBookChapter(book, chapterNum);
   };
 
   return (
     <><div className="bible-navigation">
+      <div className="bible-direct-search">
+        <input
+          type="text"
+          className="bible-direct-search-input"
+          placeholder="Buscar livro + capítulo (ex: Êxodo 22)"
+          value={directInput}
+          onChange={(e) => { setDirectInput(e.target.value); setDirectError(null); }}
+          onKeyDown={(e) => e.key === "Enter" && handleDirectSearch()}
+        />
+        <button className="bible-direct-search-btn" onClick={handleDirectSearch}>Ir</button>
+      </div>
+      {directError && <p className="bible-search-error">{directError}</p>}
       {step !== "book" && (
         <button className="bible-back-btn" onClick={handleBack}>
           ← Voltar
@@ -156,6 +222,7 @@ export function BibleNavigation() {
             />
             <button className="bible-chapter-btn" onClick={handleChapterInput}>Ir</button>
           </div>
+          {chapterError && <p className="bible-chapter-error">{chapterError}</p>}
 
           <p style={{ textAlign: "center", color: "var(--color-neutral-400)", fontSize: "var(--text-sm)", marginBottom: "0.75rem" }}>
             — ou clique abaixo —

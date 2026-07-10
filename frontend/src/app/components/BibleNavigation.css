@@ -122,3 +122,40 @@
 .bible-error {
   color: var(--color-error);
 }
+
+.bible-direct-search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: var(--space-4);
+  align-items: center;
+}
+
+.bible-direct-search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 6px;
+  font-size: var(--text-sm);
+  background: white;
+}
+
+.bible-direct-search-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--liturgical-border, #388e3c);
+  background: var(--liturgical-accent, #2e7d32);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.bible-search-error,
+.bible-chapter-error {
+  color: var(--color-error);
+  font-size: var(--text-xs);
+  margin: 0 0 var(--space-3);
+  padding: 0.25rem 0.5rem;
+  background: rgba(220, 38, 38, 0.06);
+  border-radius: 4px;
+}
