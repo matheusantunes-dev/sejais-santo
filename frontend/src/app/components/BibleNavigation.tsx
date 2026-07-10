@@ -21,6 +21,7 @@ export function BibleNavigation() {
   const [error, setError] = useState<string | null>(null);
   const [testament, setTestament] = useState<"AT" | "NT" | null>(null);
   const [shareVerse, setShareVerse] = useState<VerseData | null>(null);
+  const [chapterInput, setChapterInput] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
   const filteredBooks = testament
@@ -84,6 +85,14 @@ export function BibleNavigation() {
 
   const handleCloseShare = useCallback(() => setShareVerse(null), []);
 
+  const handleChapterInput = () => {
+    const ch = Number(chapterInput);
+    if (ch >= 1 && ch <= (selectedBook?.chapters ?? 0)) {
+      handleSelectChapter(ch);
+      setChapterInput("");
+    }
+  };
+
   return (
     <><div className="bible-navigation">
       {step !== "book" && (
@@ -132,6 +141,26 @@ export function BibleNavigation() {
       {step === "chapter" && selectedBook && (
         <div>
           <h3 className="bible-chapter-title">{selectedBook.name}</h3>
+
+          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", alignItems: "center" }}>
+            <label htmlFor="chapter-input" style={{ fontSize: "var(--text-sm)", whiteSpace: "nowrap" }}>Capítulo:</label>
+            <input
+              id="chapter-input"
+              type="number"
+              min={1}
+              max={selectedBook.chapters}
+              value={chapterInput}
+              onChange={(e) => setChapterInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleChapterInput()}
+              style={{ flex: 1, maxWidth: 100, padding: "0.4rem 0.6rem", borderRadius: 6, border: "1px solid var(--color-neutral-300)", fontSize: "var(--text-base)" }}
+            />
+            <button className="bible-chapter-btn" onClick={handleChapterInput}>Ir</button>
+          </div>
+
+          <p style={{ textAlign: "center", color: "var(--color-neutral-400)", fontSize: "var(--text-sm)", marginBottom: "0.75rem" }}>
+            — ou clique abaixo —
+          </p>
+
           <div className="bible-chapters-grid">
             {Array.from(
               { length: selectedBook.chapters },
