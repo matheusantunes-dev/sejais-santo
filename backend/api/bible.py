@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from api.bible_repository import (
     get_books,
     get_chapter,
+    get_full_book,
     get_nav_context,
     get_verse_by_reference,
 )
@@ -59,6 +60,15 @@ def list_books(testament: str = Query(None, regex="^(AT|NT)?$")):
             for b in books
         ]
     }
+
+
+@router.get("/{book_slug}")
+def full_book(book_slug: str):
+    book_slug = _normalize_slug(book_slug)
+    data = get_full_book(book_slug)
+    if not data:
+        raise HTTPException(status_code=404, detail="Livro não encontrado")
+    return data
 
 
 @router.get("/{book_slug}/{chapter_number}")

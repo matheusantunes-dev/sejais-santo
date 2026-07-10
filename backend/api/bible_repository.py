@@ -52,6 +52,55 @@ def get_chapter(book_slug: str, chapter_number: int) -> Optional[dict]:
     }
 
 
+def get_full_book(book_slug: str) -> Optional[dict]:
+    supabase = get_supabase_client()
+    result = (
+        supabase.table("vw_bible_verses")
+        .select("*")
+        .eq("book_slug", book_slug)
+        .order("chapter_number")
+        .order("verse_number")
+        .execute()
+    )
+    rows = result.data or []
+    if not rows:
+        return None
+
+    book = {
+        "slug": rows[0]["book_slug"],
+        "name": rows[0]["book_name"],
+        "abbreviation": rows[0]["book_abbrev"].strip(),
+    }
+
+    chapters = []
+    current_ch = None
+    current_verses = []
+    for r in rows:
+        ch_num = r["chapter_number"]
+        if current_ch is None:
+            current_ch = ch_num
+        if ch_num != current_ch:
+            chapters.append({
+                "number": current_ch,
+                "verses_count": len(current_verses),
+                "verses": current_verses,
+            })
+            current_ch = ch_num
+            current_verses = []
+        current_verses.append({
+            "number": r["verse_number"],
+            "text": r["verse_text"],
+        })
+    if current_ch is not None:
+        chapters.append({
+            "number": current_ch,
+            "verses_count": len(current_verses),
+            "verses": current_verses,
+        })
+
+    return {"book": book, "chapters": chapters}
+
+
 def get_verse_by_reference(
     book_slug: str,
     chapter: int,

@@ -4,7 +4,7 @@ import { apiUrl } from "@/lib/api";
 import { VerseImageShareModal } from "./VerseImageShareModal";
 import "./BibleNavigation.css";
 
-type Step = "book" | "chapter" | "verses";
+type Step = "book" | "book-menu" | "verses" | "fullbook";
 
 interface VerseData {
   text: string;
@@ -12,11 +12,18 @@ interface VerseData {
   reference: string;
 }
 
+interface FullBookChapter {
+  number: number;
+  verses_count: number;
+  verses: Array<{ number: number; text: string }>;
+}
+
 export function BibleNavigation() {
   const [step, setStep] = useState<Step>("book");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [verses, setVerses] = useState<VerseData[]>([]);
+  const [fullBookData, setFullBookData] = useState<FullBookChapter[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [testament, setTestament] = useState<"AT" | "NT" | null>(null);
@@ -33,9 +40,27 @@ export function BibleNavigation() {
     setSelectedBook(book);
     setChapterInput("");
     setChapterError(null);
-    setStep("chapter");
-    setVerses([]);
     setError(null);
+    setVerses([]);
+    setFullBookData([]);
+    setStep("book-menu");
+  };
+
+  const handleReadChapter = () => {
+    const ch = Number(chapterInput);
+    if (!selectedBook) return;
+    if (ch < 1 || ch > selectedBook.chapters) {
+      setChapterError(`Capítulo inválido (1-${selectedBook.chapters})`);
+      return;
+    }
+    setChapterError(null);
+    setSelectedChapter(ch);
+    setStep("verses");
+  };
+
+  const handleReadFullBook = () => {
+    if (!selectedBook) return;
+    setStep("fullbook");
   };
 
   useEffect(() => {
@@ -44,7 +69,6 @@ export function BibleNavigation() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-
     setVerses([]);
     setLoading(true);
     setError(null);
@@ -77,48 +101,57 @@ export function BibleNavigation() {
         if (!controller.signal.aborted) setLoading(false);
       });
 
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, selectedBook?.id, selectedChapter]);
 
-  const handleSelectChapter = (chapter: number) => {
-    if (!selectedBook) return;
-    setSelectedChapter(chapter);
-    setStep("verses");
-  };
+  useEffect(() => {
+    if (step !== "fullbook" || !selectedBook) return;
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setFullBookData([]);
+    setLoading(true);
+    setError(null);
+
+    const book = selectedBook;
+
+    fetch(apiUrl(`/api/bible/${book.slug}`), {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar livro");
+        return res.json();
+      })
+      .then((data) => {
+        if (controller.signal.aborted) return;
+        setFullBookData(data.chapters || []);
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError("Não foi possível carregar o livro.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selectedBook?.id]);
 
   const handleBack = () => {
-    if (step === "verses") {
-      setStep("chapter");
+    if (step === "verses" || step === "fullbook") {
+      setStep("book-menu");
       setVerses([]);
-    } else if (step === "chapter") {
+      setFullBookData([]);
+    } else if (step === "book-menu") {
       setStep("book");
       setSelectedBook(null);
     }
   };
 
-  const handleCopyVerse = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-  }, []);
-
   const handleCloseShare = useCallback(() => setShareVerse(null), []);
-
-  const handleChapterInput = () => {
-    const ch = Number(chapterInput);
-    if (!selectedBook) {
-      setChapterError("Selecione um livro primeiro");
-      return;
-    }
-    if (ch < 1 || ch > selectedBook.chapters) {
-      setChapterError(`Capítulo inválido (1-${selectedBook.chapters})`);
-      return;
-    }
-    setChapterError(null);
-    handleSelectChapter(ch);
-    setChapterInput("");
-  };
 
   return (
     <><div className="bible-navigation">
@@ -165,43 +198,40 @@ export function BibleNavigation() {
         </div>
       )}
 
-      {step === "chapter" && selectedBook && (
-        <div>
-          <h3 className="bible-chapter-title">{selectedBook.name}</h3>
-
-          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", alignItems: "center" }}>
-            <label htmlFor="chapter-input" style={{ fontSize: "var(--text-sm)", whiteSpace: "nowrap" }}>Capítulo:</label>
-            <input
-              id="chapter-input"
-              type="number"
-              min={1}
-              max={selectedBook.chapters}
-              value={chapterInput}
-              onChange={(e) => setChapterInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChapterInput()}
-              style={{ flex: 1, maxWidth: 100, padding: "0.4rem 0.6rem", borderRadius: 6, border: "1px solid var(--color-neutral-300)", fontSize: "var(--text-base)" }}
-            />
-            <button className="bible-chapter-btn" onClick={handleChapterInput}>Ir</button>
-          </div>
-          {chapterError && <p className="bible-chapter-error">{chapterError}</p>}
-
-          <p style={{ textAlign: "center", color: "var(--color-neutral-400)", fontSize: "var(--text-sm)", marginBottom: "0.75rem" }}>
-            — ou clique abaixo —
+      {step === "book-menu" && selectedBook && (
+        <div className="bible-book-menu">
+          <h3 className="bible-book-menu-title">{selectedBook.name}</h3>
+          <p className="bible-book-menu-subtitle">
+            {selectedBook.chapters} capítulos • {selectedBook.testament === "AT" ? "Antigo" : "Novo"} Testamento
           </p>
 
-          <div className="bible-chapters-grid">
-            {Array.from(
-              { length: selectedBook.chapters },
-              (_, i) => i + 1
-            ).map((ch) => (
-              <button
-                key={ch}
-                className="bible-chapter-btn"
-                onClick={() => handleSelectChapter(ch)}
-              >
-                {ch}
-              </button>
-            ))}
+          <div className="bible-book-menu-cards">
+            <div className="bible-menu-card">
+              <span className="bible-menu-card-icon">📖</span>
+              <span className="bible-menu-card-title">Ler um capítulo específico</span>
+              <span className="bible-menu-card-desc">Escolha o número do capítulo</span>
+              <div className="bible-menu-card-input-row">
+                <input
+                  type="number"
+                  min={1}
+                  max={selectedBook.chapters}
+                  placeholder={`1-${selectedBook.chapters}`}
+                  value={chapterInput}
+                  onChange={(e) => setChapterInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleReadChapter()}
+                />
+                <button className="bible-menu-card-go" onClick={handleReadChapter}>Ir</button>
+              </div>
+              {chapterError && <p className="bible-chapter-error">{chapterError}</p>}
+            </div>
+
+            <button className="bible-menu-card" onClick={handleReadFullBook}>
+              <span className="bible-menu-card-icon">📚</span>
+              <span className="bible-menu-card-title">Ler livro completo</span>
+              <span className="bible-menu-card-desc">
+                Todos os {selectedBook.chapters} capítulos em sequência
+              </span>
+            </button>
           </div>
         </div>
       )}
@@ -224,6 +254,39 @@ export function BibleNavigation() {
                 >
                   <span className="bible-verse-num">{v.number}</span>
                   <span className="bible-verse-text">{v.text}</span>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+
+      {step === "fullbook" && (
+        <div className="bible-fullbook">
+          {loading && <p className="bible-loading">Carregando...</p>}
+          {error && <p className="bible-error">{error}</p>}
+          {!loading && !error && (
+            <>
+              <h3 className="bible-fullbook-title">{selectedBook?.name}</h3>
+              {fullBookData.map((ch) => (
+                <div key={ch.number} className="bible-fullbook-chapter">
+                  <h4 className="bible-fullbook-chapter-title">Capítulo {ch.number}</h4>
+                  {ch.verses.map((v) => {
+                    const ref = `${selectedBook?.name} ${ch.number}:${v.number}`;
+                    return (
+                      <div
+                        key={`${ch.number}-${v.number}`}
+                        className="bible-verse"
+                        onClick={() =>
+                          setShareVerse({ text: v.text, number: v.number, reference: ref })
+                        }
+                        title="Clique para compartilhar"
+                      >
+                        <span className="bible-verse-num">{v.number}</span>
+                        <span className="bible-verse-text">{v.text}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </>
