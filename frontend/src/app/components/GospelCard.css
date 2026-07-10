@@ -21,15 +21,22 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-inner);
   padding: var(--space-4);
-  height: 11rem;
+  max-height: 11rem;
+  min-height: 6rem;
   overflow-y: auto;
   border: 2px solid var(--color-neutral-300);
 }
 
 .gospel-content {
-  font-size: var(--text-5xl);
+  font-size: var(--text-3xl);
   color: var(--color-neutral-700);
   line-height: var(--leading-relaxed);
+}
+
+@media (min-width: 768px) {
+  .gospel-content {
+    font-size: var(--text-5xl);
+  }
 }
 
 .gospel-content > * {

@@ -70,7 +70,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 840px) {
+@media (max-width: 768px) {
   .modal-content.share-composer-modal {
     padding: 18px;
   }

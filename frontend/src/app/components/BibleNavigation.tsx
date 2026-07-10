@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { BOOKS, type Book } from "@/utils/books";
 import { apiUrl } from "@/lib/api";
+import { VerseImageShareModal } from "./VerseImageShareModal";
 import "./BibleNavigation.css";
 
 type Step = "book" | "chapter" | "verses";
@@ -19,6 +20,8 @@ export function BibleNavigation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [testament, setTestament] = useState<"AT" | "NT" | null>(null);
+  const [shareVerse, setShareVerse] = useState<VerseData | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const filteredBooks = testament
     ? BOOKS.filter((b) => b.testament === testament)
@@ -32,16 +35,24 @@ export function BibleNavigation() {
   };
 
   const handleSelectChapter = async (chapter: number) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setSelectedChapter(chapter);
     setStep("verses");
+    setVerses([]);
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/bible/${selectedBook!.slug}/${chapter}`));
+      const res = await fetch(apiUrl(`/api/bible/${selectedBook!.slug}/${chapter}`), {
+        signal: controller.signal,
+      });
       if (!res.ok) throw new Error("Erro ao buscar capítulo");
       const data = await res.json();
 
+      if (controller.signal.aborted) return;
       setVerses(
         (data.verses || []).map((v: any) => ({
           text: v.text,
@@ -50,9 +61,10 @@ export function BibleNavigation() {
         }))
       );
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setError("Não foi possível carregar o capítulo.");
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 
@@ -70,8 +82,10 @@ export function BibleNavigation() {
     navigator.clipboard.writeText(text);
   }, []);
 
+  const handleCloseShare = useCallback(() => setShareVerse(null), []);
+
   return (
-    <div className="bible-navigation">
+    <><div className="bible-navigation">
       {step !== "book" && (
         <button className="bible-back-btn" onClick={handleBack}>
           ← Voltar
@@ -148,8 +162,8 @@ export function BibleNavigation() {
                 <div
                   key={`${v.number}`}
                   className="bible-verse"
-                  onClick={() => handleCopyVerse(v.text)}
-                  title="Clique para copiar"
+                  onClick={() => setShareVerse(v)}
+                  title="Clique para compartilhar"
                 >
                   <span className="bible-verse-num">{v.number}</span>
                   <span className="bible-verse-text">{v.text}</span>
@@ -160,5 +174,19 @@ export function BibleNavigation() {
         </div>
       )}
     </div>
+      {shareVerse && (
+        <VerseImageShareModal
+          open={!!shareVerse}
+          onClose={handleCloseShare}
+          modalTitle="Compartilhar versículo"
+          helperText="Escolha um plano de fundo e compartilhe"
+          cardLabel="Palavra do Dia"
+          text={shareVerse.text}
+          reference={shareVerse.reference}
+          fileName={`versiculo-${shareVerse.reference.replace(/\s+/g, "-").replace(/:/g, "-").toLowerCase()}.png`}
+          shareTitle={`${shareVerse.reference} — Sejais Santo`}
+        />
+      )}
+    </>
   );
 }
