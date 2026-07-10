@@ -20,3 +20,11 @@
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.sobre-modal-content .modal-close {
+  color: white;
+}
+
+.sobre-modal-content .modal-close:hover {
+  color: var(--color-neutral-300);
+}
