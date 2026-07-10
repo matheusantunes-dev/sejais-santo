@@ -38,13 +38,15 @@
   cursor: pointer;
   line-height: 1;
   padding: var(--space-1);
-  color: var(--color-brand-brown-500);
+  color: white;
   font-size: var(--text-3xl);
-  transition: color var(--transition-fast);
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: opacity var(--transition-fast);
 }
 
 .modal-close:hover {
-  color: var(--color-brand-brown-700);
+  opacity: 0.8;
 }
 
 .modal-close:focus-visible {
