@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { BOOKS, type Book } from "@/utils/books";
 import { apiUrl } from "@/lib/api";
 import { VerseImageShareModal } from "./VerseImageShareModal";
@@ -22,8 +22,6 @@ export function BibleNavigation() {
   const [testament, setTestament] = useState<"AT" | "NT" | null>(null);
   const [shareVerse, setShareVerse] = useState<VerseData | null>(null);
   const [chapterInput, setChapterInput] = useState("");
-  const [directInput, setDirectInput] = useState("");
-  const [directError, setDirectError] = useState<string | null>(null);
   const [chapterError, setChapterError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -33,50 +31,62 @@ export function BibleNavigation() {
 
   const handleSelectBook = (book: Book) => {
     setSelectedBook(book);
+    setChapterInput("");
+    setChapterError(null);
     setStep("chapter");
     setVerses([]);
     setError(null);
   };
 
-  const handleNavigateToBookChapter = async (book: Book, chapter: number) => {
+  useEffect(() => {
+    if (step !== "verses" || !selectedBook || selectedChapter === null) return;
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setSelectedBook(book);
-    setSelectedChapter(chapter);
-    setStep("verses");
     setVerses([]);
     setLoading(true);
     setError(null);
-    setDirectError(null);
 
-    try {
-      const res = await fetch(apiUrl(`/api/bible/${book.slug}/${chapter}`), {
-        signal: controller.signal,
+    const book = selectedBook;
+    const chapter = selectedChapter;
+
+    fetch(apiUrl(`/api/bible/${book.slug}/${chapter}`), {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar capítulo");
+        return res.json();
+      })
+      .then((data) => {
+        if (controller.signal.aborted) return;
+        setVerses(
+          (data.verses || []).map((v: any) => ({
+            text: v.text,
+            number: v.number,
+            reference: `${book.name} ${chapter}:${v.number}`,
+          }))
+        );
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError("Não foi possível carregar o capítulo.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
-      if (!res.ok) throw new Error("Erro ao buscar capítulo");
-      const data = await res.json();
 
-      if (controller.signal.aborted) return;
-      setVerses(
-        (data.verses || []).map((v: any) => ({
-          text: v.text,
-          number: v.number,
-          reference: `${book.name} ${chapter}:${v.number}`,
-        }))
-      );
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      setError("Não foi possível carregar o capítulo.");
-    } finally {
-      if (!controller.signal.aborted) setLoading(false);
-    }
-  };
+    return () => {
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selectedBook?.id, selectedChapter]);
 
-  const handleSelectChapter = async (chapter: number) => {
+  const handleSelectChapter = (chapter: number) => {
     if (!selectedBook) return;
-    await handleNavigateToBookChapter(selectedBook, chapter);
+    setSelectedChapter(chapter);
+    setStep("verses");
   };
 
   const handleBack = () => {
@@ -110,57 +120,8 @@ export function BibleNavigation() {
     setChapterInput("");
   };
 
-  const handleDirectSearch = () => {
-    const trimmed = directInput.trim();
-    if (!trimmed) return;
-
-    const match = trimmed.match(/^(.+?)\s+(\d+)$/);
-    if (!match) {
-      setDirectError("Digite livro + capítulo (ex: Êxodo 22)");
-      return;
-    }
-
-    const bookQuery = match[1].trim().toLowerCase();
-    const chapterNum = parseInt(match[2], 10);
-
-    const book = BOOKS.find(
-      (b) =>
-        b.name.toLowerCase() === bookQuery ||
-        b.id === bookQuery ||
-        b.slug === bookQuery ||
-        b.name.toLowerCase().startsWith(bookQuery) ||
-        b.slug.startsWith(bookQuery)
-    );
-
-    if (!book) {
-      setDirectError("Livro não encontrado");
-      return;
-    }
-
-    if (chapterNum < 1 || chapterNum > book.chapters) {
-      setDirectError(`${book.name} tem apenas ${book.chapters} capítulos`);
-      return;
-    }
-
-    setDirectInput("");
-    setDirectError(null);
-    handleNavigateToBookChapter(book, chapterNum);
-  };
-
   return (
     <><div className="bible-navigation">
-      <div className="bible-direct-search">
-        <input
-          type="text"
-          className="bible-direct-search-input"
-          placeholder="Buscar livro + capítulo (ex: Êxodo 22)"
-          value={directInput}
-          onChange={(e) => { setDirectInput(e.target.value); setDirectError(null); }}
-          onKeyDown={(e) => e.key === "Enter" && handleDirectSearch()}
-        />
-        <button className="bible-direct-search-btn" onClick={handleDirectSearch}>Ir</button>
-      </div>
-      {directError && <p className="bible-search-error">{directError}</p>}
       {step !== "book" && (
         <button className="bible-back-btn" onClick={handleBack}>
           ← Voltar
