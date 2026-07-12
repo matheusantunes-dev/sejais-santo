@@ -18,6 +18,7 @@ TZ_BR = zoneinfo.ZoneInfo("America/Sao_Paulo")
 
 from api.supabase_storage import SupabaseStorage
 from api.gospel_cache import get_today_gospel, save_today_gospel
+from api.gospel_service import build_gospel_from_reference
 from api.bible import router as bible_router
 from api.liturgical_lib import (
     liturgical_color, color_label, get_today_liturgical, resolve_date,
@@ -75,9 +76,16 @@ def warm_gospel_cache():
                 _evangelho = (_data or {}).get("leituras", {}).get("evangelho", [])
                 if _evangelho:
                     _resolved = resolve_date(datetime.now(TZ_BR).date())
+                    _ref = _evangelho[0].get("referencia", "")
+                    try:
+                        _gospel_data = build_gospel_from_reference(_ref)
+                        _txt = _gospel_data["texto"]
+                    except (ValueError, Exception) as _exc:
+                        logger.warning("STARTUP fallback to external text: %s", _exc)
+                        _txt = _evangelho[0].get("texto", "")
                     save_today_gospel(
-                        referencia=_evangelho[0].get("referencia", ""),
-                        texto=_evangelho[0].get("texto", ""),
+                        referencia=_ref,
+                        texto=_txt,
                         liturgical_season=_resolved.get("season"),
                         sunday_cycle=_resolved.get("cycle"),
                         ferial_cycle=_resolved.get("ferial"),
@@ -366,7 +374,13 @@ def get_gospel():
         if evangelho:
             resolved = resolve_date(datetime.now(TZ_BR).date())
             ref = evangelho[0].get("referencia", "")
-            txt = evangelho[0].get("texto", "")
+
+            try:
+                gospel_data = build_gospel_from_reference(ref)
+                txt = gospel_data["texto"]
+            except (ValueError, Exception) as exc:
+                logger.warning("GOSPEL_ENDPOINT fallback to external text: %s", exc)
+                txt = evangelho[0].get("texto", "")
 
             liturgical = {
                 "season": resolved.get("season"),
@@ -401,8 +415,8 @@ def get_gospel():
             "cached": False,
             "leituras": {
                 "evangelho": [{
-                    "referencia": evangelho[0]["referencia"],
-                    "texto": evangelho[0]["texto"],
+                    "referencia": ref,
+                    "texto": txt,
                 }] if evangelho else []
             },
             "liturgical": liturgical,
