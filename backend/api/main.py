@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 TZ_BR = zoneinfo.ZoneInfo("America/Sao_Paulo")
 
 from api.supabase_storage import SupabaseStorage
-from api.gospel_cache import get_today_gospel, save_today_gospel
+from api.gospel_cache import get_today_gospel, save_today_gospel, delete_today_gospel
 from api.gospel_service import build_gospel_from_reference
 from api.bible import router as bible_router
 from api.liturgical_lib import (
@@ -61,6 +61,17 @@ def warm_gospel_cache():
     today_date = datetime.now(TZ_BR).date().isoformat()
     logger.warning("STARTUP checking gospel cache for %s", today_date)
     cached = get_today_gospel()
+
+    if cached:
+        _expected_key = resolve_date(datetime.now(TZ_BR).date())["key"]
+        if cached.get("liturgical_key") and cached["liturgical_key"] != _expected_key:
+            logger.warning(
+                "STARTUP cache stale liturgical_key mismatch: cached=%s expected=%s",
+                cached["liturgical_key"], _expected_key,
+            )
+            delete_today_gospel()
+            cached = None
+
     if cached:
         logger.warning("STARTUP gospel cache HIT — no external fetch needed")
     else:
@@ -305,6 +316,18 @@ def get_gospel():
     # --- CACHE CHECK ---
     t_cache_start = time.monotonic()
     cached = get_today_gospel()
+
+    if cached:
+        expected_key = resolve_date(datetime.now(TZ_BR).date())["key"]
+        if cached.get("liturgical_key") and cached["liturgical_key"] != expected_key:
+            logger.warning(
+                "GOSPEL_ENDPOINT cache stale liturgical_key mismatch: "
+                "cached=%s expected=%s date=%s",
+                cached["liturgical_key"], expected_key, today_str,
+            )
+            delete_today_gospel()
+            cached = None
+
     t_cache_done = time.monotonic()
     dt_cache = (t_cache_done - t_cache_start) * 1000
 

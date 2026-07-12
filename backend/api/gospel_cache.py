@@ -111,3 +111,10 @@ def save_today_gospel(
     t1 = time.monotonic()
     logger.warning("GOSPEL_CACHE save=%.0fms date=%s mem_stored=true",
                    (t1 - t0) * 1000, today)
+
+
+def delete_today_gospel() -> None:
+    supabase = _get_cached_client()
+    today = _today_str()
+    supabase.table("daily_gospel").delete().eq("date", today).execute()
+    logger.warning("GOSPEL_CACHE deleted date=%s", today)
