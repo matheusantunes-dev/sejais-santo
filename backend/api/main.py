@@ -9,9 +9,12 @@ from jose import JWTError, jws
 import jwt as pyjwt
 from jwt import PyJWKClient, PyJWTError
 import os
-from datetime import date
+from datetime import datetime
+import zoneinfo
 
 logger = logging.getLogger(__name__)
+
+TZ_BR = zoneinfo.ZoneInfo("America/Sao_Paulo")
 
 from api.supabase_storage import SupabaseStorage
 from api.gospel_cache import get_today_gospel, save_today_gospel
@@ -46,6 +49,49 @@ app.add_middleware(
 
 
 app.include_router(bible_router)
+
+
+# =========================
+# STARTUP — pre-fetch gospel
+# =========================
+
+@app.on_event("startup")
+def warm_gospel_cache():
+    today_date = datetime.now(TZ_BR).date().isoformat()
+    logger.warning("STARTUP checking gospel cache for %s", today_date)
+    cached = get_today_gospel()
+    if cached:
+        logger.warning("STARTUP gospel cache HIT — no external fetch needed")
+    else:
+        logger.warning("STARTUP gospel cache MISS — fetching from external API")
+        try:
+            _resp = requests.get(
+                "https://liturgia.up.railway.app/v2",
+                headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
+                timeout=10,
+            )
+            if _resp.status_code == 200:
+                _data = _resp.json()
+                _evangelho = (_data or {}).get("leituras", {}).get("evangelho", [])
+                if _evangelho:
+                    _resolved = resolve_date(datetime.now(TZ_BR).date())
+                    save_today_gospel(
+                        referencia=_evangelho[0].get("referencia", ""),
+                        texto=_evangelho[0].get("texto", ""),
+                        liturgical_season=_resolved.get("season"),
+                        sunday_cycle=_resolved.get("cycle"),
+                        ferial_cycle=_resolved.get("ferial"),
+                        week_number=_resolved.get("week"),
+                        liturgical_key=_resolved.get("key"),
+                    )
+                    logger.warning("STARTUP gospel pre-fetched and saved")
+                else:
+                    logger.warning("STARTUP external API returned no evangelho")
+            else:
+                logger.warning("STARTUP external API returned status %d", _resp.status_code)
+        except Exception as _exc:
+            logger.warning("STARTUP external API error: %s", _exc)
+
 
 # =========================
 # STORAGE FACTORY
@@ -194,7 +240,7 @@ def delete_verse(
 
 @app.get("/liturgical/today")
 def liturgical_today():
-    today = date.today()
+    today = datetime.now(TZ_BR).date()
     resolved = resolve_date(today)
     color = liturgical_color(today)
     saint = today_saint()
@@ -222,7 +268,7 @@ def liturgical_today():
 
 @app.get("/liturgical/color")
 def liturgical_color_endpoint():
-    today = date.today()
+    today = datetime.now(TZ_BR).date()
     color = liturgical_color(today)
     return {
         "theme": color,
@@ -246,7 +292,7 @@ def liturgical_saints():
 @app.get("/gospel")
 def get_gospel():
     t_start = time.monotonic()
-    today_str = date.today().isoformat()
+    today_str = datetime.now(TZ_BR).date().isoformat()
 
     # --- CACHE CHECK ---
     t_cache_start = time.monotonic()
@@ -318,7 +364,7 @@ def get_gospel():
         liturgical = None
 
         if evangelho:
-            resolved = resolve_date(date.today())
+            resolved = resolve_date(datetime.now(TZ_BR).date())
             ref = evangelho[0].get("referencia", "")
             txt = evangelho[0].get("texto", "")
 
