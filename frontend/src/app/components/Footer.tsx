@@ -33,6 +33,7 @@ export function Footer() {
       name: "Raimundo Barbosa Ferreira",
       linkedin: "https://www.linkedin.com/in/raimundo-barbosa-ferreira-66330339/",
       phones: ["+553888459319"],
+      email: "raimundo2704@gmail.com",
     },
   ];
 
@@ -67,6 +68,9 @@ export function Footer() {
               </a>
               <a href="mailto:Fredjoaquimsocial@gmail.com" aria-label="Enviar email para Fred Joaquim">
                 Fredjoaquimsocial@gmail.com
+              </a>
+              <a href="mailto:raimundo2704@gmail.com" aria-label="Enviar email para Fred Joaquim">
+                raimundo2704@gmail.com
               </a>
             </div>
           </div>
